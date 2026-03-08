@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Dimensions — Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: #0A0A0A; color: #E8E4DE; min-height: 100vh; }
+
+    /* Login Screen */
+    .login-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0A0A0A, #1A1714);
+    }
+    .login-box {
+      width: 380px; padding: 48px 40px; border: 1px solid rgba(154,135,119,0.2);
+      text-align: center;
+    }
+    .login-box h1 {
+      font-size: 14px; font-weight: 600; letter-spacing: 4px;
+      text-transform: uppercase; color: #9A8777; margin-bottom: 8px;
+    }
+    .login-box p { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.3); margin-bottom: 32px; }
+    .login-input {
+      width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(154,135,119,0.2); color: #fff;
+      font-family: 'Montserrat', sans-serif; font-size: 13px; outline: none;
+      margin-bottom: 16px; transition: border-color 0.3s;
+    }
+    .login-input:focus { border-color: #9A8777; }
+    .login-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg, #9A8777, #C4A97D);
+      border: none; color: #fff; font-family: 'Montserrat', sans-serif;
+      font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+      cursor: pointer; transition: opacity 0.3s;
+    }
+    .login-btn:hover { opacity: 0.9; }
+    .login-error { color: #ef4444; font-size: 12px; margin-top: 12px; display: none; }
+
+    /* Admin Layout */
+    .admin { display: none; }
+    .admin.active { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px; background: #111; border-right: 1px solid rgba(154,135,119,0.1);
+      padding: 24px 0; position: fixed; top: 0; bottom: 0; overflow-y: auto;
+    }
+    .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid rgba(154,135,119,0.1); margin-bottom: 16px; }
+    .sidebar-logo h2 { font-size: 12px; font-weight: 600; letter-spacing: 3px; color: #9A8777; text-transform: uppercase; }
+    .sidebar-logo span { font-size: 10px; font-weight: 300; color: rgba(255,255,255,0.3); }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 12px; padding: 12px 24px;
+      text-decoration: none; color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 400;
+      transition: all 0.2s; letter-spacing: 0.5px;
+    }
+    .sidebar-nav a:hover { color: #fff; background: rgba(154,135,119,0.08); }
+    .sidebar-nav a.active { color: #9A8777; background: rgba(154,135,119,0.1); border-right: 2px solid #9A8777; }
+    .sidebar-nav a .icon { width: 18px; text-align: center; opacity: 0.6; }
+
+    .main { flex: 1; margin-left: 260px; padding: 32px 40px; }
+    .main-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid rgba(154,135,119,0.1);
+    }
+    .main-header h1 { font-size: 24px; font-weight: 300; color: #E8E4DE; }
+    .badge { font-size: 10px; font-weight: 500; letter-spacing: 1px; color: #9A8777; background: rgba(154,135,119,0.1); padding: 4px 10px; border-radius: 4px; }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 24px; font-family: 'Montserrat', sans-serif; font-size: 11px;
+      font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.3s; border: none;
+    }
+    .btn-primary { background: linear-gradient(135deg, #9A8777, #C4A97D); color: #fff; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-outline { background: none; border: 1px solid rgba(154,135,119,0.3); color: #9A8777; }
+    .btn-outline:hover { border-color: #9A8777; background: rgba(154,135,119,0.1); }
+    .btn-danger { background: none; border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+    .btn-danger:hover { background: rgba(239,68,68,0.1); }
+    .btn-sm { padding: 6px 14px; font-size: 10px; }
+
+    /* Form Elements */
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: block; font-size: 10px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: #9A8777; margin-bottom: 8px;
+    }
+    .form-input, .form-textarea, .form-select {
+      width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(154,135,119,0.15); color: #fff;
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      outline: none; transition: border-color 0.3s;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: #9A8777; }
+    .form-textarea { min-height: 100px; resize: vertical; }
+    .form-select { cursor: pointer; }
+    .form-select option { background: #1a1a1a; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-hint { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 4px; }
+
+    /* Cards Grid */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .card {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(154,135,119,0.1);
+      padding: 20px; transition: border-color 0.3s;
+    }
+    .card:hover { border-color: rgba(154,135,119,0.3); }
+    .card-img {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover; margin-bottom: 16px;
+      background: rgba(255,255,255,0.05);
+    }
+    .card-title { font-size: 16px; font-weight: 400; color: #E8E4DE; margin-bottom: 4px; }
+    .card-meta { font-size: 11px; font-weight: 300; color: rgba(255,255,255,0.3); margin-bottom: 12px; }
+    .card-actions { display: flex; gap: 8px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      width: 600px; max-height: 80vh; overflow-y: auto; background: #1a1a1a;
+      border: 1px solid rgba(154,135,119,0.2); padding: 32px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h2 { font-size: 18px; font-weight: 400; }
+    .modal-close { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 20px; cursor: pointer; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(154,135,119,0.1); }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: #1a1a1a;
+      border: 1px solid rgba(154,135,119,0.3); padding: 14px 24px;
+      font-size: 13px; color: #9A8777; z-index: 2000;
+      animation: slideUp 0.3s ease, fadeOut 0.3s ease 2.5s forwards;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+    /* Export Section */
+    .export-box {
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(154,135,119,0.1);
+      padding: 24px; margin-top: 24px;
+    }
+    .export-box pre {
+      background: rgba(0,0,0,0.3); padding: 16px; font-size: 11px;
+      color: rgba(255,255,255,0.5); overflow-x: auto; max-height: 300px;
+      font-family: 'Courier New', monospace; margin-top: 12px; white-space: pre-wrap;
+    }
+
+    /* Image Preview */
+    .img-preview {
+      width: 100%; max-height: 200px; object-fit: cover; margin-top: 8px;
+      border: 1px solid rgba(154,135,119,0.1);
+    }
+    .img-preview-small { width: 60px; height: 60px; object-fit: cover; border: 1px solid rgba(154,135,119,0.1); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <h1>The Dimensions</h1>
+    <p>Admin Panel — Content Management</p>
+    <input class="login-input" type="password" id="login-password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Access Dashboard</button>
+    <div class="login-error" id="login-error">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PANEL ═══ -->
+<div class="admin" id="admin-panel">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h2>The Dimensions</h2>
+      <span>Content Manager</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="active" onclick="showSection('dashboard',this)"><span class="icon">◻</span> Dashboard</a>
+      <a href="#" onclick="showSection('projects',this)"><span class="icon">▤</span> Projects</a>
+      <a href="#" onclick="showSection('team',this)"><span class="icon">◉</span> Team</a>
+      <a href="#" onclick="showSection('testimonials',this)"><span class="icon">❝</span> Testimonials</a>
+      <a href="#" onclick="showSection('company',this)"><span class="icon">◈</span> Company Info</a>
+      <a href="#" onclick="showSection('press',this)"><span class="icon">◎</span> Press</a>
+      <a href="#" onclick="showSection('export',this)"><span class="icon">↗</span> Export Data</a>
+    </nav>
+  </div>
+
+  <div class="main">
+
+    <!-- ─── Dashboard ─── -->
+    <div class="section active" id="section-dashboard">
+      <div class="main-header">
+        <h1>Dashboard</h1>
+        <span class="badge">Admin</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px">
+        <div class="card" style="text-align:center;padding:24px">
+          <div style="font-size:36px;font-weight:300;color:#9A8777" id="stat-projects">0</div>
+          <div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:4px">Projects</div>
+        </div>
+        <div class="card" style="text-align:center;padding:24px">
+          <div style="font-size:36px;font-weight:300;color:#9A8777" id="stat-team">0</div>
+          <div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:4px">Team Members</div>
+        </div>
+        <div class="card" style="text-align:center;padding:24px">
+          <div style="font-size:36px;font-weight:300;color:#9A8777" id="stat-testimonials">0</div>
+          <div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:4px">Testimonials</div>
+        </div>
+        <div class="card" style="text-align:center;padding:24px">
+          <div style="font-size:36px;font-weight:300;color:#9A8777" id="stat-press">0</div>
+          <div style="font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:4px">Press Articles</div>
+        </div>
+      </div>
+      <div class="card" style="padding:24px">
+        <h3 style="font-size:14px;font-weight:500;margin-bottom:12px;color:#9A8777">Quick Guide</h3>
+        <p style="font-size:13px;font-weight:300;line-height:1.8;color:rgba(255,255,255,0.5)">
+          Welcome to your content management panel. Use the sidebar to navigate between sections.
+          Add, edit, or delete content as needed. When you're done, go to <strong style="color:#9A8777">Export Data</strong>
+          to generate a JSON file. Send that file to your developer (or paste it into your site's data file)
+          to update the live website.
+        </p>
+        <p style="font-size:13px;font-weight:300;line-height:1.8;color:rgba(255,255,255,0.5);margin-top:12px">
+          <strong style="color:#9A8777">For images:</strong> Upload your photos to
+          <a href="https://imgbb.com" target="_blank" style="color:#C4A97D">imgbb.com</a> (free, no signup needed),
+          then paste the direct image URL here. For best results, use images at least 1200px wide.
+        </p>
+      </div>
+    </div>
+
+    <!-- ─── Projects ─── -->
+    <div class="section" id="section-projects" style="display:none">
+      <div class="main-header">
+        <h1>Projects</h1>
+        <button class="btn btn-primary" onclick="openProjectModal()">+ Add Project</button>
+      </div>
+      <div class="cards-grid" id="projects-grid"></div>
+    </div>
+
+    <!-- ─── Team ─── -->
+    <div class="section" id="section-team" style="display:none">
+      <div class="main-header">
+        <h1>Team Members</h1>
+        <button class="btn btn-primary" onclick="openTeamModal()">+ Add Member</button>
+      </div>
+      <div class="cards-grid" id="team-grid"></div>
+    </div>
+
+    <!-- ─── Testimonials ─── -->
+    <div class="section" id="section-testimonials" style="display:none">
+      <div class="main-header">
+        <h1>Testimonials</h1>
+        <button class="btn btn-primary" onclick="openTestimonialModal()">+ Add Testimonial</button>
+      </div>
+      <div class="cards-grid" id="testimonials-grid"></div>
+    </div>
+
+    <!-- ─── Company Info ─── -->
+    <div class="section" id="section-company" style="display:none">
+      <div class="main-header">
+        <h1>Company Information</h1>
+        <button class="btn btn-primary" onclick="saveCompany()">Save Changes</button>
+      </div>
+      <div style="max-width:700px">
+        <div class="form-group">
+          <label class="form-label">Tagline</label>
+          <input class="form-input" id="company-tagline" placeholder="e.g. Crafting Timeless Spaces" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">About Us — Main Description</label>
+          <textarea class="form-textarea" id="company-about" rows="5" placeholder="Your company story..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Design Philosophy Quote</label>
+          <textarea class="form-textarea" id="company-philosophy" rows="3" placeholder="Your design philosophy..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Philosophy Attribution</label>
+          <input class="form-input" id="company-philosophy-author" placeholder="e.g. Principal Architect, The Dimensions" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input class="form-input" id="company-phone" placeholder="+91 253 258 1707" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="company-email" placeholder="info@thedimensions.co" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Office Address</label>
+          <textarea class="form-textarea" id="company-address" rows="3" placeholder="Your office address..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp Number (with country code, no spaces)</label>
+          <input class="form-input" id="company-whatsapp" placeholder="912532581707" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Years of Experience</label>
+            <input class="form-input" type="number" id="company-years" placeholder="25" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Projects</label>
+            <input class="form-input" type="number" id="company-projects" placeholder="100" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Cities</label>
+            <input class="form-input" type="number" id="company-cities" placeholder="10" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Happy Clients</label>
+            <input class="form-input" type="number" id="company-clients" placeholder="100" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Working Hours</label>
+          <input class="form-input" id="company-hours" placeholder="Monday — Saturday: 10:00 AM — 7:00 PM" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Press ─── -->
+    <div class="section" id="section-press" style="display:none">
+      <div class="main-header">
+        <h1>Press & Media</h1>
+        <button class="btn btn-primary" onclick="openPressModal()">+ Add Article</button>
+      </div>
+      <div class="cards-grid" id="press-grid"></div>
+    </div>
+
+    <!-- ─── Export ─── -->
+    <div class="section" id="section-export" style="display:none">
+      <div class="main-header">
+        <h1>Export Data</h1>
+        <button class="btn btn-primary" onclick="downloadJSON()">↓ Download JSON</button>
+      </div>
+      <p style="font-size:13px;font-weight:300;line-height:1.8;color:rgba(255,255,255,0.5);margin-bottom:16px">
+        This exports all your content as a JSON file. To update your live website:
+      </p>
+      <ol style="font-size:13px;font-weight:300;line-height:2;color:rgba(255,255,255,0.4);padding-left:20px;margin-bottom:24px">
+        <li>Click <strong style="color:#9A8777">Download JSON</strong></li>
+        <li>Rename it to <code style="color:#C4A97D;background:rgba(255,255,255,0.05);padding:2px 6px">site-data.json</code></li>
+        <li>Upload it to your Cloudflare Pages project alongside <code style="color:#C4A97D;background:rgba(255,255,255,0.05);padding:2px 6px">index.html</code></li>
+        <li>Your website will automatically pull the new content</li>
+      </ol>
+      <div class="export-box">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:500;letter-spacing:2px;color:#9A8777;text-transform:uppercase">Preview</span>
+          <button class="btn btn-outline btn-sm" onclick="copyJSON()">Copy to Clipboard</button>
+        </div>
+        <pre id="export-preview"></pre>
+      </div>
+      <div class="export-box" style="margin-top:16px">
+        <span style="font-size:11px;font-weight:500;letter-spacing:2px;color:#9A8777;text-transform:uppercase">Import Data</span>
+        <p style="font-size:12px;color:rgba(255,255,255,0.3);margin:8px 0">Load a previously exported JSON file:</p>
+        <input type="file" accept=".json" onchange="importJSON(event)" style="color:rgba(255,255,255,0.4);font-size:12px" />
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── Modal Container ─── -->
+<div id="modal-container"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA STORE
+// ═══════════════════════════════════════════════════════════════════════════
+// SHA-256 hash of the admin password (never store plaintext in a public repo)
+const ADMIN_PASSWORD_HASH = '47de50bae95eed5ad0d8acbf3d227ecab90638b3d3c12d1097c2e7ad5127c9da';
+
+let siteData = {
+  company: {
+    tagline: 'Crafting Timeless Spaces',
+    about: 'The Dimensions is a leading architectural and interior design firm based in Nashik, with over 25 years of expertise in creating spaces that blend functionality, aesthetics, and sustainability. From visionary concepts to inspiring built environments — we turn ideas into reality.',
+    philosophy: 'We believe that great architecture is not about imposing form, but about discovering the natural harmony between space, light, material, and the lives that unfold within. Every project is an opportunity to create something that endures — not just structurally, but emotionally.',
+    philosophyAuthor: 'Principal Architect, The Dimensions',
+    phone: '+91 253 258 1707',
+    email: 'info@thedimensions.co',
+    address: 'Aditya Towers, 1, near Gurukripa Buildcon, Canada Corner, Nashik, Maharashtra 422002',
+    whatsapp: '912532581707',
+    years: 25, projects: 100, cities: 10, clients: 100,
+    hours: 'Monday — Saturday: 10:00 AM — 7:00 PM'
+  },
+  projects: [
+    { id: 1, title: 'Project One', category: 'Residential', location: 'Nashik', year: '2023', description: 'A luxury residential project.', imageUrl: '', featured: true },
+    { id: 2, title: 'Project Two', category: 'Commercial', location: 'Pune', year: '2022', description: 'A modern commercial space.', imageUrl: '', featured: true },
+  ],
+  team: [
+    { id: 1, name: 'Founder Name', role: 'Principal Architect & Founder', imageUrl: '', bio: '' },
+  ],
+  testimonials: [
+    { id: 1, quote: 'The Dimensions transformed our vision into a home that truly reflects who we are. Their attention to detail is unmatched.', name: 'Rajesh & Priya Kulkarni', project: 'Villa Serenity, Nashik' },
+  ],
+  press: [
+    { id: 1, source: 'Architecture Digest India', title: 'The Dimensions: Redefining Nashik\'s Architectural Identity', date: 'January 2024', url: '', imageUrl: '' },
+  ]
+};
+
+// Load from localStorage if available
+const saved = localStorage.getItem('td_site_data');
+if (saved) { try { siteData = JSON.parse(saved); } catch(e) {} }
+
+function saveData() {
+  localStorage.setItem('td_site_data', JSON.stringify(siteData));
+  updateDashboardStats();
+  showToast('Changes saved successfully');
+}
+
+function nextId(arr) { return arr.length ? Math.max(...arr.map(i => i.id)) + 1 : 1; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════════════════════
+async function doLogin() {
+  const pw = document.getElementById('login-password').value;
+  const encoded = new TextEncoder().encode(pw);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+  const hashHex = Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+  if (hashHex === ADMIN_PASSWORD_HASH) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').classList.add('active');
+    initAdmin();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
+function showSection(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.getElementById('section-' + name).style.display = 'block';
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (name === 'export') updateExportPreview();
+  if (name === 'company') loadCompanyForm();
+  event?.preventDefault();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════
+function updateDashboardStats() {
+  document.getElementById('stat-projects').textContent = siteData.projects.length;
+  document.getElementById('stat-team').textContent = siteData.team.length;
+  document.getElementById('stat-testimonials').textContent = siteData.testimonials.length;
+  document.getElementById('stat-press').textContent = siteData.press.length;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROJECTS CRUD
+// ═══════════════════════════════════════════════════════════════════════════
+function renderProjects() {
+  const grid = document.getElementById('projects-grid');
+  grid.innerHTML = siteData.projects.map(p => `
+    <div class="card">
+      ${p.imageUrl ? `<img class="card-img" src="${esc(p.imageUrl)}" alt="${esc(p.title)}" />` : `<div class="card-img" style="display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:12px">No image</div>`}
+      <div class="card-title">${esc(p.title)}</div>
+      <div class="card-meta">${esc(p.category)} · ${esc(p.location)} · ${esc(p.year)} ${p.featured ? '⭐' : ''}</div>
+      <div class="card-actions">
+        <button class="btn btn-outline btn-sm" onclick="openProjectModal(${p.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProject(${p.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openProjectModal(id) {
+  const p = id ? siteData.projects.find(x => x.id === id) : null;
+  showModal(`${p ? 'Edit' : 'Add'} Project`, `
+    <div class="form-group"><label class="form-label">Project Title</label><input class="form-input" id="m-proj-title" value="${esc(p?.title||'')}" /></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-select" id="m-proj-cat">
+          <option ${p?.category==='Residential'?'selected':''}>Residential</option>
+          <option ${p?.category==='Commercial'?'selected':''}>Commercial</option>
+          <option ${p?.category==='Industrial'?'selected':''}>Industrial</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Year</label><input class="form-input" id="m-proj-year" value="${esc(p?.year||'2024')}" /></div>
+    </div>
+    <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="m-proj-loc" value="${esc(p?.location||'')}" placeholder="e.g. Nashik" /></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="m-proj-desc">${esc(p?.description||'')}</textarea></div>
+    <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" id="m-proj-img" value="${esc(p?.imageUrl||'')}" placeholder="https://i.ibb.co/..." oninput="previewImg(this,'m-proj-preview')" /><div class="form-hint">Upload to imgbb.com and paste the direct link</div>${p?.imageUrl?`<img class="img-preview" id="m-proj-preview" src="${esc(p.imageUrl)}"/>`:`<img class="img-preview" id="m-proj-preview" style="display:none"/>`}</div>
+    <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="m-proj-featured" ${p?.featured?'checked':''}/><span class="form-label" style="margin:0">Featured on Homepage</span></label></div>
+  `, () => {
+    const data = {
+      id: p ? p.id : nextId(siteData.projects),
+      title: document.getElementById('m-proj-title').value,
+      category: document.getElementById('m-proj-cat').value,
+      year: document.getElementById('m-proj-year').value,
+      location: document.getElementById('m-proj-loc').value,
+      description: document.getElementById('m-proj-desc').value,
+      imageUrl: document.getElementById('m-proj-img').value,
+      featured: document.getElementById('m-proj-featured').checked,
+    };
+    if (p) Object.assign(p, data); else siteData.projects.push(data);
+    saveData(); renderProjects(); closeModal();
+  });
+}
+
+function deleteProject(id) {
+  if (!confirm('Delete this project?')) return;
+  siteData.projects = siteData.projects.filter(p => p.id !== id);
+  saveData(); renderProjects();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TEAM CRUD
+// ═══════════════════════════════════════════════════════════════════════════
+function renderTeam() {
+  const grid = document.getElementById('team-grid');
+  grid.innerHTML = siteData.team.map(t => `
+    <div class="card">
+      ${t.imageUrl ? `<img class="card-img" src="${esc(t.imageUrl)}" style="aspect-ratio:3/4" />` : `<div class="card-img" style="aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:12px">No photo</div>`}
+      <div class="card-title">${esc(t.name)}</div>
+      <div class="card-meta">${esc(t.role)}</div>
+      <div class="card-actions">
+        <button class="btn btn-outline btn-sm" onclick="openTeamModal(${t.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTeam(${t.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openTeamModal(id) {
+  const t = id ? siteData.team.find(x => x.id === id) : null;
+  showModal(`${t ? 'Edit' : 'Add'} Team Member`, `
+    <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="m-team-name" value="${esc(t?.name||'')}" /></div>
+    <div class="form-group"><label class="form-label">Role / Title</label><input class="form-input" id="m-team-role" value="${esc(t?.role||'')}" placeholder="e.g. Senior Architect" /></div>
+    <div class="form-group"><label class="form-label">Bio (optional)</label><textarea class="form-textarea" id="m-team-bio">${esc(t?.bio||'')}</textarea></div>
+    <div class="form-group"><label class="form-label">Photo URL</label><input class="form-input" id="m-team-img" value="${esc(t?.imageUrl||'')}" oninput="previewImg(this,'m-team-preview')" />${t?.imageUrl?`<img class="img-preview" id="m-team-preview" src="${esc(t.imageUrl)}"/>`:`<img class="img-preview" id="m-team-preview" style="display:none"/>`}</div>
+  `, () => {
+    const data = { id: t ? t.id : nextId(siteData.team), name: document.getElementById('m-team-name').value, role: document.getElementById('m-team-role').value, bio: document.getElementById('m-team-bio').value, imageUrl: document.getElementById('m-team-img').value };
+    if (t) Object.assign(t, data); else siteData.team.push(data);
+    saveData(); renderTeam(); closeModal();
+  });
+}
+
+function deleteTeam(id) {
+  if (!confirm('Delete this team member?')) return;
+  siteData.team = siteData.team.filter(t => t.id !== id);
+  saveData(); renderTeam();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TESTIMONIALS CRUD
+// ═══════════════════════════════════════════════════════════════════════════
+function renderTestimonials() {
+  const grid = document.getElementById('testimonials-grid');
+  grid.innerHTML = siteData.testimonials.map(t => `
+    <div class="card">
+      <div style="font-size:32px;color:rgba(154,135,119,0.2);line-height:1;margin-bottom:8px">"</div>
+      <div class="card-title" style="font-size:14px;font-weight:300;line-height:1.6;font-style:italic">${esc(t.quote).substring(0,100)}...</div>
+      <div class="card-meta" style="margin-top:12px">${esc(t.name)} — ${esc(t.project)}</div>
+      <div class="card-actions">
+        <button class="btn btn-outline btn-sm" onclick="openTestimonialModal(${t.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTestimonial(${t.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openTestimonialModal(id) {
+  const t = id ? siteData.testimonials.find(x => x.id === id) : null;
+  showModal(`${t ? 'Edit' : 'Add'} Testimonial`, `
+    <div class="form-group"><label class="form-label">Client Quote</label><textarea class="form-textarea" id="m-test-quote" rows="4">${esc(t?.quote||'')}</textarea></div>
+    <div class="form-group"><label class="form-label">Client Name</label><input class="form-input" id="m-test-name" value="${esc(t?.name||'')}" /></div>
+    <div class="form-group"><label class="form-label">Project Name</label><input class="form-input" id="m-test-project" value="${esc(t?.project||'')}" placeholder="e.g. Villa Serenity, Nashik" /></div>
+  `, () => {
+    const data = { id: t ? t.id : nextId(siteData.testimonials), quote: document.getElementById('m-test-quote').value, name: document.getElementById('m-test-name').value, project: document.getElementById('m-test-project').value };
+    if (t) Object.assign(t, data); else siteData.testimonials.push(data);
+    saveData(); renderTestimonials(); closeModal();
+  });
+}
+
+function deleteTestimonial(id) {
+  if (!confirm('Delete this testimonial?')) return;
+  siteData.testimonials = siteData.testimonials.filter(t => t.id !== id);
+  saveData(); renderTestimonials();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PRESS CRUD
+// ═══════════════════════════════════════════════════════════════════════════
+function renderPress() {
+  const grid = document.getElementById('press-grid');
+  grid.innerHTML = siteData.press.map(p => `
+    <div class="card">
+      <div class="card-title">${esc(p.title)}</div>
+      <div class="card-meta">${esc(p.source)} · ${esc(p.date)}</div>
+      <div class="card-actions" style="margin-top:8px">
+        <button class="btn btn-outline btn-sm" onclick="openPressModal(${p.id})">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePress(${p.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openPressModal(id) {
+  const p = id ? siteData.press.find(x => x.id === id) : null;
+  showModal(`${p ? 'Edit' : 'Add'} Press Article`, `
+    <div class="form-group"><label class="form-label">Publication / Source</label><input class="form-input" id="m-press-source" value="${esc(p?.source||'')}" placeholder="e.g. Architecture Digest India" /></div>
+    <div class="form-group"><label class="form-label">Article Title</label><input class="form-input" id="m-press-title" value="${esc(p?.title||'')}" /></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="m-press-date" value="${esc(p?.date||'')}" placeholder="e.g. January 2024" /></div>
+    <div class="form-group"><label class="form-label">Article URL (optional)</label><input class="form-input" id="m-press-url" value="${esc(p?.url||'')}" /></div>
+    <div class="form-group"><label class="form-label">Cover Image URL (optional)</label><input class="form-input" id="m-press-img" value="${esc(p?.imageUrl||'')}" oninput="previewImg(this,'m-press-preview')" />${p?.imageUrl?`<img class="img-preview" id="m-press-preview" src="${esc(p.imageUrl)}"/>`:`<img class="img-preview" id="m-press-preview" style="display:none"/>`}</div>
+  `, () => {
+    const data = { id: p ? p.id : nextId(siteData.press), source: document.getElementById('m-press-source').value, title: document.getElementById('m-press-title').value, date: document.getElementById('m-press-date').value, url: document.getElementById('m-press-url').value, imageUrl: document.getElementById('m-press-img').value };
+    if (p) Object.assign(p, data); else siteData.press.push(data);
+    saveData(); renderPress(); closeModal();
+  });
+}
+
+function deletePress(id) {
+  if (!confirm('Delete this article?')) return;
+  siteData.press = siteData.press.filter(p => p.id !== id);
+  saveData(); renderPress();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPANY
+// ═══════════════════════════════════════════════════════════════════════════
+function loadCompanyForm() {
+  const c = siteData.company;
+  document.getElementById('company-tagline').value = c.tagline || '';
+  document.getElementById('company-about').value = c.about || '';
+  document.getElementById('company-philosophy').value = c.philosophy || '';
+  document.getElementById('company-philosophy-author').value = c.philosophyAuthor || '';
+  document.getElementById('company-phone').value = c.phone || '';
+  document.getElementById('company-email').value = c.email || '';
+  document.getElementById('company-address').value = c.address || '';
+  document.getElementById('company-whatsapp').value = c.whatsapp || '';
+  document.getElementById('company-years').value = c.years || '';
+  document.getElementById('company-projects').value = c.projects || '';
+  document.getElementById('company-cities').value = c.cities || '';
+  document.getElementById('company-clients').value = c.clients || '';
+  document.getElementById('company-hours').value = c.hours || '';
+}
+
+function saveCompany() {
+  siteData.company = {
+    tagline: document.getElementById('company-tagline').value,
+    about: document.getElementById('company-about').value,
+    philosophy: document.getElementById('company-philosophy').value,
+    philosophyAuthor: document.getElementById('company-philosophy-author').value,
+    phone: document.getElementById('company-phone').value,
+    email: document.getElementById('company-email').value,
+    address: document.getElementById('company-address').value,
+    whatsapp: document.getElementById('company-whatsapp').value,
+    years: parseInt(document.getElementById('company-years').value) || 0,
+    projects: parseInt(document.getElementById('company-projects').value) || 0,
+    cities: parseInt(document.getElementById('company-cities').value) || 0,
+    clients: parseInt(document.getElementById('company-clients').value) || 0,
+    hours: document.getElementById('company-hours').value,
+  };
+  saveData();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════════════════════
+function updateExportPreview() {
+  document.getElementById('export-preview').textContent = JSON.stringify(siteData, null, 2);
+}
+
+function downloadJSON() {
+  const blob = new Blob([JSON.stringify(siteData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'site-data.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('JSON file downloaded');
+}
+
+function copyJSON() {
+  navigator.clipboard.writeText(JSON.stringify(siteData, null, 2));
+  showToast('Copied to clipboard');
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      siteData = JSON.parse(e.target.result);
+      saveData();
+      initAdmin();
+      showToast('Data imported successfully');
+    } catch(err) {
+      alert('Invalid JSON file');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODAL SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════
+function showModal(title, content, onSave) {
+  document.getElementById('modal-container').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>${title}</h2>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        ${content}
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+          <button class="btn btn-primary" id="modal-save-btn">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-save-btn').onclick = onSave;
+}
+
+function closeModal() { document.getElementById('modal-container').innerHTML = ''; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════════════════
+function esc(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function previewImg(input, previewId) {
+  const img = document.getElementById(previewId);
+  if (input.value) { img.src = input.value; img.style.display = 'block'; }
+  else { img.style.display = 'none'; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+function initAdmin() {
+  updateDashboardStats();
+  renderProjects();
+  renderTeam();
+  renderTestimonials();
+  renderPress();
+}
+</script>
+</body>
+</html>

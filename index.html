@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Dimensions — Architecture & Interior Design | Nashik, India</title>
+  <meta name="description" content="The Dimensions is a leading architectural and interior design firm based in Nashik, Maharashtra with over 25 years of expertise in residential, commercial, and industrial projects." />
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- SEO: Structured Data for Principal Architect -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Sachin Bhattad",
+    "jobTitle": "Principal Architect & Founder",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "The Dimensions",
+      "url": "https://thedimensions.co",
+      "foundingDate": "1996",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Aditya Towers, 1, near Gurukripa Buildcon, Canada Corner",
+        "addressLocality": "Nashik",
+        "addressRegion": "Maharashtra",
+        "postalCode": "422002",
+        "addressCountry": "IN"
+      }
+    },
+    "knowsAbout": ["Architecture", "Interior Design", "Urban Planning", "Sustainable Design", "Residential Architecture", "Commercial Architecture"],
+    "description": "Sachin Bhattad is the founder and principal architect of The Dimensions, a leading architecture firm in Nashik, Maharashtra with over 25 years of experience in residential, commercial, and industrial design.",
+    "url": "https://thedimensions.co/#sachin-bhattad"
+  }
+  </script>
+  
+  <!-- SEO: Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ArchitectureFirm",
+    "name": "The Dimensions",
+    "url": "https://thedimensions.co",
+    "logo": "https://thedimensions.co/images/logo.svg",
+    "foundingDate": "1996",
+    "founder": { "@type": "Person", "name": "Sachin Bhattad" },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Aditya Towers, 1, near Gurukripa Buildcon, Canada Corner",
+      "addressLocality": "Nashik",
+      "addressRegion": "Maharashtra",
+      "postalCode": "422002",
+      "addressCountry": "IN"
+    },
+    "telephone": "+912532581707",
+    "email": "info@thedimensions.co",
+    "areaServed": ["Nashik", "Pune", "Mumbai", "Maharashtra"],
+    "description": "The Dimensions is a leading architectural and interior design firm based in Nashik, Maharashtra with over 25 years of expertise."
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #FFFFFF;
+      color: #1A1A1A;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #F7F5F2; }
+    ::-webkit-scrollbar-thumb { background: #9A8777; border-radius: 3px; }
+
+    @keyframes kenBurns { 0% { transform: scale(1); } 100% { transform: scale(1.08); } }
+    @keyframes lineGrow { from { width: 0; } to { width: 60px; } }
+    @keyframes scrollDown { 0% { top: -20px; } 100% { top: 50px; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+    .animate-on-scroll {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Navigation ─── */
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; transition: all 0.4s ease; padding: 20px 0; }
+    .nav.scrolled { padding: 12px 0; background: #FFFFFF; border-bottom: 1px solid #E8E4E0; }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+    .nav-logo { cursor: pointer; }
+    .nav-logo img { height: 38px; transition: all 0.4s ease; }
+    .nav.scrolled .nav-logo img { height: 32px; }
+    .nav-links { display: flex; gap: 36px; align-items: center; }
+    .nav-link {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer;
+      transition: color 0.3s; position: relative; padding-bottom: 4px; border: none; background: none;
+    }
+    .nav-link.active::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1.5px;
+    }
+    .nav-link.disabled { opacity: 0.5; cursor: default; }
+
+    /* Nav transparent state */
+    .nav:not(.scrolled) .nav-link { color: rgba(255,255,255,0.7); }
+    .nav:not(.scrolled) .nav-link.active { color: #FFFFFF; }
+    .nav:not(.scrolled) .nav-link.active::after { background: #FFFFFF; }
+    .nav.scrolled .nav-link { color: #1A1A1A; }
+    .nav.scrolled .nav-link.active { color: #9A8777; }
+    .nav.scrolled .nav-link.active::after { background: #9A8777; }
+
+    /* ─── Hero ─── */
+    .hero { position: relative; width: 100%; height: 100vh; overflow: hidden; background: #1A1A1A; }
+    .hero-slide {
+      position: absolute; inset: 0; opacity: 0;
+      transition: opacity 1.2s cubic-bezier(0.45, 0, 0.15, 1);
+    }
+    .hero-slide.active { opacity: 1; z-index: 1; }
+    .hero-slide-bg {
+      position: absolute; inset: 0; background-size: cover; background-position: center;
+    }
+    .hero-slide.active .hero-slide-bg { animation: kenBurns 8s ease-out forwards; }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.5) 100%);
+    }
+    .hero-content { position: absolute; bottom: 120px; left: 60px; z-index: 10; }
+    .hero-type {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 3px; color: #9A8777; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300;
+      color: #FFFFFF; line-height: 1.1; margin-bottom: 8px;
+    }
+    .hero-location {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      color: rgba(255,255,255,0.7); letter-spacing: 1.5px;
+    }
+    .hero-dots { position: absolute; bottom: 50px; left: 60px; z-index: 10; display: flex; gap: 12px; align-items: center; }
+    .hero-dot {
+      height: 3px; border: none; cursor: pointer; border-radius: 2px;
+      transition: all 0.5s ease; background: rgba(255,255,255,0.4); width: 12px;
+    }
+    .hero-dot.active { background: #9A8777; width: 40px; }
+    .hero-counter {
+      font-family: 'Montserrat', sans-serif; font-size: 11px;
+      color: rgba(255,255,255,0.5); margin-left: 12px; letter-spacing: 1px;
+    }
+    .hero-scroll {
+      position: absolute; bottom: 50px; right: 60px; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .hero-scroll-text {
+      font-family: 'Montserrat', sans-serif; font-size: 9px; letter-spacing: 3px;
+      color: rgba(255,255,255,0.5); text-transform: uppercase; writing-mode: vertical-lr;
+    }
+    .hero-scroll-line {
+      width: 1px; height: 50px; background: rgba(255,255,255,0.2);
+      position: relative; overflow: hidden;
+    }
+    .hero-scroll-dot {
+      width: 1px; height: 20px; background: #9A8777;
+      position: absolute; top: -20px; animation: scrollDown 2s ease-in-out infinite;
+    }
+
+    /* ─── Sections ─── */
+    .section { padding: 100px 40px; }
+    .section-intro { padding: 120px 40px; text-align: center; background: #FFFFFF; }
+    .section-stats { padding: 80px 40px; background: #1A1A1A; position: relative; }
+    .section-featured { background: #F7F5F2; }
+    .section-services { background: #FFFFFF; }
+    .section-testimonials { background: #F7F5F2; }
+    .section-cta { background: linear-gradient(135deg, #1A1A1A 0%, #2A2A2A 100%); text-align: center; }
+
+    /* Section Heading */
+    .section-heading { text-align: center; margin-bottom: 60px; }
+    .section-subtitle {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 4px; color: #9A8777; text-transform: uppercase; display: block; margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300;
+      color: #1A1A1A; line-height: 1.2;
+    }
+    .section-line { width: 60px; height: 1.5px; background: #9A8777; margin: 20px auto 0; }
+    .section-line.animated { animation: lineGrow 0.8s ease forwards; }
+
+    /* Intro */
+    .intro-inner { max-width: 800px; margin: 0 auto; }
+    .intro-est {
+      font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 400;
+      letter-spacing: 6px; color: #9A8777; text-transform: uppercase; margin-bottom: 24px;
+    }
+    .intro-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300;
+      color: #1A1A1A; line-height: 1.3; margin-bottom: 28px;
+    }
+    .intro-line { width: 60px; height: 1.5px; background: #9A8777; margin: 0 auto 28px; }
+    .intro-text {
+      font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 300;
+      line-height: 1.9; color: #666; max-width: 650px; margin: 0 auto;
+    }
+
+    /* Stats */
+    .stats-grid-bg {
+      position: absolute; inset: 0; opacity: 0.03;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.5) 50px),
+                        repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.5) 50px);
+    }
+    .stats-grid {
+      max-width: 1100px; margin: 0 auto; display: grid;
+      grid-template-columns: repeat(4, 1fr); gap: 40px; position: relative; z-index: 1;
+    }
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 300;
+      color: #9A8777; line-height: 1; margin-bottom: 12px;
+    }
+    .stat-label {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 400;
+      letter-spacing: 3px; color: rgba(255,255,255,0.5); text-transform: uppercase;
+    }
+
+    /* Project Grid */
+    .projects-grid-2 {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+    }
+    .projects-grid-3 {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .project-card { position: relative; overflow: hidden; cursor: pointer; }
+    .project-card.ratio-4-3 { aspect-ratio: 4/3; }
+    .project-card.ratio-3-4 { aspect-ratio: 3/4; }
+    .project-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .project-card:hover img { transform: scale(1.05); }
+    .project-overlay {
+      position: absolute; inset: 0; opacity: 0; transition: opacity 0.5s ease;
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 32px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
+    }
+    .project-card:hover .project-overlay { opacity: 1; }
+    .project-cat {
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 500;
+      letter-spacing: 3px; color: #9A8777; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .project-name {
+      font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400;
+      color: #FFFFFF; line-height: 1.2; margin-bottom: 4px;
+    }
+    .project-loc {
+      font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 300;
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* View All Button */
+    .btn-outline {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 3px; text-transform: uppercase; padding: 16px 48px;
+      cursor: pointer; transition: all 0.4s ease; border: 1.5px solid; background: transparent;
+    }
+    .btn-outline-dark { color: #1A1A1A; border-color: #1A1A1A; }
+    .btn-outline-dark:hover { background: #1A1A1A; color: #FFFFFF; }
+    .btn-outline-brown { color: #FFFFFF; border-color: #9A8777; }
+    .btn-outline-brown:hover { background: #9A8777; color: #FFFFFF; }
+
+    /* Services */
+    .services-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px;
+    }
+    .service-card {
+      text-align: center; padding: 48px 32px; border: 1px solid #E8E4E0;
+      transition: all 0.4s ease; cursor: pointer;
+    }
+    .service-card:hover {
+      border-color: #9A8777; transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    }
+    .service-icon { font-size: 36px; color: #9A8777; margin-bottom: 24px; font-weight: 200; }
+    .service-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400;
+      color: #1A1A1A; margin-bottom: 16px;
+    }
+    .service-desc {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      line-height: 1.8; color: #888;
+    }
+
+    /* Testimonials */
+    .testimonial-inner { max-width: 750px; margin: 0 auto; text-align: center; min-height: 220px; }
+    .testimonial-quote-mark {
+      font-family: 'Cormorant Garamond', serif; font-size: 120px;
+      color: #9A8777; opacity: 0.2; line-height: 0.5; margin-bottom: 20px;
+    }
+    .testimonial-text {
+      font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300;
+      font-style: italic; color: #1A1A1A; line-height: 1.7; margin-bottom: 32px;
+      transition: opacity 0.5s ease;
+    }
+    .testimonial-name {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 500;
+      color: #1A1A1A; margin-bottom: 4px; letter-spacing: 1px;
+    }
+    .testimonial-project {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 300;
+      color: #9A8777; letter-spacing: 1.5px;
+    }
+    .testimonial-dots { display: flex; justify-content: center; gap: 10px; margin-top: 36px; }
+    .testimonial-dot {
+      width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer;
+      transition: all 0.3s ease; background: #E8E4E0;
+    }
+    .testimonial-dot.active { background: #9A8777; }
+
+    /* CTA */
+    .cta-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 300;
+      color: #FFFFFF; line-height: 1.3; margin-bottom: 20px;
+    }
+    .cta-text {
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 300;
+      color: rgba(255,255,255,0.5); margin-bottom: 40px; letter-spacing: 0.5px;
+    }
+
+    /* Footer */
+    .footer { background: #1A1A1A; padding: 60px 40px 30px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 60px; margin-bottom: 50px; }
+    .footer-logo { height: 36px; margin-bottom: 20px; }
+    .footer-desc {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      line-height: 1.8; color: rgba(255,255,255,0.4); max-width: 280px;
+    }
+    .footer-heading {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600;
+      letter-spacing: 3px; color: #9A8777; text-transform: uppercase; margin-bottom: 20px;
+    }
+    .footer-link {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      color: rgba(255,255,255,0.4); display: block; margin-bottom: 10px;
+      cursor: pointer; transition: color 0.3s; text-decoration: none;
+    }
+    .footer-link:hover { color: #FFFFFF; }
+    .footer-contact {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      line-height: 1.8; color: rgba(255,255,255,0.4);
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-copy {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 300;
+      color: rgba(255,255,255,0.25); letter-spacing: 1px;
+    }
+
+    /* Projects Page Hero */
+    .page-hero { height: 400px; position: relative; overflow: hidden; background: #1A1A1A; }
+    .page-hero-bg {
+      position: absolute; inset: 0; background-size: cover;
+      background-position: center; opacity: 0.3;
+    }
+    .page-hero-content {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+    }
+    .page-hero-subtitle {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 4px; color: #9A8777; text-transform: uppercase; margin-bottom: 16px;
+    }
+    .page-hero-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 300; color: #FFFFFF;
+    }
+
+    /* Filter Bar */
+    .filter-bar { padding: 40px 40px 0; background: #FFFFFF; display: flex; justify-content: center; gap: 40px; }
+    .filter-btn {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 3px; text-transform: uppercase; color: #999; background: none;
+      border: none; cursor: pointer; padding-bottom: 12px; position: relative; transition: color 0.3s;
+    }
+    .filter-btn.active { color: #9A8777; }
+    .filter-btn.active::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: #9A8777;
+    }
+
+    /* ─── About Page ─── */
+    .about-story { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .about-story-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; }
+    .about-story-text h3 {
+      font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300;
+      color: #1A1A1A; margin-bottom: 20px;
+    }
+    .about-story-text p {
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 300;
+      line-height: 1.9; color: #666; margin-bottom: 16px;
+    }
+    .about-philosophy {
+      max-width: 800px; margin: 0 auto; text-align: center;
+      padding: 80px 40px; border-top: 1px solid #E8E4E0; border-bottom: 1px solid #E8E4E0;
+    }
+    .about-philosophy-text {
+      font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300;
+      font-style: italic; color: #1A1A1A; line-height: 1.6;
+    }
+    .timeline { max-width: 800px; margin: 0 auto; position: relative; padding-left: 40px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 1px; background: #E8E4E0;
+    }
+    .timeline-item { margin-bottom: 48px; position: relative; }
+    .timeline-item::before {
+      content: ''; position: absolute; left: -44px; top: 6px;
+      width: 9px; height: 9px; border-radius: 50%; background: #9A8777;
+    }
+    .timeline-year {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600;
+      letter-spacing: 3px; color: #9A8777; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .timeline-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400;
+      color: #1A1A1A; margin-bottom: 8px;
+    }
+    .timeline-desc {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      line-height: 1.7; color: #888;
+    }
+    .team-grid {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+    }
+    .team-card { text-align: center; }
+    .team-photo {
+      width: 100%; aspect-ratio: 3/4; object-fit: cover; margin-bottom: 20px;
+      background: #E8E4E0; filter: grayscale(20%);
+    }
+    .team-name {
+      font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400;
+      color: #1A1A1A; margin-bottom: 4px;
+    }
+    .team-role {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 400;
+      letter-spacing: 2px; color: #9A8777; text-transform: uppercase;
+    }
+    .awards-grid {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px;
+    }
+    .award-card {
+      padding: 32px; border: 1px solid #E8E4E0; transition: all 0.4s ease;
+    }
+    .award-card:hover { border-color: #9A8777; }
+    .award-year {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 2px; color: #9A8777; margin-bottom: 8px;
+    }
+    .award-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400;
+      color: #1A1A1A; margin-bottom: 8px;
+    }
+    .award-desc {
+      font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 300;
+      color: #888; line-height: 1.6;
+    }
+
+    /* ─── Services Page ─── */
+    .service-detail { max-width: 1100px; margin: 0 auto; }
+    .service-detail-block {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 60px;
+      align-items: center; margin-bottom: 80px; padding-bottom: 80px;
+      border-bottom: 1px solid #E8E4E0;
+    }
+    .service-detail-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .service-detail-block.reverse { direction: rtl; }
+    .service-detail-block.reverse > * { direction: ltr; }
+    .service-detail-img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #E8E4E0;
+    }
+    .service-detail-num {
+      font-family: 'Cormorant Garamond', serif; font-size: 64px; font-weight: 300;
+      color: #E8E4E0; line-height: 1; margin-bottom: 16px;
+    }
+    .service-detail-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300;
+      color: #1A1A1A; margin-bottom: 16px;
+    }
+    .service-detail-text {
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 300;
+      line-height: 1.9; color: #666; margin-bottom: 24px;
+    }
+    .service-detail-list {
+      list-style: none; padding: 0;
+    }
+    .service-detail-list li {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      color: #888; padding: 8px 0; border-bottom: 1px solid #F7F5F2;
+      padding-left: 16px; position: relative;
+    }
+    .service-detail-list li::before {
+      content: '—'; position: absolute; left: 0; color: #9A8777;
+    }
+    .process-steps {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+    }
+    .process-step { text-align: center; padding: 32px 20px; }
+    .process-step-num {
+      font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300;
+      color: #9A8777; line-height: 1; margin-bottom: 16px;
+    }
+    .process-step-title {
+      font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600;
+      letter-spacing: 2px; color: #1A1A1A; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .process-step-desc {
+      font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 300;
+      color: #888; line-height: 1.6;
+    }
+
+    /* ─── Press Page ─── */
+    .press-grid {
+      max-width: 1000px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px;
+    }
+    .press-card {
+      border: 1px solid #E8E4E0; overflow: hidden; transition: all 0.4s ease; cursor: pointer;
+    }
+    .press-card:hover { border-color: #9A8777; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
+    .press-card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #E8E4E0; }
+    .press-card-body { padding: 28px; }
+    .press-card-source {
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600;
+      letter-spacing: 2px; color: #9A8777; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .press-card-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400;
+      color: #1A1A1A; margin-bottom: 10px; line-height: 1.3;
+    }
+    .press-card-date {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 300;
+      color: #999;
+    }
+
+    /* ─── Contact Page ─── */
+    .contact-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    }
+    .contact-info-block { margin-bottom: 36px; }
+    .contact-info-label {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600;
+      letter-spacing: 3px; color: #9A8777; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .contact-info-text {
+      font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 300;
+      line-height: 1.8; color: #666;
+    }
+    .contact-info-text a { color: #1A1A1A; text-decoration: none; transition: color 0.3s; }
+    .contact-info-text a:hover { color: #9A8777; }
+    .contact-form { display: flex; flex-direction: column; gap: 20px; }
+    .contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .contact-input, .contact-textarea {
+      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      padding: 14px 0; border: none; border-bottom: 1px solid #E8E4E0;
+      background: transparent; color: #1A1A1A; outline: none;
+      transition: border-color 0.3s;
+    }
+    .contact-input:focus, .contact-textarea:focus { border-color: #9A8777; }
+    .contact-input::placeholder, .contact-textarea::placeholder { color: #BBB; }
+    .contact-textarea { resize: vertical; min-height: 100px; }
+    .contact-map {
+      width: 100%; height: 300px; margin-top: 60px; background: #E8E4E0;
+      border: 1px solid #E8E4E0; overflow: hidden;
+    }
+    .contact-map iframe { width: 100%; height: 100%; border: 0; filter: grayscale(30%); }
+
+    /* Page visibility & transitions */
+    .page { display: none; opacity: 0; }
+    .page.active { display: block; animation: morphPageIn 0.6s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
+    @keyframes morphPageIn { 
+      0% { opacity: 0; transform: translateY(0); filter: blur(8px); } 
+      50% { opacity: 0.6; filter: blur(2px); }
+      100% { opacity: 1; transform: translateY(0); filter: blur(0); } 
+    }
+
+    /* ─── Custom Cursor ─── */
+    @media (pointer: fine) {
+      * { cursor: none !important; }
+    }
+    .td-cursor-dot {
+      position: fixed; width: 6px; height: 6px; background: #fff; border-radius: 50%;
+      pointer-events: none; z-index: 99999; mix-blend-mode: difference;
+      transition: transform 0.1s;
+    }
+    .td-cursor-ring {
+      position: fixed; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 50%; pointer-events: none; z-index: 99998; mix-blend-mode: difference;
+      transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+      transform: translate(-50%, -50%);
+    }
+    .td-cursor-ring.hovering { width: 64px; height: 64px; border-color: #9A8777; }
+    @media (pointer: coarse) { .td-cursor-dot, .td-cursor-ring { display: none; } }
+
+    /* ─── 3D Tilt Cards ─── */
+    .tilt-card {
+      transition: transform 0.15s ease-out;
+      position: relative; overflow: hidden;
+    }
+    .tilt-card .tilt-glow {
+      position: absolute; inset: 0; pointer-events: none; opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tilt-card:hover .tilt-glow { opacity: 1; }
+
+    /* ─── AI Chatbot ─── */
+    .ai-chat-trigger {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9000;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, #9A8777, #C4A97D); border: none;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 24px rgba(154,135,119,0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .ai-chat-trigger:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(154,135,119,0.5); }
+    .ai-chat-panel {
+      position: fixed; bottom: 96px; right: 28px; z-index: 9000;
+      width: 380px; max-height: 520px; background: #111;
+      border: 1px solid rgba(154,135,119,0.2); border-radius: 16px;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: chatMorphIn 0.5s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+    }
+    @keyframes chatMorphIn { from { opacity: 0; clip-path: circle(0% at 90% 100%); transform: translateY(20px); } to { opacity: 1; clip-path: circle(150% at 90% 100%); transform: translateY(0); } }
+    .ai-chat-header {
+      padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; gap: 12;
+    }
+    .ai-chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #9A8777, #C4A97D);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat',sans-serif; font-size: 12px; font-weight: 600; color: #fff;
+    }
+    .ai-chat-messages {
+      flex: 1; overflow-y: auto; padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 14; min-height: 300px;
+    }
+    .ai-msg {
+      max-width: 85%; padding: 12px 16px; font-family: 'Montserrat',sans-serif;
+      font-size: 13px; font-weight: 300; line-height: 1.6;
+    }
+    .ai-msg.assistant { align-self: flex-start; background: rgba(255,255,255,0.06); border-radius: 16px 16px 16px 4px; color: rgba(255,255,255,0.8); }
+    .ai-msg.user { align-self: flex-end; background: linear-gradient(135deg, #9A8777, #C4A97D); border-radius: 16px 16px 4px 16px; color: #fff; }
+    .ai-chat-input-row {
+      padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; gap: 8;
+    }
+    .ai-chat-input {
+      flex: 1; background: rgba(255,255,255,0.06); border: none;
+      padding: 12px 16px; border-radius: 12px; color: #fff;
+      font-family: 'Montserrat',sans-serif; font-size: 13px; font-weight: 300; outline: none;
+    }
+    .ai-chat-send {
+      width: 44px; height: 44px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, #9A8777, #C4A97D);
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.2s;
+    }
+    @keyframes aiPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+    
+    @media (max-width: 768px) {
+      .ai-chat-panel { width: calc(100vw - 32px); right: 16px; bottom: 88px; max-height: 70vh; }
+      .ai-chat-trigger { bottom: 20px; right: 20px; width: 50px; height: 50px; }
+    }
+
+    /* ─── Hamburger Menu ─── */
+    .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; z-index: 1001; }
+    .hamburger span {
+      display: block; width: 24px; height: 1.5px; margin: 6px 0;
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0; background: #FFFFFF; z-index: 999;
+      flex-direction: column; justify-content: center; align-items: center; gap: 32px;
+    }
+    .mobile-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .mobile-overlay .nav-link {
+      font-size: 14px; letter-spacing: 3px; padding: 8px 0;
+      color: #1A1A1A; opacity: 1;
+    }
+    .mobile-overlay .nav-link.active { color: #9A8777; }
+
+    /* ─── Project Detail Modal ─── */
+    .project-modal {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.92); overflow-y: auto;
+    }
+    .project-modal.open { display: block; animation: fadeIn 0.4s ease; }
+    .project-modal-close {
+      position: fixed; top: 24px; right: 32px; z-index: 2001;
+      background: none; border: none; cursor: pointer;
+      font-size: 28px; color: #FFFFFF; font-weight: 200;
+      width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+      transition: color 0.3s;
+    }
+    .project-modal-close:hover { color: #9A8777; }
+    .project-modal-inner {
+      max-width: 1000px; margin: 0 auto; padding: 80px 40px;
+    }
+    .project-modal-hero {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover; margin-bottom: 48px;
+    }
+    .project-modal-cat {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 3px; color: #9A8777; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .project-modal-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300;
+      color: #FFFFFF; line-height: 1.2; margin-bottom: 16px;
+    }
+    .project-modal-location {
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 300;
+      color: rgba(255,255,255,0.5); margin-bottom: 32px; letter-spacing: 1px;
+    }
+    .project-modal-desc {
+      font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 300;
+      line-height: 1.9; color: rgba(255,255,255,0.6); margin-bottom: 48px;
+      max-width: 700px;
+    }
+    .project-modal-details {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+      border-top: 1px solid rgba(255,255,255,0.1); padding-top: 32px; margin-bottom: 48px;
+    }
+    .project-modal-detail-label {
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 500;
+      letter-spacing: 2px; color: #9A8777; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .project-modal-detail-value {
+      font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 300;
+      color: #FFFFFF;
+    }
+    .project-modal-gallery {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .project-modal-gallery img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover;
+      transition: transform 0.5s ease; cursor: pointer;
+    }
+    .project-modal-gallery img:hover { transform: scale(1.02); }
+
+    /* (WhatsApp integrated into AI chat) */
+
+    /* ─── Architect Profile Page ─── */
+    .profile-hero { height: 500px; position: relative; overflow: hidden; background: #0A0A0A; }
+    .profile-hero-grid {
+      position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .profile-hero-photo {
+      background: linear-gradient(135deg,#E8E4E0,#D4CFC9); 
+      position: relative; overflow: hidden;
+    }
+    .profile-hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-hero-info {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 60px; background: #0A0A0A;
+    }
+    .profile-breadcrumb {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 400;
+      color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-bottom: 24px;
+    }
+    .profile-breadcrumb a { color: #9A8777; text-decoration: none; transition: color 0.3s; }
+    .profile-breadcrumb a:hover { color: #C4A97D; }
+    .profile-name {
+      font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300;
+      color: #FFFFFF; line-height: 1.1; margin-bottom: 8px;
+    }
+    .profile-title {
+      font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500;
+      letter-spacing: 3px; color: #9A8777; text-transform: uppercase; margin-bottom: 24px;
+    }
+    .profile-bio-intro {
+      font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 300;
+      line-height: 1.8; color: rgba(255,255,255,0.5);
+    }
+    .profile-section { padding: 80px 40px; }
+    .profile-content { max-width: 900px; margin: 0 auto; }
+    .profile-quote {
+      font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300;
+      font-style: italic; color: #1A1A1A; line-height: 1.6;
+      padding: 48px 0; border-top: 1px solid #E8E4E0; border-bottom: 1px solid #E8E4E0;
+      text-align: center; margin: 48px 0;
+    }
+    .profile-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+      margin: 48px 0; padding: 40px 0; border-top: 1px solid #E8E4E0;
+    }
+    .profile-stat-num {
+      font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; color: #9A8777;
+    }
+    .profile-stat-label {
+      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 400;
+      letter-spacing: 2px; color: #999; text-transform: uppercase; margin-top: 4px;
+    }
+    .profile-timeline { margin: 48px 0; }
+    .profile-timeline-item {
+      display: grid; grid-template-columns: 100px 1fr; gap: 24px;
+      padding: 20px 0; border-bottom: 1px solid #F0EDE8;
+    }
+    .profile-timeline-year {
+      font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600;
+      color: #9A8777; letter-spacing: 1px;
+    }
+    .profile-timeline-text {
+      font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 300;
+      color: #666; line-height: 1.7;
+    }
+    .profile-cta {
+      text-align: center; padding: 60px 40px; background: #0A0A0A;
+    }
+    @media (max-width: 768px) {
+      .profile-hero { height: auto; }
+      .profile-hero-grid { grid-template-columns: 1fr; position: relative; }
+      .profile-hero-photo { aspect-ratio: 1; }
+      .profile-hero-info { padding: 40px 24px; }
+      .profile-name { font-size: 36px; }
+      .profile-stats { grid-template-columns: 1fr; }
+      .profile-timeline-item { grid-template-columns: 1fr; gap: 4px; }
+    }
+
+    /* ─── Mobile Responsive ─── */
+    @media (max-width: 1024px) {
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .services-grid { grid-template-columns: 1fr; gap: 32px; max-width: 500px; }
+      .process-steps { grid-template-columns: repeat(2, 1fr); }
+      .service-detail-block { grid-template-columns: 1fr; gap: 32px; }
+      .service-detail-block.reverse { direction: ltr; }
+      .about-story { grid-template-columns: 1fr; gap: 40px; }
+      .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .awards-grid { grid-template-columns: 1fr; }
+      .project-modal-details { grid-template-columns: repeat(2, 1fr); }
+      .project-modal-gallery { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .hero-title { font-size: 36px; }
+      .hero-content { bottom: 100px; left: 32px; right: 32px; }
+      .hero-dots { left: 32px; bottom: 40px; }
+      .hero-scroll { display: none; }
+      .section { padding: 60px 24px; }
+      .section-intro { padding: 80px 24px; }
+      .section-stats { padding: 60px 24px; }
+      .section-title { font-size: 32px; }
+      .section-heading { margin-bottom: 40px; }
+      .intro-title { font-size: 36px; }
+      .stat-number { font-size: 42px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .projects-grid-2 { grid-template-columns: 1fr; }
+      .projects-grid-3 { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; max-width: 300px; margin: 0 auto; }
+      .press-grid { grid-template-columns: 1fr; }
+      .process-steps { grid-template-columns: 1fr; max-width: 300px; margin: 0 auto; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      .nav-inner { padding: 0 24px; }
+      .page-hero { height: 300px; }
+      .page-hero-title { font-size: 42px; }
+      .filter-bar { gap: 20px; padding: 32px 24px 0; flex-wrap: wrap; justify-content: center; }
+      .cta-title { font-size: 32px; }
+      .contact-form-row { grid-template-columns: 1fr; }
+      .project-modal-inner { padding: 60px 24px; }
+      .project-modal-title { font-size: 36px; }
+      .project-modal-details { grid-template-columns: 1fr; }
+      .project-modal-close { top: 16px; right: 16px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero { height: 80vh; }
+      .hero-title { font-size: 28px; }
+      .hero-type { font-size: 10px; }
+      .intro-title { font-size: 28px; }
+      .stat-number { font-size: 36px; }
+      .section-title { font-size: 26px; }
+      .about-philosophy-text { font-size: 20px; }
+      .service-detail-title { font-size: 28px; }
+      .service-detail-num { font-size: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Navigation ─── -->
+<nav class="nav" id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="navigateTo('home')">
+      <img id="nav-logo-img" src="images/logo-white.svg" alt="The Dimensions" />
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" data-page="home" onclick="navigateTo('home')">Home</button>
+      <button class="nav-link" data-page="projects" onclick="navigateTo('projects')">Projects</button>
+      <button class="nav-link" data-page="about" onclick="navigateTo('about')">About Us</button>
+      <button class="nav-link" data-page="services" onclick="navigateTo('services')">Services</button>
+      <button class="nav-link" data-page="press" onclick="navigateTo('press')">Press</button>
+      <button class="nav-link" data-page="contact" onclick="navigateTo('contact')">Contact</button>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+      <span id="ham1" style="background:#FFFFFF"></span>
+      <span id="ham2" style="background:#FFFFFF"></span>
+      <span id="ham3" style="background:#FFFFFF"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-overlay" id="mobile-overlay">
+  <button class="nav-link" data-page="home" onclick="navigateTo('home');toggleMenu()">Home</button>
+  <button class="nav-link" data-page="projects" onclick="navigateTo('projects');toggleMenu()">Projects</button>
+  <button class="nav-link" data-page="about" onclick="navigateTo('about');toggleMenu()">About Us</button>
+  <button class="nav-link" data-page="services" onclick="navigateTo('services');toggleMenu()">Services</button>
+  <button class="nav-link" data-page="press" onclick="navigateTo('press');toggleMenu()">Press</button>
+  <button class="nav-link" data-page="contact" onclick="navigateTo('contact');toggleMenu()">Contact</button>
+</div>
+
+<!-- Project Detail Modal -->
+<div class="project-modal" id="project-modal">
+  <button class="project-modal-close" onclick="closeProjectModal()">✕</button>
+  <div class="project-modal-inner">
+    <img class="project-modal-hero" id="modal-hero-img" src="" alt="" />
+    <div class="project-modal-cat" id="modal-cat"></div>
+    <h2 class="project-modal-title" id="modal-title"></h2>
+    <div class="project-modal-location" id="modal-location"></div>
+    <p class="project-modal-desc" id="modal-desc"></p>
+    <div class="project-modal-details">
+      <div>
+        <div class="project-modal-detail-label">Category</div>
+        <div class="project-modal-detail-value" id="modal-detail-cat"></div>
+      </div>
+      <div>
+        <div class="project-modal-detail-label">Location</div>
+        <div class="project-modal-detail-value" id="modal-detail-loc"></div>
+      </div>
+      <div>
+        <div class="project-modal-detail-label">Year</div>
+        <div class="project-modal-detail-value" id="modal-detail-year"></div>
+      </div>
+    </div>
+    <div class="project-modal-gallery" id="modal-gallery"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HOME PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero Slider -->
+  <div class="hero" id="hero">
+    <div class="hero-slide active" data-index="0">
+      <div class="hero-slide-bg" style="background-image: url('images/project1.jpg')"></div>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide" data-index="1">
+      <div class="hero-slide-bg" style="background-image: url('images/project2.jpg')"></div>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide" data-index="2">
+      <div class="hero-slide-bg" style="background-image: url('images/project3.jpg')"></div>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide" data-index="3">
+      <div class="hero-slide-bg" style="background-image: url('images/project4.jpg')"></div>
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-slide" data-index="4">
+      <div class="hero-slide-bg" style="background-image: url('images/project5.jpg')"></div>
+      <div class="hero-overlay"></div>
+    </div>
+
+    <div class="hero-content" id="hero-content">
+      <div class="hero-type" id="hero-type">Residential</div>
+      <h1 class="hero-title" id="hero-title">Project One</h1>
+      <p class="hero-location" id="hero-location">Maharashtra</p>
+    </div>
+
+    <div class="hero-dots" id="hero-dots">
+      <button class="hero-dot active" onclick="goToSlide(0)"></button>
+      <button class="hero-dot" onclick="goToSlide(1)"></button>
+      <button class="hero-dot" onclick="goToSlide(2)"></button>
+      <button class="hero-dot" onclick="goToSlide(3)"></button>
+      <button class="hero-dot" onclick="goToSlide(4)"></button>
+      <span class="hero-counter" id="hero-counter">01 / 05</span>
+    </div>
+
+    <div class="hero-scroll">
+      <span class="hero-scroll-text">Scroll</span>
+      <div class="hero-scroll-line"><div class="hero-scroll-dot"></div></div>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <section class="section-intro">
+    <div class="intro-inner animate-on-scroll">
+      <div class="intro-est">Est. 1996</div>
+      <h2 class="intro-title">Crafting Timeless Spaces</h2>
+      <div class="intro-line"></div>
+      <p class="intro-text">
+        The Dimensions is a leading architectural and interior design firm based in Nashik,
+        with over 25 years of expertise in creating spaces that blend functionality,
+        aesthetics, and sustainability. From visionary concepts to inspiring built
+        environments — we turn ideas into reality.
+      </p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="section-stats">
+    <div class="stats-grid-bg"></div>
+    <div class="stats-grid">
+      <div class="animate-on-scroll" style="text-align:center">
+        <div class="stat-number" data-target="25" data-suffix="+">0+</div>
+        <div class="stat-label">Years of Excellence</div>
+      </div>
+      <div class="animate-on-scroll" style="text-align:center">
+        <div class="stat-number" data-target="100" data-suffix="+">0+</div>
+        <div class="stat-label">Projects Delivered</div>
+      </div>
+      <div class="animate-on-scroll" style="text-align:center">
+        <div class="stat-number" data-target="10" data-suffix="">0</div>
+        <div class="stat-label">Cities Across India</div>
+      </div>
+      <div class="animate-on-scroll" style="text-align:center">
+        <div class="stat-number" data-target="100" data-suffix="+">0+</div>
+        <div class="stat-label">Happy Clients</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Projects -->
+  <section class="section section-featured">
+    <div class="section-heading animate-on-scroll">
+      <span class="section-subtitle">Portfolio</span>
+      <h2 class="section-title">Featured Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-grid-2">
+      <div class="project-card ratio-4-3 animate-on-scroll">
+        <img src="images/project1.jpg" alt="Project One" />
+        <div class="project-overlay">
+          <span class="project-cat">Residential</span>
+          <span class="project-name">Project One</span>
+          <span class="project-loc">Nashik</span>
+        </div>
+      </div>
+      <div class="project-card ratio-4-3 animate-on-scroll" style="transition-delay:0.12s">
+        <img src="images/project2.jpg" alt="Project Two" />
+        <div class="project-overlay">
+          <span class="project-cat">Commercial</span>
+          <span class="project-name">Project Two</span>
+          <span class="project-loc">Pune</span>
+        </div>
+      </div>
+      <div class="project-card ratio-4-3 animate-on-scroll" style="transition-delay:0.24s">
+        <img src="images/project3.jpg" alt="Project Three" />
+        <div class="project-overlay">
+          <span class="project-cat">Commercial</span>
+          <span class="project-name">Project Three</span>
+          <span class="project-loc">Mumbai</span>
+        </div>
+      </div>
+      <div class="project-card ratio-4-3 animate-on-scroll" style="transition-delay:0.36s">
+        <img src="images/project4.jpg" alt="Project Four" />
+        <div class="project-overlay">
+          <span class="project-cat">Commercial</span>
+          <span class="project-name">Project Four</span>
+          <span class="project-loc">Nashik</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:50px">
+      <button class="btn-outline btn-outline-dark" onclick="navigateTo('projects')">View All Projects</button>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section section-services">
+    <div class="section-heading animate-on-scroll">
+      <span class="section-subtitle">What We Do</span>
+      <h2 class="section-title">Our Services</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="services-grid">
+      <div class="service-card animate-on-scroll">
+        <div class="service-icon">△</div>
+        <h3 class="service-title">Architecture</h3>
+        <p class="service-desc">Designing structures that stand the test of time — from concept to completion.</p>
+      </div>
+      <div class="service-card animate-on-scroll" style="transition-delay:0.15s">
+        <div class="service-icon">◇</div>
+        <h3 class="service-title">Interior Design</h3>
+        <p class="service-desc">Crafting interiors that reflect personality, purpose, and refined taste.</p>
+      </div>
+      <div class="service-card animate-on-scroll" style="transition-delay:0.3s">
+        <div class="service-icon">▢</div>
+        <h3 class="service-title">Planning</h3>
+        <p class="service-desc">Strategic spatial planning for residential, commercial, and industrial developments.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section section-testimonials">
+    <div class="animate-on-scroll">
+      <div class="section-heading">
+        <span class="section-subtitle">Testimonials</span>
+        <h2 class="section-title">What Our Clients Say</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="testimonial-inner">
+        <div class="testimonial-quote-mark">"</div>
+        <p class="testimonial-text" id="testimonial-text"></p>
+        <div class="testimonial-name" id="testimonial-name"></div>
+        <div class="testimonial-project" id="testimonial-project"></div>
+        <div class="testimonial-dots" id="testimonial-dots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-cta">
+    <div class="animate-on-scroll">
+      <h2 class="cta-title">Let's Build Something<br />Extraordinary Together</h2>
+      <p class="cta-text">Start your project with The Dimensions</p>
+      <button class="btn-outline btn-outline-brown" onclick="navigateTo('contact')">Get In Touch</button>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- PROJECTS PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-projects">
+  <div class="page-hero">
+    <div class="page-hero-bg" style="background-image: url('images/project2.jpg')"></div>
+    <div class="page-hero-content">
+      <span class="page-hero-subtitle">Our Work</span>
+      <h1 class="page-hero-title">Projects</h1>
+      <div class="section-line" style="margin-top:20px"></div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterProjects('All')">All</button>
+    <button class="filter-btn" onclick="filterProjects('Residential')">Residential</button>
+    <button class="filter-btn" onclick="filterProjects('Commercial')">Commercial</button>
+    <button class="filter-btn" onclick="filterProjects('Industrial')">Industrial</button>
+  </div>
+
+  <section style="padding: 50px 40px 100px; background: #FFFFFF;">
+    <div class="projects-grid-3" id="projects-grid"></div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ABOUT US PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <div class="page-hero">
+    <div class="page-hero-bg" style="background-image: url('images/project1.jpg')"></div>
+    <div class="page-hero-content">
+      <span class="page-hero-subtitle">Our Story</span>
+      <h1 class="page-hero-title">About Us</h1>
+      <div class="section-line" style="margin-top:20px"></div>
+    </div>
+  </div>
+
+  <!-- Story Section -->
+  <section class="section" style="background:#FFFFFF">
+    <div class="about-story animate-on-scroll">
+      <img class="about-story-img" src="images/project4.jpg" alt="The Dimensions Office" />
+      <div class="about-story-text">
+        <span class="section-subtitle" style="display:block;margin-bottom:12px;text-align:left">Who We Are</span>
+        <h3>A Legacy of Design Excellence</h3>
+        <p>
+          Founded in 1996 in Nashik, The Dimensions has grown from a small design studio into one of Maharashtra's
+          most respected architectural firms. With over 25 years of experience, we have shaped skylines and
+          transformed spaces across Nashik, Pune, Mumbai, and beyond.
+        </p>
+        <p>
+          Our multidisciplinary team of architects, interior designers, and planners work collaboratively to
+          deliver projects that balance beauty with purpose. Every design begins with listening — to our clients,
+          to the site, and to the community it serves.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Philosophy -->
+  <section style="padding:80px 40px; background:#F7F5F2">
+    <div class="about-philosophy animate-on-scroll">
+      <span class="section-subtitle" style="display:block;margin-bottom:24px">Our Philosophy</span>
+      <p class="about-philosophy-text">
+        "We believe that great architecture is not about imposing form, but about discovering the natural harmony
+        between space, light, material, and the lives that unfold within. Every project is an opportunity to
+        create something that endures — not just structurally, but emotionally."
+      </p>
+      <div class="section-line" style="margin-top:28px"></div>
+      <p style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:#9A8777;letter-spacing:2px;text-transform:uppercase;margin-top:20px">
+        — Sachin Bhattad, Principal Architect
+      </p>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="section" style="background:#FFFFFF">
+    <div class="section-heading animate-on-scroll">
+      <span class="section-subtitle">Our Journey</span>
+      <h2 class="section-title">Milestones</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item animate-on-scroll">
+        <div class="timeline-year">1996</div>
+        <div class="timeline-title">The Beginning</div>
+        <div class="timeline-desc">The Dimensions was founded in Nashik with a vision to create architecture that inspires and endures.</div>
+      </div>
+      <div class="timeline-item animate-on-scroll">
+        <div class="timeline-year">2003</div>
+        <div class="timeline-title">Expanding Horizons</div>
+        <div class="timeline-desc">Completed our first major commercial project and expanded our team to 15 professionals.</div>
+      </div>
+      <div class="timeline-item animate-on-scroll">
+        <div class="timeline-year">2010</div>
+        <div class="timeline-title">Pune & Mumbai</div>
+        <div class="timeline-desc">Extended our practice to Pune and Mumbai, bringing our design philosophy to new markets.</div>
+      </div>
+      <div class="timeline-item animate-on-scroll">
+        <div class="timeline-year">2016</div>
+        <div class="timeline-title">20 Years of Excellence</div>
+        <div class="timeline-desc">Celebrated two decades with 75+ completed projects and recognition across the industry.</div>
+      </div>
+      <div class="timeline-item animate-on-scroll">
+        <div class="timeline-year">2024</div>
+        <div class="timeline-title">100+ Projects Milestone</div>
+        <div class="timeline-desc">Crossed 100 projects spanning residential, commercial, and industrial sectors across 10 cities.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="section" style="background:#F7F5F2">
+    <div class="section-heading animate-on-scroll">
+      <span class="section-subtitle">The People</span>
+      <h2 class="section-title">Our Team</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="team-grid">
+      <div class="team-card animate-on-scroll" onclick="navigateTo('sachin-bhattad')" style="cursor:pointer" data-hover>
+        <div class="team-photo" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9);position:relative">
+          <div style="position:absolute;bottom:12px;right:12px;background:rgba(154,135,119,0.9);padding:4px 10px;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;color:#fff;text-transform:uppercase">View Profile →</div>
+        </div>
+        <div class="team-name">Sachin Bhattad</div>
+        <div class="team-role">Principal Architect & Founder</div>
+      </div>
+      <div class="team-card animate-on-scroll" style="transition-delay:0.15s">
+        <div class="team-photo" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="team-name">Team Member</div>
+        <div class="team-role">Senior Architect</div>
+      </div>
+      <div class="team-card animate-on-scroll" style="transition-delay:0.3s">
+        <div class="team-photo" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="team-name">Team Member</div>
+        <div class="team-role">Interior Design Lead</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Awards -->
+  <section class="section" style="background:#FFFFFF">
+    <div class="section-heading animate-on-scroll">
+      <span class="section-subtitle">Recognition</span>
+      <h2 class="section-title">Awards & Achievements</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="awards-grid">
+      <div class="award-card animate-on-scroll">
+        <div class="award-year">2023</div>
+        <div class="award-title">Best Residential Design</div>
+        <div class="award-desc">Recognized for outstanding residential architecture at the Maharashtra Architecture Awards.</div>
+      </div>
+      <div class="award-card animate-on-scroll" style="transition-delay:0.12s">
+        <div class="award-year">2021</div>
+        <div class="award-title">Excellence in Commercial Architecture</div>
+        <div class="award-desc">Honored for innovative commercial design at the Indian Institute of Architects annual ceremony.</div>
+      </div>
+      <div class="award-card animate-on-scroll" style="transition-delay:0.24s">
+        <div class="award-year">2018</div>
+        <div class="award-title">Sustainable Design Award</div>
+        <div class="award-desc">Recognized for incorporating sustainable practices and green building principles across projects.</div>
+      </div>
+      <div class="award-card animate-on-scroll" style="transition-delay:0.36s">
+        <div class="award-year">2016</div>
+        <div class="award-title">20 Years of Service</div>
+        <div class="award-desc">Felicitated by the Nashik Architects Association for two decades of contribution to the city's built environment.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- SERVICES PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-services">
+  <div class="page-hero">
+    <div class="page-hero-bg" style="background-image: url('images/project3.jpg')"></div>
+    <div class="page-hero-content">
+      <span class="page-hero-subtitle">What We Do</span>
+      <h1 class="page-hero-title">Services</h1>
+      <div class="section-line" style="margin-top:20px"></div>
+    </div>
+  </div>
+
+  <!-- Service Details -->
+  <section class="section" style="background:#FFFFFF">
+    <div class="service-detail">
+      <!-- Architecture -->
+      <div class="service-detail-block animate-on-scroll">
+        <div>
+          <div class="service-detail-num">01</div>
+          <div class="service-detail-title">Architecture</div>
+          <div class="service-detail-text">
+            From initial concept through to construction, we design buildings that are timeless, functional,
+            and deeply connected to their context. Our architectural practice spans residential villas and
+            apartments, commercial towers and retail spaces, institutional buildings, and mixed-use developments.
+          </div>
+          <ul class="service-detail-list">
+            <li>Concept Design & Feasibility Studies</li>
+            <li>Schematic & Detailed Design</li>
+            <li>Construction Documentation</li>
+            <li>Site Supervision & Project Management</li>
+            <li>Sustainable & Green Building Design</li>
+          </ul>
+        </div>
+        <img class="service-detail-img" src="images/project1.jpg" alt="Architecture" />
+      </div>
+
+      <!-- Interior Design -->
+      <div class="service-detail-block reverse animate-on-scroll">
+        <img class="service-detail-img" src="images/project3.jpg" alt="Interior Design" />
+        <div>
+          <div class="service-detail-num">02</div>
+          <div class="service-detail-title">Interior Design</div>
+          <div class="service-detail-text">
+            We create interiors that reflect the personality and aspirations of our clients while maintaining
+            harmony with the architectural shell. Our interiors are crafted with attention to materiality,
+            light, texture, and spatial flow.
+          </div>
+          <ul class="service-detail-list">
+            <li>Residential & Luxury Interiors</li>
+            <li>Commercial & Office Interiors</li>
+            <li>Material & Finish Selection</li>
+            <li>Custom Furniture Design</li>
+            <li>Lighting Design & Art Curation</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Planning -->
+      <div class="service-detail-block animate-on-scroll">
+        <div>
+          <div class="service-detail-num">03</div>
+          <div class="service-detail-title">Planning</div>
+          <div class="service-detail-text">
+            Strategic planning forms the foundation of every successful project. We provide comprehensive
+            planning services that address zoning, land use, infrastructure, and community needs — ensuring
+            that every development maximizes its potential.
+          </div>
+          <ul class="service-detail-list">
+            <li>Master Planning & Urban Design</li>
+            <li>Site Analysis & Land Use Planning</li>
+            <li>Township & Layout Planning</li>
+            <li>Regulatory Approvals & Compliance</li>
+            <li>Landscape Planning & Design</li>
+          </ul>
+        </div>
+        <img class="service-detail-img" src="images/project4.jpg" alt="Planning" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section" style="background:#F7F5F2">
+    <div class="section-heading animate-on-scroll">
+      <span class="section-subtitle">How We Work</span>
+      <h2 class="section-title">Our Process</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="process-steps">
+      <div class="process-step animate-on-scroll">
+        <div class="process-step-num">01</div>
+        <div class="process-step-title">Discover</div>
+        <div class="process-step-desc">We listen, research, and understand your vision, needs, and the context of your project.</div>
+      </div>
+      <div class="process-step animate-on-scroll" style="transition-delay:0.12s">
+        <div class="process-step-num">02</div>
+        <div class="process-step-title">Design</div>
+        <div class="process-step-desc">Concepts take shape through sketches, 3D models, and iterative refinement with your input.</div>
+      </div>
+      <div class="process-step animate-on-scroll" style="transition-delay:0.24s">
+        <div class="process-step-num">03</div>
+        <div class="process-step-title">Develop</div>
+        <div class="process-step-desc">Detailed drawings, material specifications, and construction documents are prepared.</div>
+      </div>
+      <div class="process-step animate-on-scroll" style="transition-delay:0.36s">
+        <div class="process-step-num">04</div>
+        <div class="process-step-title">Deliver</div>
+        <div class="process-step-desc">On-site supervision ensures quality execution, on time and within budget.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-cta">
+    <div class="animate-on-scroll">
+      <h2 class="cta-title">Have a Project in Mind?</h2>
+      <p class="cta-text">Let's discuss how we can bring your vision to life</p>
+      <button class="btn-outline btn-outline-brown" onclick="navigateTo('contact')">Start a Conversation</button>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- PRESS PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-press">
+  <div class="page-hero">
+    <div class="page-hero-bg" style="background-image: url('images/project2.jpg')"></div>
+    <div class="page-hero-content">
+      <span class="page-hero-subtitle">In The Media</span>
+      <h1 class="page-hero-title">Press</h1>
+      <div class="section-line" style="margin-top:20px"></div>
+    </div>
+  </div>
+
+  <section class="section" style="background:#FFFFFF">
+    <div class="section-heading animate-on-scroll">
+      <span class="section-subtitle">Featured In</span>
+      <h2 class="section-title">Media & Publications</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="press-grid">
+      <div class="press-card animate-on-scroll">
+        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="press-card-body">
+          <div class="press-card-source">Architecture Digest India</div>
+          <div class="press-card-title">The Dimensions: Redefining Nashik's Architectural Identity</div>
+          <div class="press-card-date">January 2024</div>
+        </div>
+      </div>
+      <div class="press-card animate-on-scroll" style="transition-delay:0.12s">
+        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="press-card-body">
+          <div class="press-card-source">The Indian Express</div>
+          <div class="press-card-title">How This Nashik Firm Is Blending Tradition with Modern Design</div>
+          <div class="press-card-date">September 2023</div>
+        </div>
+      </div>
+      <div class="press-card animate-on-scroll" style="transition-delay:0.24s">
+        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="press-card-body">
+          <div class="press-card-source">Architectural Review</div>
+          <div class="press-card-title">Sustainable Architecture in Tier-2 Cities: A Case Study</div>
+          <div class="press-card-date">May 2023</div>
+        </div>
+      </div>
+      <div class="press-card animate-on-scroll" style="transition-delay:0.36s">
+        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="press-card-body">
+          <div class="press-card-source">Design Pataki</div>
+          <div class="press-card-title">25 Years of The Dimensions: A Retrospective</div>
+          <div class="press-card-date">December 2021</div>
+        </div>
+      </div>
+      <div class="press-card animate-on-scroll" style="transition-delay:0.48s">
+        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="press-card-body">
+          <div class="press-card-source">Maharashtra Times</div>
+          <div class="press-card-title">Nashik's Built Heritage: Architects Who Are Making a Difference</div>
+          <div class="press-card-date">August 2020</div>
+        </div>
+      </div>
+      <div class="press-card animate-on-scroll" style="transition-delay:0.6s">
+        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
+        <div class="press-card-body">
+          <div class="press-card-source">Inside Outside Magazine</div>
+          <div class="press-card-title">Interior Trends: Luxury Living in Maharashtra's Wine Country</div>
+          <div class="press-card-date">March 2019</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- CONTACT PAGE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <div class="page-hero">
+    <div class="page-hero-bg" style="background-image: url('images/project4.jpg')"></div>
+    <div class="page-hero-content">
+      <span class="page-hero-subtitle">Get In Touch</span>
+      <h1 class="page-hero-title">Contact Us</h1>
+      <div class="section-line" style="margin-top:20px"></div>
+    </div>
+  </div>
+
+  <section class="section" style="background:#FFFFFF">
+    <div class="contact-grid">
+      <!-- Info Side -->
+      <div>
+        <div class="animate-on-scroll">
+          <span class="section-subtitle" style="display:block;margin-bottom:8px;text-align:left">Let's Talk</span>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:#1A1A1A;margin-bottom:24px">
+            Start Your Project
+          </h2>
+          <p style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:300;line-height:1.8;color:#666;margin-bottom:48px">
+            Whether you're planning a new home, a commercial development, or an interior transformation,
+            we'd love to hear from you. Reach out and let's discuss how we can bring your vision to life.
+          </p>
+        </div>
+
+        <div class="contact-info-block animate-on-scroll">
+          <div class="contact-info-label">Office</div>
+          <div class="contact-info-text">
+            Aditya Towers, 1, near Gurukripa Buildcon,<br />
+            Canada Corner, Nashik,<br />
+            Maharashtra 422002, India
+          </div>
+        </div>
+
+        <div class="contact-info-block animate-on-scroll">
+          <div class="contact-info-label">Phone</div>
+          <div class="contact-info-text"><a href="tel:+912532581707">+91 253 258 1707</a></div>
+        </div>
+
+        <div class="contact-info-block animate-on-scroll">
+          <div class="contact-info-label">Email</div>
+          <div class="contact-info-text"><a href="mailto:info@thedimensions.co">info@thedimensions.co</a></div>
+        </div>
+
+        <div class="contact-info-block animate-on-scroll">
+          <div class="contact-info-label">Hours</div>
+          <div class="contact-info-text">Monday — Saturday: 10:00 AM — 7:00 PM</div>
+        </div>
+      </div>
+
+      <!-- Form Side -->
+      <div class="animate-on-scroll">
+        <div class="contact-form" id="contact-form">
+          <div class="contact-form-row">
+            <input class="contact-input" type="text" placeholder="Your Name" />
+            <input class="contact-input" type="email" placeholder="Email Address" />
+          </div>
+          <div class="contact-form-row">
+            <input class="contact-input" type="tel" placeholder="Phone Number" />
+            <input class="contact-input" type="text" placeholder="Project Location" />
+          </div>
+          <select class="contact-input" style="cursor:pointer;color:#BBB" onfocus="this.style.color='#1A1A1A'" onchange="this.style.color='#1A1A1A'">
+            <option value="" disabled selected>Project Type</option>
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="industrial">Industrial</option>
+            <option value="interior">Interior Design</option>
+            <option value="planning">Planning</option>
+            <option value="other">Other</option>
+          </select>
+          <textarea class="contact-textarea" placeholder="Tell us about your project..." rows="4"></textarea>
+          <button class="btn-outline btn-outline-dark" style="align-self:flex-start" onclick="alert('Thank you! We will get back to you shortly.')">Send Message</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="contact-map animate-on-scroll">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3749.3!2d73.7898!3d19.9975!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDU5JzUxLjAiTiA3M8KwNDcnMjMuMyJF!5e0!3m2!1sen!2sin!4v1" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- SACHIN BHATTAD — PRINCIPAL ARCHITECT PROFILE -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-sachin-bhattad">
+
+  <!-- Profile Hero -->
+  <div class="profile-hero">
+    <div class="profile-hero-grid">
+      <div class="profile-hero-photo">
+        <!-- Replace with actual photo -->
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#2a2520,#1a1714);display:flex;align-items:center;justify-content:center">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:120px;font-weight:300;color:rgba(154,135,119,0.1)">SB</span>
+        </div>
+      </div>
+      <div class="profile-hero-info">
+        <div class="profile-breadcrumb">
+          <a href="#" onclick="navigateTo('home');return false">Home</a> &nbsp;/&nbsp;
+          <a href="#" onclick="navigateTo('about');return false">About</a> &nbsp;/&nbsp;
+          Sachin Bhattad
+        </div>
+        <h1 class="profile-name">Sachin<br />Bhattad</h1>
+        <div class="profile-title">Principal Architect & Founder</div>
+        <p class="profile-bio-intro">
+          With over 25 years of practice, Sachin Bhattad has shaped the architectural
+          landscape of Nashik and beyond. His design philosophy centres on creating spaces
+          that are timeless, functional, and deeply connected to their environment.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bio & Philosophy -->
+  <div class="profile-section" style="background:#FFFFFF">
+    <div class="profile-content">
+      <div class="animate-on-scroll">
+        <span class="section-subtitle" style="display:block;margin-bottom:12px">The Architect</span>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:#1A1A1A;margin-bottom:24px">
+          A Vision Built Over Decades
+        </h2>
+        <p style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:300;line-height:1.9;color:#666;margin-bottom:16px">
+          Sachin Bhattad founded The Dimensions in 1996 in Nashik with a singular vision — to create
+          architecture that stands the test of time while serving the evolving needs of modern life. 
+          Trained in classical architectural principles and driven by a passion for innovation, he has 
+          led the firm from a small design studio to one of Maharashtra's most respected practices.
+        </p>
+        <p style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:300;line-height:1.9;color:#666;margin-bottom:16px">
+          His portfolio spans luxury residences, commercial towers, industrial complexes, and
+          institutional buildings across Nashik, Pune, Mumbai, and 10 cities nationwide. Every project
+          under his direction reflects a meticulous attention to detail, a respect for context, and an
+          unwavering commitment to quality craftsmanship.
+        </p>
+        <p style="font-family:'Montserrat',sans-serif;font-size:15px;font-weight:300;line-height:1.9;color:#666">
+          Beyond design, Sachin is an active contributor to the architectural community, mentoring
+          young architects and advocating for sustainable building practices in India's rapidly
+          urbanising cities.
+        </p>
+      </div>
+
+      <div class="profile-quote animate-on-scroll">
+        "Architecture is not just about buildings — it's about crafting the stage on which life unfolds.
+        Every wall, every window, every threshold is an opportunity to elevate the human experience."
+        <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;color:#9A8777;letter-spacing:2px;text-transform:uppercase;margin-top:20px">— Sachin Bhattad</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="profile-stats animate-on-scroll">
+        <div>
+          <div class="profile-stat-num">25+</div>
+          <div class="profile-stat-label">Years in Practice</div>
+        </div>
+        <div>
+          <div class="profile-stat-num">100+</div>
+          <div class="profile-stat-label">Projects Led</div>
+        </div>
+        <div>
+          <div class="profile-stat-num">10</div>
+          <div class="profile-stat-label">Cities</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Career Timeline -->
+  <div class="profile-section" style="background:#F7F5F2">
+    <div class="profile-content">
+      <div class="section-heading animate-on-scroll">
+        <span class="section-subtitle">Career</span>
+        <h2 class="section-title">Professional Journey</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="profile-timeline">
+        <div class="profile-timeline-item animate-on-scroll">
+          <div class="profile-timeline-year">1996</div>
+          <div class="profile-timeline-text"><strong style="color:#1A1A1A">Founded The Dimensions</strong> — Established the firm in Nashik with a focus on residential architecture and a commitment to design excellence.</div>
+        </div>
+        <div class="profile-timeline-item animate-on-scroll">
+          <div class="profile-timeline-year">2003</div>
+          <div class="profile-timeline-text"><strong style="color:#1A1A1A">Expanded into Commercial</strong> — Led the firm's first major commercial project, marking the transition into multi-sector practice.</div>
+        </div>
+        <div class="profile-timeline-item animate-on-scroll">
+          <div class="profile-timeline-year">2010</div>
+          <div class="profile-timeline-text"><strong style="color:#1A1A1A">Pune & Mumbai Expansion</strong> — Extended the firm's reach to Pune and Mumbai, bringing The Dimensions' design philosophy to Maharashtra's major cities.</div>
+        </div>
+        <div class="profile-timeline-item animate-on-scroll">
+          <div class="profile-timeline-year">2016</div>
+          <div class="profile-timeline-text"><strong style="color:#1A1A1A">20 Years Milestone</strong> — Celebrated two decades with 75+ completed projects and industry recognition across Maharashtra.</div>
+        </div>
+        <div class="profile-timeline-item animate-on-scroll">
+          <div class="profile-timeline-year">2024</div>
+          <div class="profile-timeline-text"><strong style="color:#1A1A1A">100+ Projects</strong> — Crossed the century mark in completed projects, spanning residential, commercial, and industrial sectors across 10 cities.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expertise -->
+  <div class="profile-section" style="background:#FFFFFF">
+    <div class="profile-content">
+      <div class="section-heading animate-on-scroll">
+        <span class="section-subtitle">Specialisation</span>
+        <h2 class="section-title">Areas of Expertise</h2>
+        <div class="section-line"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px" class="animate-on-scroll">
+        <div style="padding:32px;border:1px solid #E8E4E0;text-align:center">
+          <div style="font-size:28px;color:#9A8777;margin-bottom:16px">△</div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;color:#1A1A1A;text-transform:uppercase;margin-bottom:8px">Residential</div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;color:#888;line-height:1.6">Luxury villas, apartments, and bespoke homes designed for modern Indian living.</div>
+        </div>
+        <div style="padding:32px;border:1px solid #E8E4E0;text-align:center">
+          <div style="font-size:28px;color:#9A8777;margin-bottom:16px">◇</div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;color:#1A1A1A;text-transform:uppercase;margin-bottom:8px">Commercial</div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;color:#888;line-height:1.6">Office towers, retail spaces, and mixed-use developments with lasting impact.</div>
+        </div>
+        <div style="padding:32px;border:1px solid #E8E4E0;text-align:center">
+          <div style="font-size:28px;color:#9A8777;margin-bottom:16px">▢</div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;color:#1A1A1A;text-transform:uppercase;margin-bottom:8px">Sustainable Design</div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:12px;font-weight:300;color:#888;line-height:1.6">Green building principles and energy-efficient design for a better future.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="profile-cta">
+    <div class="animate-on-scroll">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:#FFFFFF;margin-bottom:16px">
+        Work with Sachin Bhattad
+      </h2>
+      <p style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:300;color:rgba(255,255,255,0.4);margin-bottom:32px">
+        Discuss your project with one of Maharashtra's most experienced architects
+      </p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <button class="btn-outline" style="color:#C4A97D;border-color:rgba(196,169,125,0.3);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;padding:16px 40px;background:none;cursor:pointer;transition:all 0.4s" onclick="navigateTo('contact')"
+          onmouseenter="this.style.background='rgba(196,169,125,0.1)';this.style.borderColor='#C4A97D'" onmouseleave="this.style.background='none';this.style.borderColor='rgba(196,169,125,0.3)'">
+          Schedule a Consultation
+        </button>
+        <button class="btn-outline" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;padding:16px 40px;background:none;cursor:pointer;transition:all 0.4s" onclick="navigateTo('projects')"
+          onmouseenter="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,0.4)'" onmouseleave="this.style.color='rgba(255,255,255,0.5)';this.style.borderColor='rgba(255,255,255,0.15)'">
+          View Projects
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Footer ─── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <img class="footer-logo" src="images/logo-white.svg" alt="The Dimensions" />
+        <p class="footer-desc">Where visionary design meets practical execution. Crafting timeless spaces since 1996.</p>
+      </div>
+      <div>
+        <h4 class="footer-heading">Navigate</h4>
+        <a class="footer-link" onclick="navigateTo('home')">Home</a>
+        <a class="footer-link" onclick="navigateTo('projects')">Projects</a>
+        <a class="footer-link" onclick="navigateTo('about')">About Us</a>
+        <a class="footer-link" onclick="navigateTo('services')">Services</a>
+        <a class="footer-link" onclick="navigateTo('press')">Press</a>
+        <a class="footer-link" onclick="navigateTo('contact')">Contact</a>
+      </div>
+      <div>
+        <h4 class="footer-heading">Services</h4>
+        <span class="footer-link" style="cursor:default">Architecture</span>
+        <span class="footer-link" style="cursor:default">Interior Design</span>
+        <span class="footer-link" style="cursor:default">Planning</span>
+      </div>
+      <div>
+        <h4 class="footer-heading">Contact</h4>
+        <p class="footer-contact">
+          Aditya Towers, 1, near Gurukripa<br />
+          Buildcon, Canada Corner,<br />
+          Nashik, Maharashtra 422002
+        </p>
+        <p class="footer-contact" style="margin-top:12px">+91 253 258 1707</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 The Dimensions. All rights reserved.</span>
+      <span class="footer-copy">Architect in Nashik, India</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const LOGO_WHITE = 'images/logo-white.svg';
+const LOGO_DARK = 'images/logo.svg';
+
+// ─── Data ────────────────────────────────────────────────────────────────────
+const heroSlides = [
+  { type: "Residential", title: "Project One", location: "Maharashtra" },
+  { type: "Commercial", title: "Project Two", location: "Maharashtra" },
+  { type: "Commercial", title: "Project Three", location: "Maharashtra" },
+  { type: "Commercial", title: "Project Four", location: "Maharashtra" },
+  { type: "Residential", title: "Mahesh Heights", location: "Nashik, Maharashtra" },
+];
+
+const allProjects = [
+  { image: "images/project1.jpg", title: "Project One", location: "Nashik", category: "Residential", year: "2023" },
+  { image: "images/project2.jpg", title: "Project Two", location: "Pune", category: "Commercial", year: "2022" },
+  { image: "images/project3.jpg", title: "Project Three", location: "Mumbai", category: "Commercial", year: "2023" },
+  { image: "images/project4.jpg", title: "Project Four", location: "Nashik", category: "Commercial", year: "2021" },
+  { image: "images/project5.jpg", title: "Mahesh Heights", location: "Nashik", category: "Residential", year: "2024" },
+  { image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80", title: "Greenfield Residences", location: "Pune", category: "Residential", year: "2022" },
+  { image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80", title: "Nexus Industrial Park", location: "Nashik", category: "Industrial", year: "2020" },
+  { image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80", title: "Lakeside Villa", location: "Mumbai", category: "Residential", year: "2021" },
+  { image: "https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800&q=80", title: "Metro Business Hub", location: "Pune", category: "Commercial", year: "2023" },
+  { image: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=800&q=80", title: "Precision Manufacturing Unit", location: "Nashik", category: "Industrial", year: "2022" },
+];
+
+const testimonials = [
+  { quote: "The Dimensions transformed our vision into a home that truly reflects who we are. Their attention to detail is unmatched.", name: "Rajesh & Priya Kulkarni", project: "Villa Serenity, Nashik" },
+  { quote: "Professional, creative, and always on schedule. They delivered a commercial space that exceeded every expectation.", name: "Amit Deshmukh", project: "Apex Commercial Tower, Pune" },
+  { quote: "Working with The Dimensions was a seamless experience. They understood our needs from day one and delivered perfection.", name: "Sneha Patil", project: "The Heritage House, Mumbai" },
+];
+
+// ─── Hero Slider ─────────────────────────────────────────────────────────────
+let currentSlide = 0;
+let heroInterval;
+
+function goToSlide(idx) {
+  document.querySelectorAll('.hero-slide').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.hero-dot').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.hero-slide')[idx].classList.add('active');
+  document.querySelectorAll('.hero-dot')[idx].classList.add('active');
+  document.getElementById('hero-type').textContent = heroSlides[idx].type;
+  document.getElementById('hero-title').textContent = heroSlides[idx].title;
+  document.getElementById('hero-location').textContent = heroSlides[idx].location;
+  document.getElementById('hero-counter').textContent =
+    String(idx + 1).padStart(2, '0') + ' / ' + String(heroSlides.length).padStart(2, '0');
+  currentSlide = idx;
+}
+
+function nextSlide() { goToSlide((currentSlide + 1) % heroSlides.length); }
+
+function startHeroTimer() {
+  clearInterval(heroInterval);
+  heroInterval = setInterval(nextSlide, 5500);
+}
+
+// ─── Navigation ──────────────────────────────────────────────────────────────
+let currentPage = 'home';
+
+function navigateTo(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.querySelector('.nav-link[data-page="' + page + '"]')?.classList.add('active');
+  window.scrollTo(0, 0);
+  updateNavStyle();
+  // Re-observe scroll animations for new page
+  observeAnimations();
+}
+
+function updateNavStyle() {
+  const nav = document.getElementById('navbar');
+  const scrolled = window.scrollY > 60;
+  const isHome = currentPage === 'home';
+  const isTransparent = isHome && !scrolled && !menuOpen;
+
+  if (scrolled || !isHome) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+
+  const logo = document.getElementById('nav-logo-img');
+  logo.src = isTransparent ? LOGO_WHITE : LOGO_DARK;
+  if (typeof updateHamburgerColor === 'function') updateHamburgerColor();
+}
+
+window.addEventListener('scroll', updateNavStyle);
+
+// ─── Scroll Animations ──────────────────────────────────────────────────────
+function observeAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Animate counters
+        const counter = entry.target.querySelector('.stat-number');
+        if (counter && !counter.dataset.animated) {
+          counter.dataset.animated = 'true';
+          animateCounter(counter);
+        }
+        // Animate section lines
+        const line = entry.target.querySelector('.section-line');
+        if (line) line.classList.add('animated');
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.animate-on-scroll').forEach(el => {
+    if (!el.classList.contains('visible')) observer.observe(el);
+  });
+}
+
+// ─── Counter Animation ───────────────────────────────────────────────────────
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const suffix = el.dataset.suffix || '';
+  const duration = 2000;
+  const start = performance.now();
+
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ─── Testimonials ────────────────────────────────────────────────────────────
+let currentTestimonial = 0;
+let testimonialInterval;
+
+function showTestimonial(idx) {
+  document.getElementById('testimonial-text').textContent = testimonials[idx].quote;
+  document.getElementById('testimonial-name').textContent = testimonials[idx].name;
+  document.getElementById('testimonial-project').textContent = testimonials[idx].project;
+  document.querySelectorAll('.testimonial-dot').forEach(d => d.classList.remove('active'));
+  document.querySelectorAll('.testimonial-dot')[idx]?.classList.add('active');
+  currentTestimonial = idx;
+}
+
+function initTestimonials() {
+  const dotsContainer = document.getElementById('testimonial-dots');
+  testimonials.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'testimonial-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => { showTestimonial(i); resetTestimonialTimer(); };
+    dotsContainer.appendChild(dot);
+  });
+  showTestimonial(0);
+  testimonialInterval = setInterval(() => {
+    showTestimonial((currentTestimonial + 1) % testimonials.length);
+  }, 6000);
+}
+
+function resetTestimonialTimer() {
+  clearInterval(testimonialInterval);
+  testimonialInterval = setInterval(() => {
+    showTestimonial((currentTestimonial + 1) % testimonials.length);
+  }, 6000);
+}
+
+// ─── Projects Page ───────────────────────────────────────────────────────────
+function renderProjects(filter) {
+  const grid = document.getElementById('projects-grid');
+  const filtered = filter === 'All' ? allProjects : allProjects.filter(p => p.category === filter);
+  grid.innerHTML = '';
+  filtered.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'project-card ratio-3-4 animate-on-scroll';
+    card.style.transitionDelay = (i % 3) * 0.1 + 's';
+    card.innerHTML = `
+      <img src="${p.image}" alt="${p.title}" />
+      <div class="project-overlay">
+        <span class="project-cat">${p.category} · ${p.year}</span>
+        <span class="project-name" style="font-size:24px">${p.title}</span>
+        <span class="project-loc">${p.location}, Maharashtra</span>
+      </div>
+    `;
+    card.onclick = () => openProjectModal(p);
+    grid.appendChild(card);
+  });
+  observeAnimations();
+}
+
+function filterProjects(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderProjects(cat);
+}
+
+// ─── Mobile Menu ─────────────────────────────────────────────────────────
+let menuOpen = false;
+
+function toggleMenu() {
+  menuOpen = !menuOpen;
+  const hamburger = document.getElementById('hamburger');
+  const overlay = document.getElementById('mobile-overlay');
+  if (menuOpen) {
+    hamburger.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } else {
+    hamburger.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  updateHamburgerColor();
+}
+
+function updateHamburgerColor() {
+  const scrolled = window.scrollY > 60;
+  const isHome = currentPage === 'home';
+  const isTransparent = isHome && !scrolled && !menuOpen;
+  const color = (isTransparent) ? '#FFFFFF' : '#1A1A1A';
+  document.getElementById('ham1').style.background = color;
+  document.getElementById('ham2').style.background = color;
+  document.getElementById('ham3').style.background = color;
+}
+
+// ─── Project Detail Modal ────────────────────────────────────────────────
+function openProjectModal(project) {
+  document.getElementById('modal-hero-img').src = project.image;
+  document.getElementById('modal-cat').textContent = project.category;
+  document.getElementById('modal-title').textContent = project.title;
+  document.getElementById('modal-location').textContent = project.location + ', Maharashtra';
+  document.getElementById('modal-detail-cat').textContent = project.category;
+  document.getElementById('modal-detail-loc').textContent = project.location + ', Maharashtra';
+  document.getElementById('modal-detail-year').textContent = project.year;
+  document.getElementById('modal-desc').textContent =
+    'A stunning ' + project.category.toLowerCase() + ' project located in ' + project.location +
+    ', designed with meticulous attention to detail. This project showcases our commitment to ' +
+    'blending functionality with aesthetics, creating spaces that inspire and endure. ' +
+    'Contact us to learn more about this project.';
+
+  // Build gallery with the same image repeated (placeholder for multiple images)
+  const gallery = document.getElementById('modal-gallery');
+  gallery.innerHTML = '';
+  const otherProjects = allProjects.filter(p => p.title !== project.title).slice(0, 3);
+  [project, ...otherProjects].forEach(p => {
+    const img = document.createElement('img');
+    img.src = p.image;
+    img.alt = p.title;
+    gallery.appendChild(img);
+  });
+
+  document.getElementById('project-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProjectModal() {
+  document.getElementById('project-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeProjectModal();
+});
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  startHeroTimer();
+  initTestimonials();
+  renderProjects('All');
+  observeAnimations();
+  updateNavStyle();
+
+  // Make homepage featured project cards clickable
+  document.querySelectorAll('#page-home .project-card').forEach((card, i) => {
+    const projects = allProjects.slice(0, 5);
+    if (projects[i]) {
+      card.style.cursor = 'pointer';
+      card.onclick = () => openProjectModal(projects[i]);
+    }
+  });
+
+  // Show AI chat hint briefly on load
+  setTimeout(() => {
+    const trigger = document.getElementById('ai-chat-trigger');
+    if (trigger) { trigger.style.transform = 'scale(1.2)'; setTimeout(() => trigger.style.transform = '', 300); }
+  }, 3000);
+});
+</script>
+
+<!-- Custom Cursor -->
+<div class="td-cursor-dot" id="cursor-dot"></div>
+<div class="td-cursor-ring" id="cursor-ring"></div>
+
+<!-- AI Design Consultant Chat -->
+<button class="ai-chat-trigger" id="ai-chat-trigger" onclick="toggleAIChat()">
+  <svg id="ai-chat-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+    <circle cx="8" cy="10" r="0.5" fill="white"/><circle cx="12" cy="10" r="0.5" fill="white"/><circle cx="16" cy="10" r="0.5" fill="white"/>
+  </svg>
+</button>
+
+<div class="ai-chat-panel" id="ai-chat-panel" style="display:none">
+  <div class="ai-chat-header">
+    <div class="ai-chat-avatar">TD</div>
+    <div style="flex:1">
+      <div style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:500;color:#fff;letter-spacing:1px">AI Design Consultant</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:10px;color:#9A8777;letter-spacing:1px;display:flex;align-items:center;gap:4px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block"></span>
+        Online — Powered by AI
+      </div>
+    </div>
+    <a href="https://wa.me/912532581707?text=Hello%2C%20I%27m%20interested%20in%20your%20architecture%20services." target="_blank" rel="noopener"
+       style="width:36px;height:36px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;transition:transform 0.3s;text-decoration:none"
+       onmouseenter="this.style.transform='scale(1.15)'" onmouseleave="this.style.transform='scale(1)'"
+       title="Chat on WhatsApp instead">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    </a>
+  </div>
+  <div class="ai-chat-messages" id="ai-chat-messages">
+    <div class="ai-msg assistant">Hello! I'm The Dimensions AI Design Consultant. Tell me about your dream project — what kind of space are you envisioning? I can help with initial ideas, style recommendations, and connect you with our team.<br><br>💬 Prefer WhatsApp? Tap the green icon above to chat with us directly.</div>
+  </div>
+  <div class="ai-chat-input-row">
+    <input class="ai-chat-input" id="ai-chat-input" placeholder="Describe your dream space..." onkeydown="if(event.key==='Enter')sendAIChat()" />
+    <button class="ai-chat-send" onclick="sendAIChat()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+// ─── Custom Cursor ───────────────────────────────────────────────────────────
+const cursorDot = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+let cursorPos = { x: 0, y: 0 };
+let ringPos = { x: 0, y: 0 };
+
+document.addEventListener('mousemove', (e) => {
+  cursorPos.x = e.clientX;
+  cursorPos.y = e.clientY;
+  if (cursorDot) {
+    cursorDot.style.left = (e.clientX - 3) + 'px';
+    cursorDot.style.top = (e.clientY - 3) + 'px';
+  }
+});
+
+function animateCursorRing() {
+  ringPos.x += (cursorPos.x - ringPos.x) * 0.12;
+  ringPos.y += (cursorPos.y - ringPos.y) * 0.12;
+  if (cursorRing) {
+    cursorRing.style.left = ringPos.x + 'px';
+    cursorRing.style.top = ringPos.y + 'px';
+  }
+  requestAnimationFrame(animateCursorRing);
+}
+animateCursorRing();
+
+// Hover expand effect
+function initCursorHovers() {
+  document.querySelectorAll('a, button, .project-card, .service-card, .press-card, .nav-link, .filter-btn, .btn-outline, .tilt-card, .ai-chat-send, .ai-chat-trigger').forEach(el => {
+    el.addEventListener('mouseenter', () => cursorRing && cursorRing.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => cursorRing && cursorRing.classList.remove('hovering'));
+  });
+}
+setTimeout(initCursorHovers, 500);
+
+// ─── 3D Tilt Cards ───────────────────────────────────────────────────────────
+function initTiltCards() {
+  document.querySelectorAll('.project-card, .service-card, .press-card').forEach(card => {
+    card.classList.add('tilt-card');
+    // Add glow element
+    if (!card.querySelector('.tilt-glow')) {
+      const glow = document.createElement('div');
+      glow.className = 'tilt-glow';
+      card.appendChild(glow);
+    }
+
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const tiltX = (y - 0.5) * -8;
+      const tiltY = (x - 0.5) * 8;
+      card.style.transform = `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.02)`;
+      const glow = card.querySelector('.tilt-glow');
+      if (glow) glow.style.background = `radial-gradient(circle at ${x*100}% ${y*100}%, rgba(154,135,119,0.15) 0%, transparent 60%)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
+setTimeout(initTiltCards, 500);
+
+// ─── AI Design Consultant ────────────────────────────────────────────────────
+let aiChatOpen = false;
+const aiChatHistory = [];
+
+function toggleAIChat() {
+  aiChatOpen = !aiChatOpen;
+  const panel = document.getElementById('ai-chat-panel');
+  const icon = document.getElementById('ai-chat-icon');
+  const trigger = document.getElementById('ai-chat-trigger');
+  if (aiChatOpen) {
+    panel.style.display = 'flex';
+    trigger.style.transform = 'rotate(45deg)';
+    icon.innerHTML = '<path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="1.5" fill="none"/>';
+  } else {
+    panel.style.display = 'none';
+    trigger.style.transform = '';
+    icon.innerHTML = '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="none" stroke="white" stroke-width="1.5"/><circle cx="8" cy="10" r="0.5" fill="white"/><circle cx="12" cy="10" r="0.5" fill="white"/><circle cx="16" cy="10" r="0.5" fill="white"/>';
+  }
+  initCursorHovers();
+}
+
+function sendAIChat() {
+  const input = document.getElementById('ai-chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  const messagesEl = document.getElementById('ai-chat-messages');
+  messagesEl.innerHTML += `<div class="ai-msg user">${escapeHtml(msg)}</div>`;
+
+  // Show typing indicator briefly
+  const typingId = 'typing-' + Date.now();
+  messagesEl.innerHTML += `<div class="ai-msg assistant" id="${typingId}" style="display:flex;gap:4px;padding:16px 20px">
+    <span style="width:6px;height:6px;border-radius:50%;background:#9A8777;animation:aiPulse 1.2s ease infinite 0s"></span>
+    <span style="width:6px;height:6px;border-radius:50%;background:#9A8777;animation:aiPulse 1.2s ease infinite 0.2s"></span>
+    <span style="width:6px;height:6px;border-radius:50%;background:#9A8777;animation:aiPulse 1.2s ease infinite 0.4s"></span>
+  </div>`;
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  setTimeout(() => {
+    const el = document.getElementById(typingId);
+    if (el) el.remove();
+    const reply = "Thank you for reaching out! Our team would love to discuss your vision in detail. Please contact us directly at <strong style='color:#C4A97D'>+91 253 258 1707</strong> or email <strong style='color:#C4A97D'>info@thedimensions.co</strong> — or use the WhatsApp button above for a quick chat. We look forward to hearing from you! 🏛️";
+    messagesEl.innerHTML += `<div class="ai-msg assistant">${reply}</div>`;
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }, 1200);
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Re-init tilt and cursor hovers when navigating
+const origNavigateTo = navigateTo;
+navigateTo = function(page) {
+  origNavigateTo(page);
+  setTimeout(() => { initTiltCards(); initCursorHovers(); }, 300);
+  
+  // Update page title for SEO
+  const titles = {
+    'home': 'The Dimensions — Architecture & Interior Design | Nashik, India',
+    'projects': 'Projects — The Dimensions | Architecture Portfolio',
+    'about': 'About Us — The Dimensions | 25+ Years of Excellence',
+    'services': 'Services — The Dimensions | Architecture, Interiors & Planning',
+    'press': 'Press & Media — The Dimensions',
+    'contact': 'Contact Us — The Dimensions | Nashik, Maharashtra',
+    'sachin-bhattad': 'Sachin Bhattad — Principal Architect & Founder | The Dimensions, Nashik',
+  };
+  document.title = titles[page] || titles['home'];
+  
+  // Update URL hash for bookmarking/sharing (hash routing for GitHub Pages)
+  try { history.replaceState(null, '', '#' + page); } catch(e) {}
+};
+
+// Handle browser back/forward and hash changes
+window.addEventListener('hashchange', () => {
+  const hash = location.hash.replace('#', '') || 'home';
+  if (document.getElementById('page-' + hash)) {
+    currentPage = hash;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + hash).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    document.querySelector('.nav-link[data-page="' + hash + '"]')?.classList.add('active');
+    window.scrollTo(0, 0);
+    updateNavStyle();
+    observeAnimations();
+    setTimeout(() => { initTiltCards(); initCursorHovers(); }, 300);
+  }
+});
+
+// Load correct page from URL hash on first visit
+if (location.hash) {
+  const initialPage = location.hash.replace('#', '');
+  if (document.getElementById('page-' + initialPage)) {
+    navigateTo(initialPage);
+  }
+}
+</script>
+</body>
+</html>
