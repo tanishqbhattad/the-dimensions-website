@@ -1053,40 +1053,7 @@
       <h2 class="section-title">Featured Projects</h2>
       <div class="section-line"></div>
     </div>
-    <div class="projects-grid-2">
-      <div class="project-card ratio-4-3 animate-on-scroll">
-        <img src="images/project1.jpg" alt="Project One" />
-        <div class="project-overlay">
-          <span class="project-cat">Residential</span>
-          <span class="project-name">Project One</span>
-          <span class="project-loc">Nashik</span>
-        </div>
-      </div>
-      <div class="project-card ratio-4-3 animate-on-scroll" style="transition-delay:0.12s">
-        <img src="images/project2.jpg" alt="Project Two" />
-        <div class="project-overlay">
-          <span class="project-cat">Commercial</span>
-          <span class="project-name">Project Two</span>
-          <span class="project-loc">Pune</span>
-        </div>
-      </div>
-      <div class="project-card ratio-4-3 animate-on-scroll" style="transition-delay:0.24s">
-        <img src="images/project3.jpg" alt="Project Three" />
-        <div class="project-overlay">
-          <span class="project-cat">Commercial</span>
-          <span class="project-name">Project Three</span>
-          <span class="project-loc">Mumbai</span>
-        </div>
-      </div>
-      <div class="project-card ratio-4-3 animate-on-scroll" style="transition-delay:0.36s">
-        <img src="images/project4.jpg" alt="Project Four" />
-        <div class="project-overlay">
-          <span class="project-cat">Commercial</span>
-          <span class="project-name">Project Four</span>
-          <span class="project-loc">Nashik</span>
-        </div>
-      </div>
-    </div>
+    <div class="projects-grid-2" id="featured-projects-grid"></div>
     <div style="text-align:center; margin-top:50px">
       <button class="btn-outline btn-outline-dark" onclick="navigateTo('projects')">View All Projects</button>
     </div>
@@ -1264,25 +1231,7 @@
       <h2 class="section-title">Our Team</h2>
       <div class="section-line"></div>
     </div>
-    <div class="team-grid">
-      <div class="team-card animate-on-scroll" onclick="navigateTo('sachin-bhattad')" style="cursor:pointer" data-hover>
-        <div class="team-photo" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9);position:relative">
-          <div style="position:absolute;bottom:12px;right:12px;background:rgba(154,135,119,0.9);padding:4px 10px;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:500;letter-spacing:1.5px;color:#fff;text-transform:uppercase">View Profile →</div>
-        </div>
-        <div class="team-name">Sachin Bhattad</div>
-        <div class="team-role">Principal Architect & Founder</div>
-      </div>
-      <div class="team-card animate-on-scroll" style="transition-delay:0.15s">
-        <div class="team-photo" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="team-name">Team Member</div>
-        <div class="team-role">Senior Architect</div>
-      </div>
-      <div class="team-card animate-on-scroll" style="transition-delay:0.3s">
-        <div class="team-photo" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="team-name">Team Member</div>
-        <div class="team-role">Interior Design Lead</div>
-      </div>
-    </div>
+    <div class="team-grid" id="team-grid-dynamic"></div>
   </section>
 
   <!-- Awards -->
@@ -1458,56 +1407,7 @@
       <h2 class="section-title">Media & Publications</h2>
       <div class="section-line"></div>
     </div>
-    <div class="press-grid">
-      <div class="press-card animate-on-scroll">
-        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="press-card-body">
-          <div class="press-card-source">Architecture Digest India</div>
-          <div class="press-card-title">The Dimensions: Redefining Nashik's Architectural Identity</div>
-          <div class="press-card-date">January 2024</div>
-        </div>
-      </div>
-      <div class="press-card animate-on-scroll" style="transition-delay:0.12s">
-        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="press-card-body">
-          <div class="press-card-source">The Indian Express</div>
-          <div class="press-card-title">How This Nashik Firm Is Blending Tradition with Modern Design</div>
-          <div class="press-card-date">September 2023</div>
-        </div>
-      </div>
-      <div class="press-card animate-on-scroll" style="transition-delay:0.24s">
-        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="press-card-body">
-          <div class="press-card-source">Architectural Review</div>
-          <div class="press-card-title">Sustainable Architecture in Tier-2 Cities: A Case Study</div>
-          <div class="press-card-date">May 2023</div>
-        </div>
-      </div>
-      <div class="press-card animate-on-scroll" style="transition-delay:0.36s">
-        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="press-card-body">
-          <div class="press-card-source">Design Pataki</div>
-          <div class="press-card-title">25 Years of The Dimensions: A Retrospective</div>
-          <div class="press-card-date">December 2021</div>
-        </div>
-      </div>
-      <div class="press-card animate-on-scroll" style="transition-delay:0.48s">
-        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="press-card-body">
-          <div class="press-card-source">Maharashtra Times</div>
-          <div class="press-card-title">Nashik's Built Heritage: Architects Who Are Making a Difference</div>
-          <div class="press-card-date">August 2020</div>
-        </div>
-      </div>
-      <div class="press-card animate-on-scroll" style="transition-delay:0.6s">
-        <div class="press-card-img" style="background:linear-gradient(135deg,#E8E4E0,#D4CFC9)"></div>
-        <div class="press-card-body">
-          <div class="press-card-source">Inside Outside Magazine</div>
-          <div class="press-card-title">Interior Trends: Luxury Living in Maharashtra's Wine Country</div>
-          <div class="press-card-date">March 2019</div>
-        </div>
-      </div>
-    </div>
+    <div class="press-grid" id="press-cards-grid"></div>
   </section>
 </div>
 
@@ -1807,33 +1707,128 @@
 const LOGO_WHITE = 'images/logo-white.svg';
 const LOGO_DARK = 'images/logo.svg';
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// ─── Site Data (fetched from site-data.json, published via admin panel) ───────
+let _sd = null;
+
+function sT(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function fetchSiteData() {
+  try {
+    const res = await fetch('site-data.json?v=' + Date.now());
+    if (!res.ok) throw new Error();
+    _sd = await res.json();
+  } catch(e) { _sd = null; }
+}
+
+function populateFromSiteData() {
+  if (!_sd) return;
+
+  // Projects
+  allProjects.length = 0;
+  (_sd.projects || []).forEach(p => allProjects.push({
+    image: p.imageUrl || '',
+    title: p.title || '',
+    location: p.location || '',
+    category: p.category || '',
+    year: p.year || '',
+    description: p.description || '',
+    featured: !!p.featured,
+    id: p.id
+  }));
+
+  // Testimonials
+  testimonials.length = 0;
+  (_sd.testimonials || []).forEach(t => testimonials.push(t));
+
+  // Stats
+  const c = _sd.company || {};
+  const statEls = document.querySelectorAll('#page-home .stat-number');
+  [c.years, c.projects, c.cities, c.clients].forEach((v, i) => {
+    if (statEls[i] && v !== undefined) {
+      const suf = ['+','+','','+'][i];
+      statEls[i].dataset.target = v;
+      statEls[i].dataset.suffix = suf;
+      statEls[i].textContent = '0' + suf;
+    }
+  });
+}
+
+function renderFeaturedProjects() {
+  const grid = document.getElementById('featured-projects-grid');
+  if (!grid) return;
+  const featured = allProjects.filter(p => p.featured).slice(0, 4);
+  if (featured.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 40px;color:#BBB;font-family:Montserrat,sans-serif;font-size:13px;font-weight:300;letter-spacing:1px">No featured projects yet — add them in the admin panel and publish.</div>';
+    return;
+  }
+  grid.innerHTML = featured.map((p, i) => `
+    <div class="project-card ratio-4-3 animate-on-scroll" style="transition-delay:${i*0.12}s;cursor:pointer">
+      <img src="${sT(p.image)}" alt="${sT(p.title)}" style="background:#E8E4E0" />
+      <div class="project-overlay">
+        <span class="project-cat">${sT(p.category)}</span>
+        <span class="project-name">${sT(p.title)}</span>
+        <span class="project-loc">${sT(p.location)}</span>
+      </div>
+    </div>`).join('');
+  grid.querySelectorAll('.project-card').forEach((card, i) => {
+    card.onclick = () => openProjectModal(featured[i]);
+  });
+}
+
+function renderTeamGrid() {
+  const grid = document.getElementById('team-grid-dynamic');
+  if (!grid || !_sd) return;
+  const team = _sd.team || [];
+  if (team.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#BBB;font-family:Montserrat,sans-serif;font-size:13px;font-weight:300">No team members yet — add them in the admin panel and publish.</div>';
+    return;
+  }
+  grid.innerHTML = team.map((t, i) => `
+    <div class="team-card animate-on-scroll" style="transition-delay:${i*0.15}s">
+      <div class="team-photo" style="${t.imageUrl ? 'overflow:hidden' : 'background:linear-gradient(135deg,#E8E4E0,#D4CFC9)'}">
+        ${t.imageUrl ? `<img src="${sT(t.imageUrl)}" alt="${sT(t.name)}" style="width:100%;height:100%;object-fit:cover"/>` : ''}
+      </div>
+      <div class="team-name">${sT(t.name)}</div>
+      <div class="team-role">${sT(t.role)}</div>
+    </div>`).join('');
+}
+
+function renderPressGrid() {
+  const grid = document.getElementById('press-cards-grid');
+  if (!grid || !_sd) return;
+  const press = _sd.press || [];
+  if (press.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:#BBB;font-family:Montserrat,sans-serif;font-size:13px;font-weight:300">No press articles yet — add them in the admin panel and publish.</div>';
+    return;
+  }
+  grid.innerHTML = press.map((p, i) => `
+    <div class="press-card animate-on-scroll" style="transition-delay:${i*0.12}s${p.url ? ';cursor:pointer' : ''}"
+      ${p.url ? `onclick="window.open(${JSON.stringify(p.url)},'_blank')"` : ''}>
+      <div class="press-card-img" style="${p.imageUrl ? 'overflow:hidden;padding:0' : 'background:linear-gradient(135deg,#E8E4E0,#D4CFC9)'}">
+        ${p.imageUrl ? `<img src="${sT(p.imageUrl)}" alt="${sT(p.title)}" style="width:100%;height:100%;object-fit:cover"/>` : ''}
+      </div>
+      <div class="press-card-body">
+        <div class="press-card-source">${sT(p.source)}</div>
+        <div class="press-card-title">${sT(p.title)}</div>
+        <div class="press-card-date">${sT(p.date)}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ─── Data (defaults — overwritten by site-data.json on load) ─────────────────
 const heroSlides = [
-  { type: "Residential", title: "Project One", location: "Maharashtra" },
-  { type: "Commercial", title: "Project Two", location: "Maharashtra" },
-  { type: "Commercial", title: "Project Three", location: "Maharashtra" },
-  { type: "Commercial", title: "Project Four", location: "Maharashtra" },
-  { type: "Residential", title: "Mahesh Heights", location: "Nashik, Maharashtra" },
+  { type: "Architecture", title: "The Dimensions", location: "Nashik, Maharashtra" },
+  { type: "Architecture", title: "The Dimensions", location: "Nashik, Maharashtra" },
+  { type: "Architecture", title: "The Dimensions", location: "Nashik, Maharashtra" },
+  { type: "Architecture", title: "The Dimensions", location: "Nashik, Maharashtra" },
+  { type: "Architecture", title: "The Dimensions", location: "Nashik, Maharashtra" },
 ];
 
-const allProjects = [
-  { image: "images/project1.jpg", title: "Project One", location: "Nashik", category: "Residential", year: "2023" },
-  { image: "images/project2.jpg", title: "Project Two", location: "Pune", category: "Commercial", year: "2022" },
-  { image: "images/project3.jpg", title: "Project Three", location: "Mumbai", category: "Commercial", year: "2023" },
-  { image: "images/project4.jpg", title: "Project Four", location: "Nashik", category: "Commercial", year: "2021" },
-  { image: "images/project5.jpg", title: "Mahesh Heights", location: "Nashik", category: "Residential", year: "2024" },
-  { image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80", title: "Greenfield Residences", location: "Pune", category: "Residential", year: "2022" },
-  { image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80", title: "Nexus Industrial Park", location: "Nashik", category: "Industrial", year: "2020" },
-  { image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80", title: "Lakeside Villa", location: "Mumbai", category: "Residential", year: "2021" },
-  { image: "https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800&q=80", title: "Metro Business Hub", location: "Pune", category: "Commercial", year: "2023" },
-  { image: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?w=800&q=80", title: "Precision Manufacturing Unit", location: "Nashik", category: "Industrial", year: "2022" },
-];
-
-const testimonials = [
-  { quote: "The Dimensions transformed our vision into a home that truly reflects who we are. Their attention to detail is unmatched.", name: "Rajesh & Priya Kulkarni", project: "Villa Serenity, Nashik" },
-  { quote: "Professional, creative, and always on schedule. They delivered a commercial space that exceeded every expectation.", name: "Amit Deshmukh", project: "Apex Commercial Tower, Pune" },
-  { quote: "Working with The Dimensions was a seamless experience. They understood our needs from day one and delivered perfection.", name: "Sneha Patil", project: "The Heritage House, Mumbai" },
-];
+const allProjects = [];
+const testimonials = [];
 
 // ─── Hero Slider ─────────────────────────────────────────────────────────────
 let currentSlide = 0;
@@ -2033,10 +2028,9 @@ function openProjectModal(project) {
   document.getElementById('modal-detail-loc').textContent = project.location + ', Maharashtra';
   document.getElementById('modal-detail-year').textContent = project.year;
   document.getElementById('modal-desc').textContent =
-    'A stunning ' + project.category.toLowerCase() + ' project located in ' + project.location +
-    ', designed with meticulous attention to detail. This project showcases our commitment to ' +
-    'blending functionality with aesthetics, creating spaces that inspire and endure. ' +
-    'Contact us to learn more about this project.';
+    project.description ||
+    ('A stunning ' + (project.category||'').toLowerCase() + ' project located in ' + project.location +
+    ', designed with meticulous attention to detail. Contact us to learn more about this project.');
 
   // Build gallery with the same image repeated (placeholder for multiple images)
   const gallery = document.getElementById('modal-gallery');
@@ -2064,21 +2058,24 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ─── Init ────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await fetchSiteData();
+  populateFromSiteData();
   startHeroTimer();
-  initTestimonials();
+  // Testimonials: show section only if data exists
+  const tsSection = document.querySelector('.section-testimonials');
+  if (testimonials.length > 0) {
+    if (tsSection) tsSection.style.display = '';
+    initTestimonials();
+  } else {
+    if (tsSection) tsSection.style.display = 'none';
+  }
+  renderFeaturedProjects();
+  renderTeamGrid();
+  renderPressGrid();
   renderProjects('All');
   observeAnimations();
   updateNavStyle();
-
-  // Make homepage featured project cards clickable
-  document.querySelectorAll('#page-home .project-card').forEach((card, i) => {
-    const projects = allProjects.slice(0, 5);
-    if (projects[i]) {
-      card.style.cursor = 'pointer';
-      card.onclick = () => openProjectModal(projects[i]);
-    }
-  });
 
   // Show AI chat hint briefly on load
   setTimeout(() => {
