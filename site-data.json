@@ -1,9 +1,9 @@
 {
   "company": {
     "tagline": "Crafting Timeless Spaces",
-    "about": "The Dimensions is a leading architectural and interior design firm based in Nashik, with over 25 years of expertise in creating spaces that blend functionality, aesthetics, and sustainability. From visionary concepts to inspiring built environments \u2014 we turn ideas into reality.",
-    "philosophy": "We believe that great architecture is not about imposing form, but about discovering the natural harmony between space, light, material, and the lives that unfold within. Every project is an opportunity to create something that endures \u2014 not just structurally, but emotionally.",
-    "philosophyAuthor": "Sachin Bhattad, Principal Architect",
+    "about": "The Dimensions is a leading architectural and interior design firm based in Nashik, with over 25 years of expertise in creating spaces that blend functionality, aesthetics, and sustainability. From visionary concepts to inspiring built environments — we turn ideas into reality.",
+    "philosophy": "We believe that great architecture is not about imposing form, but about discovering the natural harmony between space, light, material, and the lives that unfold within. Every project is an opportunity to create something that endures — not just structurally, but emotionally.",
+    "philosophyAuthor": "Principal Architect, The Dimensions",
     "phone": "+91 253 258 1707",
     "email": "info@thedimensions.co",
     "address": "Aditya Towers, 1, near Gurukripa Buildcon, Canada Corner, Nashik, Maharashtra 422002",
@@ -12,10 +12,90 @@
     "projects": 100,
     "cities": 10,
     "clients": 100,
-    "hours": "Monday \u2014 Saturday: 10:00 AM \u2014 7:00 PM"
+    "hours": "Monday — Saturday: 10:00 AM — 7:00 PM"
   },
-  "projects": [],
-  "team": [],
-  "testimonials": [],
-  "press": []
+  "projects": [
+    {
+      "id": 1,
+      "title": "Project One",
+      "category": "Residential",
+      "location": "Nashik",
+      "year": "2023",
+      "description": "A luxury residential project.",
+      "imageUrl": "",
+      "featured": true
+    },
+    {
+      "id": 2,
+      "title": "Project Two",
+      "category": "Commercial",
+      "location": "Pune",
+      "year": "2022",
+      "description": "A modern commercial space.",
+      "imageUrl": "",
+      "featured": true
+    }
+  ],
+  "team": [
+    {
+      "id": 1,
+      "name": "Founder Name",
+      "role": "Principal Architect & Founder",
+      "imageUrl": "",
+      "bio": ""
+    },
+    {
+      "id": 2,
+      "name": "Nayana Bhattad",
+      "role": "Principal Architect",
+      "bio": "",
+      "imageUrl": ""
+    },
+    {
+      "id": 3,
+      "name": "Hemant Patel",
+      "role": "Interior Design Head",
+      "bio": "",
+      "imageUrl": ""
+    },
+    {
+      "id": 4,
+      "name": "Kishor Khandelwal",
+      "role": "Legal Head",
+      "bio": "",
+      "imageUrl": ""
+    },
+    {
+      "id": 5,
+      "name": "Vaishnavi Chumble",
+      "role": "Junior Designer",
+      "bio": "",
+      "imageUrl": ""
+    },
+    {
+      "id": 6,
+      "name": "Pratik Aute",
+      "role": "Junior Engineer",
+      "bio": "",
+      "imageUrl": ""
+    }
+  ],
+  "testimonials": [
+    {
+      "id": 1,
+      "quote": "The Dimensions transformed our vision into a home that truly reflects who we are. Their attention to detail is unmatched.",
+      "name": "Rajesh & Priya Kulkarni",
+      "project": "Villa Serenity, Nashik"
+    }
+  ],
+  "press": [
+    {
+      "id": 1,
+      "source": "Architecture Digest India",
+      "title": "The Dimensions: Redefining Nashik's Architectural Identity",
+      "date": "January 2024",
+      "url": "",
+      "imageUrl": ""
+    }
+  ]
 }
