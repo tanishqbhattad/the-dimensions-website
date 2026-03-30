@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Green Meadows - Interactive Master Plan</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+</style>
+<script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useEffect, useCallback } = React;
+
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+
+
+/* ═══════════════════════════════════════════
+   DATA - Real geometry from AutoCAD DXF
+   ═══════════════════════════════════════════ */
+const SVG_W = 718.88, SVG_H = 952.73;
+
+const PLOTS = [
+  {id:1,pts:[[205.23,810.24],[140.09,791.15],[129.61,828.26],[179.31,843.18],[198.95,832.53]],c:[166.27,818.27],a:192.68,am:161.051,tp:"Semi-detached",e:[{"mx":134.85,"my":809.7,"a":105.8,"l":9.64},{"mx":162.13,"my":838.02,"a":16.7,"l":16.98},{"mx":199.94,"my":829.01,"a":-74.3,"l":9.75},{"mx":172.66,"my":800.69,"a":-163.7,"l":16.97}],path:"M205.23,810.24 L140.09,791.15 L129.61,828.26 L179.31,843.18 A16.0,16.0 0 0,0 198.95,832.53 Z",oc:[[140.09,791.15],[129.61,828.26],[194.65,847.78],[205.23,810.24]]},
+  {id:2,pts:[[200.31,768.26],[150.57,754.04],[140.09,791.15],[205.23,810.24],[211.51,788.03]],c:[176.39,782.35],a:192.74,am:161.102,tp:"Semi-detached",e:[{"mx":145.33,"my":772.6,"a":105.8,"l":9.64},{"mx":172.66,"my":800.69,"a":16.3,"l":16.97},{"mx":210.53,"my":791.47,"a":-74.2,"l":9.75},{"mx":183.2,"my":763.37,"a":-164.0,"l":16.97}],path:"M200.31,768.26 L150.57,754.04 L140.09,791.15 L205.23,810.24 L211.51,788.03 A16.0,16.0 0 0,0 200.31,768.26 Z",oc:[[150.57,754.04],[140.09,791.15],[205.23,810.24],[215.83,772.7]]},
+  {id:3,pts:[[101.63,819.86],[122.49,746.02],[150.57,754.04],[129.61,828.26]],c:[126.09,787.05],a:167.96,am:140.39,tp:"Semi-detached",e:[{"mx":112.06,"my":782.94,"a":-74.2,"l":19.18},{"mx":136.53,"my":750.03,"a":15.9,"l":7.3},{"mx":140.09,"my":791.15,"a":105.8,"l":19.28},{"mx":115.62,"my":824.06,"a":-163.3,"l":7.3}]},
+  {id:4,pts:[[94.33,737.97],[122.49,746.02],[101.63,819.86],[73.66,811.47]],c:[98.05,778.81],a:167.38,am:139.901,tp:"Semi-detached",e:[{"mx":108.41,"my":741.99,"a":16.0,"l":7.32},{"mx":112.06,"my":782.94,"a":105.8,"l":19.18},{"mx":87.65,"my":815.67,"a":-163.3,"l":7.3},{"mx":84.0,"my":774.72,"a":-74.3,"l":19.09}]},
+  {id:5,pts:[[104.08,703.32],[123.59,633.96],[151.65,641.98],[132.17,711.34]],c:[127.87,672.66],a:157.27,am:131.456,tp:"Semi-detached",e:[{"mx":113.83,"my":668.64,"a":-74.3,"l":18.01},{"mx":137.62,"my":637.97,"a":16.0,"l":7.3},{"mx":141.91,"my":676.66,"a":105.7,"l":18.01},{"mx":118.12,"my":707.33,"a":-164.1,"l":7.3}]},
+  {id:6,pts:[[132.17,711.34],[151.65,641.98],[179.53,649.96],[160.05,719.31]],c:[155.85,680.65],a:156.22,am:130.574,tp:"Semi-detached",e:[{"mx":141.91,"my":676.66,"a":-74.3,"l":18.01},{"mx":165.59,"my":645.97,"a":16.0,"l":7.25},{"mx":169.79,"my":684.63,"a":105.7,"l":18.01},{"mx":146.11,"my":715.33,"a":-164.0,"l":7.25}]},
+  {id:7,pts:[[229.91,722.49],[233.68,709.12],[168.17,690.39],[160.05,719.31],[210.15,733.64]],c:[195.18,713.06],a:148.88,am:124.439,tp:"Row-House",e:[{"mx":200.93,"my":699.75,"a":-164.0,"l":17.03},{"mx":164.11,"my":704.85,"a":105.7,"l":7.51},{"mx":192.8,"my":728.67,"a":16.0,"l":17.03},{"mx":229.61,"my":723.57,"a":-74.3,"l":7.51}],path:"M229.91,722.49 L233.68,709.12 L168.17,690.39 L160.05,719.31 L210.15,733.64 A16.0,16.0 0 0,0 229.91,722.49 Z",oc:[[233.68,709.12],[168.17,690.39],[160.05,719.31],[225.54,738.03]]},
+  {id:8,pts:[[171.96,676.91],[237.47,695.64],[233.68,709.12],[168.17,690.39]],c:[202.82,693.01],a:71.33,am:59.617,tp:"Row-House",e:[{"mx":204.71,"my":686.28,"a":16.0,"l":17.03},{"mx":235.57,"my":702.38,"a":105.7,"l":3.5},{"mx":200.93,"my":699.75,"a":-164.0,"l":17.03},{"mx":170.07,"my":683.65,"a":-74.3,"l":3.5}]},
+  {id:9,pts:[[175.74,663.44],[241.27,682.16],[237.47,695.64],[171.96,676.91]],c:[206.61,679.54],a:71.33,am:59.624,tp:"Row-House",e:[{"mx":208.5,"my":672.8,"a":15.9,"l":17.04},{"mx":239.37,"my":688.9,"a":105.7,"l":3.5},{"mx":204.71,"my":686.28,"a":-164.0,"l":17.03},{"mx":173.85,"my":670.17,"a":-74.3,"l":3.5}]},
+  {id:10,pts:[[245.06,668.69],[241.27,682.16],[175.74,663.44],[179.53,649.96]],c:[210.4,666.06],a:71.34,am:59.631,tp:"Row-House",e:[{"mx":243.16,"my":675.43,"a":105.7,"l":3.5},{"mx":208.5,"my":672.8,"a":-164.1,"l":17.04},{"mx":177.64,"my":656.7,"a":-74.3,"l":3.5},{"mx":212.29,"my":659.32,"a":16.0,"l":17.04}]},
+  {id:11,pts:[[183.31,636.48],[248.85,655.21],[245.06,668.69],[179.53,649.96]],c:[214.19,652.58],a:71.35,am:59.637,tp:"Row-House",e:[{"mx":216.08,"my":645.84,"a":15.9,"l":17.04},{"mx":246.95,"my":661.95,"a":105.7,"l":3.5},{"mx":212.29,"my":659.32,"a":-164.0,"l":17.04},{"mx":181.42,"my":643.22,"a":-74.3,"l":3.5}]},
+  {id:12,pts:[[183.31,636.48],[187.1,623.0],[252.64,641.74],[248.85,655.21]],c:[217.98,639.11],a:71.36,am:59.644,tp:"Row-House",e:[{"mx":185.21,"my":629.74,"a":-74.3,"l":3.5},{"mx":219.87,"my":632.37,"a":16.0,"l":17.04},{"mx":250.75,"my":648.47,"a":105.7,"l":3.5},{"mx":216.08,"my":645.84,"a":-164.1,"l":17.04}]},
+  {id:13,pts:[[190.89,609.52],[256.43,628.26],[252.64,641.74],[187.1,623.0]],c:[221.76,625.63],a:71.37,am:59.651,tp:"Row-House",e:[{"mx":223.66,"my":618.89,"a":16.0,"l":17.04},{"mx":254.54,"my":635.0,"a":105.7,"l":3.5},{"mx":219.87,"my":632.37,"a":-164.0,"l":17.04},{"mx":188.99,"my":616.26,"a":-74.3,"l":3.5}]},
+  {id:14,pts:[[249.2,594.95],[199.01,580.6],[190.89,609.52],[256.43,628.26],[260.28,614.6]],c:[225.73,604.53],a:149.1,am:124.625,tp:"Row-House",e:[{"mx":194.95,"my":595.06,"a":105.7,"l":7.51},{"mx":223.66,"my":618.89,"a":16.0,"l":17.04},{"mx":260.5,"my":613.8,"a":-74.3,"l":7.51},{"mx":231.79,"my":589.97,"a":-164.0,"l":17.05}],path:"M249.2,594.95 L199.01,580.6 L190.89,609.52 L256.43,628.26 L260.28,614.6 A16.0,16.0 0 0,0 249.2,594.95 Z",oc:[[199.01,580.6],[190.89,609.52],[256.43,628.26],[264.57,599.34]]},
+  {id:15,pts:[[151.65,641.98],[171.12,572.63],[199.01,580.6],[179.53,649.96]],c:[175.33,611.29],a:156.22,am:130.574,tp:"Semi-detached",e:[{"mx":161.38,"my":607.31,"a":-74.3,"l":18.01},{"mx":185.06,"my":576.61,"a":15.9,"l":7.25},{"mx":189.27,"my":615.28,"a":105.7,"l":18.01},{"mx":165.59,"my":645.97,"a":-164.0,"l":7.25}]},
+  {id:16,pts:[[151.65,641.98],[123.59,633.96],[143.09,564.62],[171.12,572.63]],c:[147.36,603.3],a:157.12,am:131.327,tp:"Semi-detached",e:[{"mx":137.62,"my":637.97,"a":-164.0,"l":7.3},{"mx":133.34,"my":599.29,"a":-74.3,"l":18.01},{"mx":157.11,"my":568.62,"a":15.9,"l":7.29},{"mx":161.38,"my":607.31,"a":105.7,"l":18.01}]},
+  {id:17,pts:[[152.84,529.96],[170.36,467.66],[197.59,475.3],[180.08,537.74]],c:[175.22,502.67],a:137.12,am:114.61,tp:"Semi-detached",e:[{"mx":161.6,"my":498.81,"a":-74.3,"l":16.18},{"mx":183.98,"my":471.48,"a":15.7,"l":7.07},{"mx":188.84,"my":506.52,"a":105.7,"l":16.21},{"mx":166.46,"my":533.85,"a":-164.1,"l":7.08}]},
+  {id:18,pts:[[180.08,537.74],[197.59,475.3],[224.63,482.88],[207.02,545.45]],c:[202.34,510.33],a:136.2,am:113.844,tp:"Semi-detached",e:[{"mx":188.84,"my":506.52,"a":-74.3,"l":16.21},{"mx":211.11,"my":479.09,"a":15.7,"l":7.02},{"mx":215.83,"my":514.16,"a":105.7,"l":16.25},{"mx":193.55,"my":541.6,"a":-164.0,"l":7.01}]},
+  {id:19,pts:[[278.7,549.14],[281.78,538.22],[214.47,518.98],[207.02,545.45],[258.94,560.29]],c:[242.51,540.66],a:139.81,am:116.856,tp:"Row-House",e:[{"mx":248.13,"my":528.6,"a":-164.0,"l":17.5},{"mx":210.75,"my":532.21,"a":105.7,"l":6.88},{"mx":240.68,"my":555.07,"a":15.9,"l":17.5},{"mx":278.05,"my":551.45,"a":-74.3,"l":6.87}],path:"M278.7,549.14 L281.78,538.22 L214.47,518.98 L207.02,545.45 L258.94,560.29 A16.0,16.0 0 0,0 278.7,549.14 Z",oc:[[281.78,538.22],[214.47,518.98],[207.02,545.45],[274.33,564.68]]},
+  {id:20,pts:[[218.54,504.54],[285.84,523.78],[281.78,538.22],[214.47,518.98]],c:[250.16,521.38],a:78.51,am:65.626,tp:"Row-House",e:[{"mx":252.19,"my":514.16,"a":16.0,"l":17.5},{"mx":283.81,"my":531.0,"a":105.7,"l":3.75},{"mx":248.13,"my":528.6,"a":-164.0,"l":17.5},{"mx":216.51,"my":511.76,"a":-74.3,"l":3.75}]},
+  {id:21,pts:[[222.6,490.1],[289.91,509.34],[285.84,523.78],[218.54,504.54]],c:[254.22,506.94],a:78.51,am:65.626,tp:"Row-House",e:[{"mx":256.25,"my":499.72,"a":16.0,"l":17.5},{"mx":287.87,"my":516.56,"a":105.7,"l":3.75},{"mx":252.19,"my":514.16,"a":-164.0,"l":17.5},{"mx":220.57,"my":497.32,"a":-74.3,"l":3.75}]},
+  {id:22,pts:[[226.67,475.66],[293.97,494.9],[289.91,509.34],[222.6,490.1]],c:[258.29,492.5],a:78.51,am:65.626,tp:"Row-House",e:[{"mx":260.32,"my":485.28,"a":16.0,"l":17.5},{"mx":291.94,"my":502.12,"a":105.7,"l":3.75},{"mx":256.25,"my":499.72,"a":-164.0,"l":17.5},{"mx":224.63,"my":482.88,"a":-74.3,"l":3.75}]},
+  {id:23,pts:[[226.67,475.66],[230.73,461.22],[298.03,480.46],[293.97,494.9]],c:[262.35,478.06],a:78.51,am:65.626,tp:"Row-House",e:[{"mx":228.7,"my":468.44,"a":-74.3,"l":3.75},{"mx":264.38,"my":470.84,"a":16.0,"l":17.5},{"mx":296.0,"my":487.68,"a":105.7,"l":3.75},{"mx":260.32,"my":485.28,"a":-164.0,"l":17.5}]},
+  {id:24,pts:[[234.79,446.78],[302.1,466.02],[298.03,480.46],[230.73,461.22]],c:[266.41,463.62],a:78.51,am:65.626,tp:"Row-House",e:[{"mx":268.44,"my":456.4,"a":16.0,"l":17.5},{"mx":300.07,"my":473.24,"a":105.7,"l":3.75},{"mx":264.38,"my":470.84,"a":-164.0,"l":17.5},{"mx":232.76,"my":454.0,"a":-74.3,"l":3.75}]},
+  {id:25,pts:[[294.21,435.16],[242.24,420.31],[234.79,446.78],[302.1,466.02],[305.43,454.16]],c:[270.1,443.18],a:139.88,am:116.92,tp:"Row-House",e:[{"mx":238.52,"my":433.54,"a":105.7,"l":6.88},{"mx":268.44,"my":456.4,"a":16.0,"l":17.5},{"mx":305.82,"my":452.78,"a":-74.3,"l":6.87},{"mx":275.9,"my":429.93,"a":-164.0,"l":17.5}],path:"M294.21,435.16 L242.24,420.31 L234.79,446.78 L302.1,466.02 L305.43,454.16 A16.0,16.0 0 0,0 294.21,435.16 Z",oc:[[242.24,420.31],[234.79,446.78],[302.1,466.02],[309.55,439.55]]},
+  {id:26,pts:[[197.59,475.3],[215.18,412.57],[242.24,420.31],[224.63,482.88]],c:[219.91,447.75],a:136.8,am:114.339,tp:"Semi-detached",e:[{"mx":206.39,"my":443.93,"a":-74.3,"l":16.29},{"mx":228.71,"my":416.44,"a":16.0,"l":7.04},{"mx":233.44,"my":451.59,"a":105.7,"l":16.25},{"mx":211.11,"my":479.09,"a":-164.3,"l":7.02}]},
+  {id:27,pts:[[170.36,467.66],[188.04,404.81],[215.18,412.57],[197.59,475.3]],c:[192.79,440.09],a:137.77,am:115.156,tp:"Semi-detached",e:[{"mx":179.2,"my":436.24,"a":-74.3,"l":16.32},{"mx":201.61,"my":408.69,"a":16.0,"l":7.06},{"mx":206.39,"my":443.93,"a":105.7,"l":16.29},{"mx":183.98,"my":471.48,"a":-164.3,"l":7.07}]},
+  {id:28,pts:[[324.58,519.01],[389.9,537.7],[383.39,560.8],[318.08,542.12]],c:[353.99,539.91],a:121.92,am:101.904,tp:"Row-House",e:[{"mx":357.24,"my":528.36,"a":16.0,"l":16.98},{"mx":386.64,"my":549.25,"a":105.7,"l":6.0},{"mx":350.73,"my":551.46,"a":-164.0,"l":16.98},{"mx":321.33,"my":530.56,"a":-74.3,"l":6.0}]},
+  {id:29,pts:[[318.08,542.12],[383.39,560.8],[379.59,574.28],[314.29,555.59]],c:[348.84,558.2],a:71.11,am:59.44,tp:"Row-House",e:[{"mx":350.73,"my":551.46,"a":16.0,"l":16.98},{"mx":381.49,"my":567.54,"a":105.7,"l":3.5},{"mx":346.94,"my":564.94,"a":-164.0,"l":16.98},{"mx":316.18,"my":548.85,"a":-74.3,"l":3.5}]},
+  {id:30,pts:[[314.29,555.59],[379.59,574.28],[375.8,587.76],[310.49,569.07]],c:[345.04,571.67],a:71.11,am:59.436,tp:"Row-House",e:[{"mx":346.94,"my":564.94,"a":16.0,"l":16.98},{"mx":377.7,"my":581.02,"a":105.7,"l":3.5},{"mx":343.15,"my":578.41,"a":-164.0,"l":16.98},{"mx":312.39,"my":562.33,"a":-74.3,"l":3.5}]},
+  {id:31,pts:[[310.49,569.07],[375.8,587.76],[372.0,601.23],[306.7,582.54]],c:[341.25,585.15],a:71.11,am:59.433,tp:"Row-House",e:[{"mx":343.15,"my":578.41,"a":16.0,"l":16.98},{"mx":373.9,"my":594.49,"a":105.8,"l":3.5},{"mx":339.35,"my":591.89,"a":-164.0,"l":16.98},{"mx":308.6,"my":575.81,"a":-74.3,"l":3.5}]},
+  {id:32,pts:[[306.7,582.54],[372.0,601.23],[368.21,614.7],[302.91,596.02]],c:[337.45,598.62],a:71.1,am:59.43,tp:"Row-House",e:[{"mx":339.35,"my":591.89,"a":16.0,"l":16.98},{"mx":370.1,"my":607.97,"a":105.7,"l":3.5},{"mx":335.56,"my":605.36,"a":-164.0,"l":16.98},{"mx":304.8,"my":589.28,"a":-74.3,"l":3.5}]},
+  {id:33,pts:[[302.91,596.02],[368.21,614.7],[364.41,628.18],[299.11,609.5]],c:[333.66,612.1],a:71.1,am:59.427,tp:"Row-House",e:[{"mx":335.56,"my":605.36,"a":16.0,"l":16.98},{"mx":366.31,"my":621.44,"a":105.7,"l":3.5},{"mx":331.76,"my":618.84,"a":-164.0,"l":16.98},{"mx":301.01,"my":602.76,"a":-74.3,"l":3.5}]},
+  {id:34,pts:[[299.11,609.5],[364.41,628.18],[360.61,641.66],[295.32,622.98]],c:[329.87,625.58],a:71.09,am:59.423,tp:"Row-House",e:[{"mx":331.76,"my":618.84,"a":16.0,"l":16.98},{"mx":362.51,"my":634.92,"a":105.7,"l":3.5},{"mx":327.97,"my":632.32,"a":-164.0,"l":16.98},{"mx":297.22,"my":616.24,"a":-74.3,"l":3.5}]},
+  {id:35,pts:[[295.32,622.98],[360.61,641.66],[356.81,655.13],[291.53,636.45]],c:[326.07,639.05],a:71.09,am:59.42,tp:"Row-House",e:[{"mx":327.97,"my":632.32,"a":16.0,"l":16.98},{"mx":358.71,"my":648.39,"a":105.8,"l":3.5},{"mx":324.17,"my":645.79,"a":-164.0,"l":16.98},{"mx":293.43,"my":629.71,"a":-74.3,"l":3.5}]},
+  {id:36,pts:[[291.53,636.45],[356.81,655.13],[350.58,677.27],[285.3,658.59]],c:[321.06,656.86],a:116.78,am:97.612,tp:"Row-House",e:[{"mx":324.17,"my":645.79,"a":16.0,"l":16.98},{"mx":353.7,"my":666.2,"a":105.7,"l":5.75},{"mx":317.94,"my":667.93,"a":-164.0,"l":16.98},{"mx":288.41,"my":647.52,"a":-74.3,"l":5.75}]},
+  {id:37,pts:[[285.3,658.59],[350.58,677.27],[344.34,699.41],[279.07,680.73]],c:[314.82,679.0],a:116.77,am:97.603,tp:"Row-House",e:[{"mx":317.94,"my":667.93,"a":16.0,"l":16.98},{"mx":347.46,"my":688.34,"a":105.7,"l":5.75},{"mx":311.7,"my":690.07,"a":-164.0,"l":16.97},{"mx":282.18,"my":669.66,"a":-74.3,"l":5.75}]},
+  {id:38,pts:[[279.07,680.73],[344.34,699.41],[340.55,712.88],[275.27,694.21]],c:[309.81,696.81],a:71.07,am:59.406,tp:"Row-House",e:[{"mx":311.7,"my":690.07,"a":16.0,"l":16.97},{"mx":342.44,"my":706.15,"a":105.7,"l":3.5},{"mx":307.91,"my":703.55,"a":-164.0,"l":16.97},{"mx":277.17,"my":687.47,"a":-74.3,"l":3.5}]},
+  {id:39,pts:[[275.27,694.21],[340.55,712.88],[336.75,726.36],[271.48,707.68]],c:[306.01,710.28],a:71.07,am:59.403,tp:"Row-House",e:[{"mx":307.91,"my":703.55,"a":16.0,"l":16.97},{"mx":338.65,"my":719.62,"a":105.7,"l":3.5},{"mx":304.12,"my":717.02,"a":-164.0,"l":16.97},{"mx":273.38,"my":700.95,"a":-74.3,"l":3.5}]},
+  {id:40,pts:[[271.48,707.68],[336.75,726.36],[332.95,739.84],[267.69,721.16]],c:[302.22,723.76],a:71.07,am:59.4,tp:"Row-House",e:[{"mx":304.12,"my":717.02,"a":16.0,"l":16.97},{"mx":334.85,"my":733.1,"a":105.7,"l":3.5},{"mx":300.32,"my":730.5,"a":-164.0,"l":16.97},{"mx":269.58,"my":714.42,"a":-74.3,"l":3.5}]},
+  {id:41,pts:[[267.69,721.16],[332.95,739.84],[329.15,753.31],[263.89,734.64]],c:[298.42,737.24],a:71.06,am:59.396,tp:"Row-House",e:[{"mx":300.32,"my":730.5,"a":16.0,"l":16.97},{"mx":331.05,"my":746.57,"a":105.8,"l":3.5},{"mx":296.52,"my":743.97,"a":-164.0,"l":16.97},{"mx":265.79,"my":727.9,"a":-74.3,"l":3.5}]},
+  {id:42,pts:[[263.89,734.64],[329.15,753.31],[325.36,766.79],[260.1,748.12]],c:[294.63,750.71],a:71.06,am:59.393,tp:"Row-House",e:[{"mx":296.52,"my":743.97,"a":16.0,"l":16.97},{"mx":327.26,"my":760.05,"a":105.7,"l":3.5},{"mx":292.73,"my":757.45,"a":-164.0,"l":16.97},{"mx":262.0,"my":741.38,"a":-74.3,"l":3.5}]},
+  {id:43,pts:[[260.1,748.12],[325.36,766.79],[321.56,780.26],[256.31,761.59]],c:[290.83,764.19],a:71.05,am:59.39,tp:"Row-House",e:[{"mx":292.73,"my":757.45,"a":16.0,"l":16.97},{"mx":323.46,"my":773.53,"a":105.8,"l":3.5},{"mx":288.94,"my":770.93,"a":-164.0,"l":16.97},{"mx":258.21,"my":754.85,"a":-74.3,"l":3.5}]},
+  {id:44,pts:[[256.31,761.59],[321.56,780.26],[312.81,811.34],[247.56,792.67]],c:[284.56,786.47],a:163.86,am:136.958,tp:"Row-House",e:[{"mx":288.94,"my":770.93,"a":16.0,"l":16.97},{"mx":317.18,"my":795.8,"a":105.7,"l":8.07},{"mx":280.18,"my":802.01,"a":-164.0,"l":16.97},{"mx":251.94,"my":777.13,"a":-74.3,"l":8.07}]},
+  {id:45,pts:[[283.0,802.81],[247.56,792.67],[233.36,843.12],[244.31,862.69],[264.43,868.73]],c:[257.11,829.35],a:184.16,am:153.93,tp:"Semi-detached",e:[{"mx":238.35,"my":825.4,"a":105.7,"l":17.0},{"mx":246.79,"my":863.43,"a":16.7,"l":9.21},{"mx":273.72,"my":835.77,"a":-74.3,"l":17.12},{"mx":265.28,"my":797.74,"a":-164.0,"l":9.22}],path:"M283.0,802.81 L247.56,792.67 L233.36,843.12 A16.0,16.0 0 0,0 244.31,862.69 L264.43,868.73 Z",oc:[[247.56,792.67],[229.14,858.13],[264.43,868.73],[283.0,802.81]]},
+  {id:46,pts:[[312.81,811.34],[283.0,802.81],[264.43,868.73],[278.65,872.99],[298.48,862.19]],c:[288.49,838.13],a:155.02,am:129.575,tp:"Semi-detached",e:[{"mx":273.72,"my":835.77,"a":105.7,"l":17.12},{"mx":279.28,"my":873.18,"a":16.7,"l":7.75},{"mx":303.47,"my":844.49,"a":-74.3,"l":17.22},{"mx":297.9,"my":807.08,"a":-164.0,"l":7.75}],path:"M312.81,811.34 L283.0,802.81 L264.43,868.73 L278.65,872.99 A16.0,16.0 0 0,0 298.48,862.19 Z",oc:[[283.0,802.81],[264.43,868.73],[294.13,877.63],[312.81,811.34]]}
+];
+
+const INFRA = [
+  {type:"Amenity Space",pts:[[197.79,370.16],[238.69,224.72],[320.64,310.86],[296.06,398.25]],c:[259.55,323.62],color:"#7092BE",icon:"🏛️"},
+  {type:"MSEB",pts:[[296.06,398.25],[301.47,379.0],[320.71,384.5],[315.29,403.75]],c:[308.38,391.37],color:"#A6BE7C",icon:"⚡"},
+  {type:"Open Space",pts:[[414.52,449.53],[351.13,342.92],[320.64,310.86],[301.47,379.0],[320.7,384.5],[315.29,403.75],[338.56,410.4],[349.63,430.0],[324.58,519.02],[389.9,537.71]],c:[359.61,435.21],color:"#92CC36",icon:"🌳",path:"M414.52,449.53 L351.13,342.92 L320.64,310.86 L301.47,379.0 L320.7,384.5 L315.29,403.75 L338.56,410.4 A16.0,16.0 0 0,1 349.63,430.0 L324.58,519.02 L389.9,537.71 Z"},
+  {type:"Internal Roads",pts:[[349.63,430.0],[338.57,410.4],[197.79,370.16],[188.04,404.81],[294.21,435.16],[305.43,454.16],[302.1,466.02],[278.7,549.14],[258.94,560.29],[207.02,545.45],[152.84,529.96],[143.09,564.62],[249.2,594.95],[260.28,614.6],[256.43,628.26],[229.91,722.49],[210.15,733.64],[160.05,719.31],[104.08,703.32],[94.33,737.97],[200.31,768.26],[211.51,788.03],[205.23,810.24],[199.18,831.72],[179.32,843.18],[244.31,862.69],[233.36,843.12],[247.56,792.67]],c:[243.57,606.49],color:"#515151",icon:"",path:"M349.63,430.0 A16.0,16.0 0 0,0 338.57,410.4 L197.79,370.16 L188.04,404.81 L294.21,435.16 A16.0,16.0 0 0,1 305.43,454.16 L302.1,466.02 L278.7,549.14 A16.0,16.0 0 0,1 258.94,560.29 L207.02,545.45 L152.84,529.96 L143.09,564.62 L249.2,594.95 A16.0,16.0 0 0,1 260.28,614.6 L256.43,628.26 L229.91,722.49 A16.0,16.0 0 0,1 210.15,733.64 L160.05,719.31 L104.08,703.32 L94.33,737.97 L200.31,768.26 A16.0,16.0 0 0,1 211.51,788.03 L205.23,810.24 L199.18,831.72 A16.0,16.0 0 0,1 179.32,843.18 L244.31,862.69 A16.0,16.0 0 0,1 233.36,843.12 L247.56,792.67 Z"}
+];
+
+const BOUNDARY = [[73.66,811.47],[197.79,370.16],[238.69,224.72],[320.64,310.86],[351.13,342.91],[414.52,449.53],[389.9,537.7],[383.39,560.8],[379.59,574.28],[375.8,587.76],[372.0,601.24],[368.21,614.7],[360.61,641.66],[344.34,699.41],[321.56,780.26],[294.13,877.64]];
+
+const CONTEXT = [{"s":[33.59,799.44],"e":[294.13,877.64]},{"s":[57.98,844.35],"e":[241.95,899.56]},{"s":[276.47,909.93],"e":[336.56,927.96]},{"s":[294.12,877.66],"e":[325.36,766.79]},{"s":[328.62,887.98],"e":[350.14,811.6]},{"s":[325.36,766.79],"e":[378.7,782.4]},{"s":[238.7,224.72],"e":[248.23,191.17]},{"s":[248.32,191.18],"e":[391.04,209.58]},{"s":[391.04,209.58],"e":[442.24,78.92]},{"s":[442.24,78.92],"e":[513.15,158.8]},{"s":[513.15,158.8],"e":[514.63,245.31]},{"s":[514.63,245.31],"e":[469.49,317.67]},{"s":[469.49,317.67],"e":[420.9,300.56]},{"s":[420.9,300.56],"e":[414.52,449.53]},{"s":[414.52,449.53],"e":[455.0,518.86]},{"s":[481.79,407.06],"e":[403.56,270.28]},{"s":[403.56,270.28],"e":[341.19,203.41]},{"s":[513.68,190.91],"e":[477.37,186.43]},{"s":[477.37,186.43],"e":[456.25,233.9]},{"s":[456.25,233.9],"e":[433.71,228.05]},{"s":[433.71,228.05],"e":[412.48,285.87]},{"s":[449.19,15.0],"e":[703.88,300.07]},{"s":[276.47,909.93],"e":[268.13,937.73]},{"s":[241.95,899.56],"e":[233.74,927.59]},{"s":[58.0,844.3],"e":[49.56,873.19]},{"s":[33.59,799.44],"e":[15.0,863.1]},{"s":[328.62,887.98],"e":[346.77,893.48]},{"s":[350.14,811.6],"e":[366.92,816.51]}];
+
+const ROAD_TEXTS = [{"text":"9 Meter Road","x":176.18,"y":554.01,"rotation":0.0},{"text":"9 Meter Road","x":126.69,"y":727.15,"rotation":0.0},{"text":"9 Meter Road","x":221.81,"y":394.4,"rotation":0.0},{"text":"9 Meter Road","x":298.39,"y":531.55,"rotation":0.0},{"text":"9 Meter Road","x":253.69,"y":690.38,"rotation":0.0}];
+
+const ENTRANCE = [[204.8,811.78],[239.44,821.53],[233.37,843.12],[244.31,862.69],[179.32,843.18],[199.19,831.72]];
+const ENTRANCE_C = [216.33,836.84];
+const ENTRANCE_PATH = "M204.8,811.78 L239.44,821.53 L233.37,843.12 A16.0,16.0 0 0,0 244.31,862.69 L179.32,843.18 A16.0,16.0 0 0,0 199.19,831.72 Z";
+
+const STATUS_CFG = {
+  Available: { color: "#4ade80", label: "Available" },
+  Sold:      { color: "#f87171", label: "Sold" },
+  Hold:      { color: "#fbbf24", label: "On Hold" },
+};
+const ALL_STATUSES = Object.keys(STATUS_CFG);
+
+const TYPE_CFG = {
+  Platinum: { color: "#a78bfa", label: "Platinum" },
+  Gold:     { color: "#fbbf24", label: "Gold" },
+  Silver:   { color: "#94a3b8", label: "Silver" },
+};
+const ALL_TYPES = Object.keys(TYPE_CFG);
+
+/* ═══════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════ */
+const p2s = (pts) => pts.map(p => p[0] + "," + p[1]).join(" ");
+
+function plotRotation(edges) {
+  let best = 0, bestD = 999;
+  for (const e of edges) {
+    let a = ((e.a % 360) + 360) % 360;
+    let d = Math.min(Math.abs(a), Math.abs(a - 180), Math.abs(a - 360));
+    if (d < bestD) { bestD = d; best = e.a; }
+  }
+  while (best > 90) best -= 180;
+  while (best < -90) best += 180;
+  return best;
+}
+
+function initStatuses() {
+  const m = {};
+  PLOTS.forEach(p => {
+    const r = Math.random();
+    m[p.id] = r < 0.5 ? "Available" : r < 0.8 ? "Sold" : "Hold";
+  });
+  return m;
+}
+
+function initTypes() {
+  const m = {};
+  PLOTS.forEach(p => {
+    const r = Math.random();
+    m[p.id] = r < 0.25 ? "Platinum" : r < 0.6 ? "Gold" : "Silver";
+  });
+  return m;
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENT
+   ═══════════════════════════════════════════ */
+function SpacerMap() {
+  const [statuses, setStatuses] = useState(initStatuses);
+  const [plotTypes] = useState(initTypes);
+  const [sel, setSel] = useState(null);
+  const [hov, setHov] = useState(null);
+  const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(false);
+  const [typesFilter, setTypesFilter] = useState(false);
+  const [activeStatuses, setActiveStatuses] = useState(new Set(ALL_STATUSES));
+  const [activeTypes, setActiveTypes] = useState(new Set(ALL_TYPES));
+  const [showInfra, setShowInfra] = useState(true);
+  const [vb, setVb] = useState({ x: -56, y: 15, w: 600, h: 1080 });
+  const [isPan, setIsPan] = useState(false);
+  const [panO, setPanO] = useState(null);
+  const [infoPanel, setInfoPanel] = useState(null); // 'gallery' | 'info' | 'locate' | null
+  const [isMobile, setIsMobile] = useState(false);
+  const svgRef = useRef(null);
+  const lastTouchDist = useRef(null);
+  const lastTouchCenter = useRef(null);
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Max zoom-out bounds (125% more than content)
+  const MAX_W = SVG_W * 2.25;
+  const MAX_H = SVG_H * 2.25;
+  const MIN_X = -(MAX_W - SVG_W) / 2;
+  const MIN_Y = -(MAX_H - SVG_H) / 2;
+
+  // Filtered plots
+  const visIds = useMemo(() => {
+    const s = new Set();
+    PLOTS.forEach(p => {
+      if (statusFilter && !activeStatuses.has(statuses[p.id])) return;
+      if (typesFilter && !activeTypes.has(plotTypes[p.id])) return;
+      s.add(p.id);
+    });
+    return s;
+  }, [statuses, activeStatuses, statusFilter, plotTypes, activeTypes, typesFilter]);
+
+  // Stats
+  const stats = useMemo(() => {
+    const s = {};
+    ALL_STATUSES.forEach(k => { s[k] = 0; });
+    Object.values(statuses).forEach(k => { s[k]++; });
+    return s;
+  }, [statuses]);
+
+  const typeStats = useMemo(() => {
+    const s = {};
+    ALL_TYPES.forEach(k => { s[k] = 0; });
+    Object.values(plotTypes).forEach(k => { s[k]++; });
+    return s;
+  }, [plotTypes]);
+
+  // Zoom
+  const onWheel = useCallback((e) => {
+    e.preventDefault();
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / rect.width;
+    const my = (e.clientY - rect.top) / rect.height;
+    const f = e.deltaY > 0 ? 1.12 : 0.89;
+    setVb(v => {
+      const nw = Math.min(MAX_W, Math.max(40, v.w * f));
+      const nh = Math.min(MAX_H, Math.max(75, v.h * f));
+      return {
+        x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - nw, v.x + (v.w - nw) * mx)),
+        y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - nh, v.y + (v.h - nh) * my)),
+        w: nw, h: nh
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    const s = svgRef.current;
+    if (s) s.addEventListener("wheel", onWheel, { passive: false });
+    return () => { if (s) s.removeEventListener("wheel", onWheel); };
+  }, [onWheel]);
+
+  // Touch pinch-to-zoom
+  const onTouchStart = useCallback((e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastTouchDist.current = Math.hypot(dx, dy);
+      lastTouchCenter.current = {
+        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+      };
+    }
+  }, []);
+
+  const onTouchMove = useCallback((e) => {
+    if (e.touches.length === 2 && lastTouchDist.current) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.hypot(dx, dy);
+      const scale = lastTouchDist.current / dist;
+      const svg = svgRef.current;
+      if (!svg) return;
+      const rect = svg.getBoundingClientRect();
+      const cx = (lastTouchCenter.current.x - rect.left) / rect.width;
+      const cy = (lastTouchCenter.current.y - rect.top) / rect.height;
+      setVb(v => {
+        const nw = Math.min(MAX_W, Math.max(40, v.w * scale));
+        const nh = Math.min(MAX_H, Math.max(75, v.h * scale));
+        return {
+          x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - nw, v.x + (v.w - nw) * cx)),
+          y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - nh, v.y + (v.h - nh) * cy)),
+          w: nw, h: nh
+        };
+      });
+      lastTouchDist.current = dist;
+    }
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    lastTouchDist.current = null;
+    lastTouchCenter.current = null;
+  }, []);
+
+  useEffect(() => {
+    const s = svgRef.current;
+    if (!s) return;
+    s.addEventListener("touchstart", onTouchStart, { passive: false });
+    s.addEventListener("touchmove", onTouchMove, { passive: false });
+    s.addEventListener("touchend", onTouchEnd);
+    return () => {
+      s.removeEventListener("touchstart", onTouchStart);
+      s.removeEventListener("touchmove", onTouchMove);
+      s.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [onTouchStart, onTouchMove, onTouchEnd]);
+
+  // Pan
+  const onPanDown = (e) => {
+    if (e.target.closest("[data-plot]")) return;
+    setIsPan(true);
+    setPanO({ x: e.clientX, y: e.clientY, vb: { ...vb } });
+  };
+  const onPanMove = (e) => {
+    if (!isPan || !panO) return;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const r = svg.getBoundingClientRect();
+    const dx = (e.clientX - panO.x) * (vb.w / r.width);
+    const dy = (e.clientY - panO.y) * (vb.h / r.height);
+    setVb({
+      ...panO.vb,
+      x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - vb.w, panO.vb.x - dx)),
+      y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - vb.h, panO.vb.y - dy)),
+    });
+  };
+  const onPanUp = (e) => {
+    // If pointer barely moved, it's a click on blank area → deselect
+    if (isPan && panO && Math.abs(e.clientX - panO.x) < 4 && Math.abs(e.clientY - panO.y) < 4) {
+      setSel(null);
+    }
+    setIsPan(false);
+    setPanO(null);
+  };
+
+  // Actions
+  const zoomToPlot = (plot) => {
+    const zw = 62, zh = 115;
+    setVb({
+      x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - zw, plot.c[0] - zw / 2)),
+      y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - zh, plot.c[1] - zh / 2)),
+      w: zw, h: zh
+    });
+  };
+  const resetView = () => { setVb({ x: -56, y: 15, w: 600, h: 1080 }); setSel(null); };
+  const toggleSt = (s) => {
+    setActiveStatuses(prev => {
+      const n = new Set(prev);
+      if (n.has(s)) n.delete(s); else n.add(s);
+      return n;
+    });
+  };
+  const toggleTp = (t) => {
+    setActiveTypes(prev => {
+      const n = new Set(prev);
+      if (n.has(t)) n.delete(t); else n.add(t);
+      return n;
+    });
+  };
+  // Mutual exclusivity: turning one on turns the other off
+  const toggleStatusFilter = () => {
+    if (!statusFilter) { setStatusFilter(true); setTypesFilter(false); }
+    else setStatusFilter(false);
+  };
+  const toggleTypesFilter = () => {
+    if (!typesFilter) { setTypesFilter(true); setStatusFilter(false); }
+    else setTypesFilter(false);
+  };
+
+  const selPlot = sel ? PLOTS.find(p => p.id === sel) : null;
+  const hovPlot = hov ? PLOTS.find(p => p.id === hov) : null;
+  const zoomLevel = SVG_W / vb.w;
+
+  // Search and go to plot
+  const searchAndGo = () => {
+    const num = parseInt(search, 10);
+    const found = PLOTS.find(p => p.id === num);
+    if (found) {
+      setSel(found.id);
+      zoomToPlot(found);
+      setInfoPanel(null);
+    }
+  };
+
+  // ═══ STYLES ═══
+  const m = isMobile;
+  const S = {
+    root: { width: "100%", height: "100vh", background: "#232323", position: "relative", overflow: "hidden", fontFamily: "'Outfit', 'Manrope', system-ui, sans-serif", color: "#e2e8f0", touchAction: "none" },
+    pill: (active) => ({ padding: m ? "6px 12px" : "8px 18px", borderRadius: 30, border: "1px solid " + (active ? "#ffffff30" : "#ffffff15"), background: active ? "#ffffff15" : "#00000040", backdropFilter: "blur(12px)", cursor: "pointer", fontSize: m ? 11 : 13, fontWeight: 500, color: active ? "#fff" : "#94a3b8", display: "flex", alignItems: "center", gap: 6, transition: "all .2s", userSelect: "none" }),
+    toggle: (on) => ({ width: m ? 30 : 36, height: m ? 16 : 20, borderRadius: 10, background: on ? "#4ade80" : "#334155", position: "relative", cursor: "pointer", transition: "background .2s", flexShrink: 0 }),
+    toggleDot: (on) => ({ width: m ? 12 : 16, height: m ? 12 : 16, borderRadius: 8, background: "#fff", position: "absolute", top: 2, left: on ? (m ? 16 : 18) : 2, transition: "left .2s" }),
+    bottomBtn: (active) => ({ padding: m ? "8px 14px" : "10px 20px", borderRadius: 12, background: active ? "#ffffff20" : "#00000060", border: "1px solid #ffffff15", backdropFilter: "blur(12px)", color: active ? "#fff" : "#94a3b8", fontSize: m ? 11 : 13, fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, transition: "all .2s", flex: m ? 1 : "none", justifyContent: "center" }),
+    iconBtn: { width: m ? 36 : 42, height: m ? 36 : 42, borderRadius: m ? 10 : 12, background: "#00000060", border: "1px solid #ffffff15", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#94a3b8", fontSize: m ? 14 : 16 },
+  };
+
+  return (
+    <div style={S.root}>
+      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+      {/* ── SVG MAP ── */}
+      <svg
+        ref={svgRef}
+        viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
+        style={{ width: "100%", height: "100%", cursor: isPan ? "grabbing" : "grab", position: "absolute", inset: 0 }}
+        onPointerDown={onPanDown} onPointerMove={onPanMove} onPointerUp={onPanUp} onPointerLeave={onPanUp}
+      >
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff04" strokeWidth=".3" />
+          </pattern>
+          <filter id="glow"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          <filter id="selGlow"><feGaussianBlur stdDeviation="5" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+          <linearGradient id="entryGrad" x1="0" y1="1" x2="0" y2="0" gradientTransform="rotate(16, 0.5, 0.5)">
+            <stop offset="0%" stopColor="#4ade80" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#4ade80" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        <rect x="0" y="0" width={SVG_W} height={SVG_H} fill="#232323" />
+        <rect x="0" y="0" width={SVG_W} height={SVG_H} fill="url(#grid)" />
+
+        {/* Boundary */}
+        <polygon points={p2s(BOUNDARY)} fill="none" stroke="#000000" strokeWidth="0.8" opacity={sel ? 0.5 : 1} style={{ transition: "opacity .3s" }} />
+
+        {/* Surrounding Context */}
+        <g opacity={sel ? 0.3 : 0.8} style={{ pointerEvents: "none", transition: "opacity .3s" }}>
+          {CONTEXT.map((ln, i) => (
+            <line key={i} x1={ln.s[0]} y1={ln.s[1]} x2={ln.e[0]} y2={ln.e[1]}
+              stroke="#ffffff60" strokeWidth="1" strokeDasharray="4 3" />
+          ))}
+        </g>
+
+        {/* Infrastructure */}
+        <g opacity={sel ? 0.5 : 1} style={{ transition: "opacity .3s" }}>
+        {showInfra && INFRA.map((inf, i) => (
+          <g key={i}>
+            {inf.path ? (
+              <path d={inf.path} fill={inf.type === "Internal Roads" ? "#515151" : inf.color} stroke="#000000" strokeWidth={inf.type === "Internal Roads" ? 0.3 : 0.5} />
+            ) : (
+              <polygon points={p2s(inf.pts)} fill={inf.type === "Internal Roads" ? "#515151" : inf.color} stroke="#000000" strokeWidth={inf.type === "Internal Roads" ? 0.3 : 0.5} />
+            )}
+            {inf.type !== "Internal Roads" && zoomLevel > 1.2 && (
+              <g>
+                <text x={inf.c[0]} y={inf.c[1] - 3} textAnchor="middle" fontSize="9" style={{ pointerEvents: "none" }}>{inf.icon}</text>
+                <text x={inf.c[0]} y={inf.c[1] + 8} textAnchor="middle" fill="#fff" fontSize="4" fontFamily="Outfit" fontWeight="600" opacity=".9" style={{ pointerEvents: "none" }}>{inf.type}</text>
+              </g>
+            )}
+          </g>
+        ))}
+        </g>
+
+        {/* Road Labels from DXF */}
+        <g opacity={sel ? 0.25 : 0.6} style={{ pointerEvents: "none", transition: "opacity .3s" }}>
+          {ROAD_TEXTS.map((t, i) => {
+            const isVertical = i === 3 || i === 4;
+            const angle = isVertical ? -74 : 16;
+            return (
+              <text key={i} x={t.x} y={t.y} textAnchor="start" dominantBaseline="hanging"
+                fill="#ffffffc0" fontSize="6" fontFamily="Outfit" fontWeight="500"
+                transform={`rotate(${angle}, ${t.x}, ${t.y})`}>
+                {t.text}
+              </text>
+            );
+          })}
+        </g>
+
+        {/* Entrance */}
+        <g opacity={sel ? 0.5 : 1} style={{ transition: "opacity .3s" }}>
+          {typeof ENTRANCE_PATH !== 'undefined' ? (
+            <path d={ENTRANCE_PATH} fill="url(#entryGrad)" stroke="none" />
+          ) : (
+            <polygon points={p2s(ENTRANCE)} fill="url(#entryGrad)" stroke="none" />
+          )}
+          <text x={ENTRANCE_C[0]} y={ENTRANCE_C[1] + 1}
+                textAnchor="middle" dominantBaseline="middle"
+                fill="#4ade80" fontSize="5" fontFamily="Outfit" fontWeight="700"
+                transform={`rotate(16, ${ENTRANCE_C[0]}, ${ENTRANCE_C[1] + 1})`}
+                style={{ pointerEvents: "none" }}>ENTRY</text>
+        </g>
+
+        {/* Plots */}
+        {PLOTS.map(p => {
+          const vis = visIds.has(p.id);
+          const isSel = sel === p.id;
+          const isHov = hov === p.id;
+          const rot = plotRotation(p.e);
+
+          // Determine fill color based on active filter
+          let plotFill = "#CFC4AB";
+          if (statusFilter && vis) {
+            plotFill = STATUS_CFG[statuses[p.id]]?.color || "#CFC4AB";
+          } else if (typesFilter && vis) {
+            plotFill = TYPE_CFG[plotTypes[p.id]]?.color || "#CFC4AB";
+          }
+
+          return (
+            <g key={p.id} data-plot={p.id} style={{ cursor: "pointer" }}
+              onClick={() => { setSel(p.id); zoomToPlot(p); setInfoPanel(null); }}
+              onPointerEnter={() => setHov(p.id)}
+              onPointerLeave={() => setHov(null)}
+            >
+              {p.path ? (
+                <path d={p.path}
+                  fill={vis ? (isSel ? "#3B9AE8" : plotFill) : "#CFC4AB20"}
+                  stroke="#000000"
+                  strokeWidth={isSel ? 2 : isHov ? 2.2 : 2}
+                  opacity={vis ? (sel && !isSel ? 0.5 : 1) : .15}
+                  style={{ transition: "fill .3s, opacity .3s" }}
+                />
+              ) : (
+                <polygon
+                  points={p2s(p.pts)}
+                  fill={vis ? (isSel ? "#3B9AE8" : plotFill) : "#CFC4AB20"}
+                  stroke="#000000"
+                  strokeWidth={isSel ? 2 : isHov ? 2.2 : 2}
+                  opacity={vis ? (sel && !isSel ? 0.5 : 1) : .15}
+                  style={{ transition: "fill .3s, opacity .3s" }}
+                />
+              )}
+
+              {/* ── UNSELECTED: number only, always visible, 1.5x ── */}
+              {vis && !isSel && (
+                <text x={p.c[0]} y={p.c[1]} textAnchor="middle" dominantBaseline="middle"
+                  fill={(statusFilter || typesFilter) ? "#fff" : "#1a1a1a"} fontSize="6.75"
+                  fontFamily="Outfit" fontWeight="700"
+                  opacity={sel ? 0.5 : 1}
+                  stroke={(statusFilter || typesFilter) ? "#00000050" : "none"} strokeWidth={(statusFilter || typesFilter) ? ".5" : "0"} paintOrder="stroke"
+                  transform={`rotate(${rot}, ${p.c[0]}, ${p.c[1]})`}
+                  style={{ pointerEvents: "none", transition: "opacity .3s, fill .3s" }}>
+                  {p.id}
+                </text>
+              )}
+
+              {/* ── SELECTED: text hierarchy ── */}
+              {isSel && (
+                <g transform={`rotate(${rot}, ${p.c[0]}, ${p.c[1]})`} style={{ pointerEvents: "none" }}>
+                  <text x={p.c[0]} y={p.c[1] - 2} textAnchor="middle" dominantBaseline="middle"
+                    fill="#fff" fontSize="6.3" fontFamily="Outfit" fontWeight="700">{p.id}</text>
+                  <text x={p.c[0]} y={p.c[1] + 4} textAnchor="middle" dominantBaseline="middle"
+                    fill="#ffffffd0" fontSize="2.8" fontFamily="Outfit" fontWeight="600">{p.a} sq yd</text>
+                </g>
+              )}
+
+              {/* ── SELECTED: dimensions rendered in separate layer below ── */}
+            </g>
+          );
+        })}
+
+        {/* ── DIMENSION LINES LAYER (on top of all plots) ── */}
+        {sel && (() => {
+          const p = PLOTS.find(pl => pl.id === sel);
+          if (!p) return null;
+          const corners = p.oc || p.pts;
+          // Compute centroid from the corners used (not the filleted centroid)
+          const ccx = corners.reduce((s,c) => s + c[0], 0) / corners.length;
+          const ccy = corners.reduce((s,c) => s + c[1], 0) / corners.length;
+          return p.e.map((edge, ei) => {
+            const dist = 2.5;
+            const pi = corners[ei];
+            const pj = corners[(ei + 1) % corners.length];
+            const edx = pj[0] - pi[0];
+            const edy = pj[1] - pi[1];
+            const cross = edx * (ccy - pi[1]) - edy * (ccx - pi[0]);
+            let outX, outY;
+            if (cross > 0) {
+              const len = Math.hypot(edx, edy);
+              outX = (edy / len) * dist;
+              outY = (-edx / len) * dist;
+            } else {
+              const len = Math.hypot(edx, edy);
+              outX = (-edy / len) * dist;
+              outY = (edx / len) * dist;
+            }
+            const nx = outX;
+            const ny = outY;
+            const tk = 1.8;
+            const outLen = Math.hypot(outX, outY);
+            const uX = outX / outLen;
+            const uY = outY / outLen;
+            const tAng = (edge.a > 90 || edge.a < -90) ? edge.a + 180 : edge.a;
+            return (
+              <g key={ei} style={{ pointerEvents: "none" }}>
+                <line x1={pi[0] + nx} y1={pi[1] + ny} x2={pj[0] + nx} y2={pj[1] + ny}
+                  stroke="#ffffffb0" strokeWidth=".4" strokeDasharray="1.2 1.2" />
+                <line x1={pi[0] + nx - uX * tk * .4} y1={pi[1] + ny - uY * tk * .4}
+                      x2={pi[0] + nx + uX * tk * .4} y2={pi[1] + ny + uY * tk * .4}
+                  stroke="#ffffffb0" strokeWidth=".4" />
+                <line x1={pj[0] + nx - uX * tk * .4} y1={pj[1] + ny - uY * tk * .4}
+                      x2={pj[0] + nx + uX * tk * .4} y2={pj[1] + ny + uY * tk * .4}
+                  stroke="#ffffffb0" strokeWidth=".4" />
+                <line x1={pi[0]} y1={pi[1]} x2={pi[0] + nx} y2={pi[1] + ny}
+                  stroke="#ffffff50" strokeWidth=".25" strokeDasharray="1 1" />
+                <line x1={pj[0]} y1={pj[1]} x2={pj[0] + nx} y2={pj[1] + ny}
+                  stroke="#ffffff50" strokeWidth=".25" strokeDasharray="1 1" />
+                <text x={edge.mx + nx} y={edge.my + ny}
+                  textAnchor="middle" dominantBaseline="middle"
+                  fill="#fff" fontSize="3" fontFamily="Outfit" fontWeight="600"
+                  stroke="#232323" strokeWidth="2" paintOrder="stroke"
+                  transform={`rotate(${tAng}, ${edge.mx + nx}, ${edge.my + ny})`}>
+                  {edge.l} m
+                </text>
+              </g>
+            );
+          });
+        })()}
+
+      </svg>
+
+      {/* ── TOP LEFT: Project Logo + North Compass ── */}
+      {!(m && sel) && (
+      <div style={{ position: "absolute", top: m ? 10 : 16, left: m ? 10 : 16, display: "flex", flexDirection: "column", gap: m ? 8 : 12, zIndex: 10 }}>
+        <div style={{ background: "#00000080", backdropFilter: "blur(12px)", borderRadius: m ? 10 : 12, padding: m ? "4px 6px" : "6px 10px", border: "1px solid #ffffff10" }}>
+          <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI3LjMuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCA1MTQuNyAxNTkuMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTE0LjcgMTU5LjM7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCS5zdDB7ZmlsbDojRjRGN0Y0O30KCS5zdDF7ZmlsbDojMjg1MDNGO30KCS5zdDJ7ZmlsbDojMjY0RDNCO30KCS5zdDN7ZmlsbDojMjc0RDNEO30KCS5zdDR7ZmlsbDojQkNEMzlBO30KCS5zdDV7ZmlsbDojQkFEMTk4O30KCS5zdDZ7ZmlsbDojQkVCMThGO30KCS5zdDd7ZmlsbDojMjc0RTNEO30KCS5zdDh7ZmlsbDojQkRCMThGO30KCS5zdDl7ZmlsbDojMjg0RTNFO30KCS5zdDEwe2ZpbGw6IzI1NEQzQjt9Cgkuc3QxMXtmaWxsOiMyQTRGM0Y7fQoJLnN0MTJ7ZmlsbDojMkM1MjQzO30KCS5zdDEze2ZpbGw6IzJBNTA0MDt9Cgkuc3QxNHtmaWxsOiNCQUQwOTc7fQoJLnN0MTV7ZmlsbDojMjU0RTNEO30KPC9zdHlsZT4KPHBhdGggY2xhc3M9InN0MCIgZD0iTS05ODUuOSw4Mi43Yy0wLjEsMC4zLTAuNCwwLjUtMSwwLjdDLTk4Ni44LDgzLjItOTg2LjUsODIuOS05ODUuOSw4Mi43eiIvPgo8cGF0aCBjbGFzcz0ic3QwIiBkPSJNLTk4My45LDgxLjRjLTAuMSwwLjItMC41LDAuNC0xLDAuNkMtOTg0LjgsODEuOS05ODQuNSw4MS42LTk4My45LDgxLjR6Ii8+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0tOTg1LjIsODIuMWMwLjEsMC4xLTAuMSwwLjMtMC40LDAuNkMtOTg1LjcsODIuNi05ODUuNSw4Mi40LTk4NS4yLDgyLjF6Ii8+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0tOTgzLjQsODFjMCwwLjEtMC4xLDAuMi0wLjMsMC40Qy05ODMuOCw4MS4zLTk4My43LDgxLjEtOTgzLjQsODF6Ii8+CjxnPgoJPHBhdGggY2xhc3M9InN0MSIgZD0iTTkzLjQsODIuN2MtMC4zLDIzLjQtMC4xLDQwLjgsMC40LDQzLjRjMC4xLDAuMSwwLjEsMC4yLDAuMiwwLjJjMC4xLDAsMC4yLDAuMSwwLjMsMC4xCgkJYzE0LjksMCwyOS45LDAuMSw0NC44LDAuMWMwLjUsMCwxLjEtMC4xLDEuNi0wLjFjMC44LTEuMSwwLjUtMi40LDAuNS0zLjZjMC0xMy42LDAtMjcuMiwwLTQwLjhjMC0wLjcsMC4xLTEuMywwLTIKCQljLTAuNS0zLDAuNi01LjMsMi45LTcuMmMxLjUtMS4yLDIuNy0yLjksNC4xLTQuM2MwLjEtMC4xLDAuMiwwLDAuNC0wLjFjMC43LDAuNywwLjQsMS42LDAuNCwyLjRjMCwxNy4yLDAsMzQuMywwLDUxLjUKCQljMCwxLjMsMCwyLjYsMC4xLDQuMWMzLjYsMC4zLDcsMCwxMC41LDAuMmMwLjUsMS4yLDAuMiwyLjQsMC4zLDMuNmMwLjEsMS4yLDAsMi40LDAsMy40Yy0wLjMsMC4zLTAuNCwwLjQtMC40LDAuNQoJCWMtMC4xLDAuMS0wLjIsMC4xLTAuMywwLjFjLTAuMywwLTAuNywwLjEtMSwwLjFjLTM5LjcsMC03OS41LDAuMS0xMTkuMiwwLjFjLTAuMSwwLTAuMiwwLTAuNSwwLjFjLTAuMSwwLjYtMC4zLDEuNC0wLjMsMi4xCgkJYzAsMy41LDAsNy4xLDAsMTAuNmMwLDEsMCwyLDAsMy4xYy0yLjUsMC43LTQuOSwwLjMtNy41LDAuMmMtMC4xLTAuOC0wLjItMS42LTAuMy0yLjNjMC0zLjcsMC03LjMsMC0xMWMwLTAuOS0wLjEtMS43LTAuMS0yLjQKCQljLTAuOC0wLjgtMS42LTAuNi0yLjQtMC42Yy01LjEsMC0xMC4yLDAtMTUuMywwYy0xLjEsMC0yLjItMC4xLTMuNS0wLjFjLTAuMy0yLjUtMC4zLTQuOSwwLTcuNWM3LTAuMSwxMy45LDAsMjEtMC4xCgkJYzAuMy0zLjUsMC4xLTYuNywwLjItOS44YzAtMy4zLDAtNi42LDAtMTBjMC0zLjIsMC02LjQsMC05LjZjMC0zLjMsMC02LjYsMC0xMGMwLTMuMiwwLTYuNCwwLTkuNmMwLTMuMywwLTYuNiwwLTEwCgkJYzAtMy4yLDAtNi40LDAtOS42YzAtMy4yLDAtNi40LDAtOS42YzAtMy4zLDAtNi42LDAtMTBjMC0zLjIsMC02LjQsMC05LjZjMC0zLjMsMC02LjYsMC0xMGMwLTMuMiwwLTYuNCwwLTkuNwoJCUMzMyw4LjcsMzUuNCw4LjYsMzgsOWMwLjIsNC43LDAsOS4zLDAuMSwxNC4xYzEuMywwLjYsMi41LDAuNCwzLjYsMC40YzEzLjUsMCwyNywwLDQwLjUsMGMzLjEsMCw2LjIsMCw5LjMsMAoJCWMwLjYsMCwxLjMsMC4xLDIuMSwwLjJjLTEuOCwyLjYtMy40LDQuOS01LjIsNy40Yy0xNi42LDAtMzMuMywwLTUwLjIsMGMtMC4xLDAuNy0wLjMsMS4yLTAuMywxLjdjMCwxMy41LDAsMjcsMCw0MC41CgkJYzAsMC40LDAuMSwwLjgsMC4yLDEuNWMxLjEsMC4xLDIuMiwwLjEsMy4zLDAuMmMxLjEsMCwyLjIsMCwzLjYsMC40YzAuNCwyLjMsMC40LDQuMi0xLjMsNS43Yy0wLjMsMC4zLTAuMywxLTAuNywxLjYKCQljLTEuOCwwLjItMy4zLTAuMS00LjgsMC4zYy0wLjQsMy4yLTAuNiwzMS4zLTAuMyw0MS45YzAsMC41LDAuMSwxLDAuMiwxLjVjMi44LDAuNSwyMy43LDAuNiw0NS4yLDAuM2MwLjcsMCwxLjUtMC4xLDIuNC0wLjIKCQljMC4xLTEsMC4xLTEuOSwwLjEtMi44YzAuMS0yLjgsMC4xLTUuNSwwLjQtOC4zYzEsMC4xLDEuOCwwLjEsMi43LDAuMmMwLjEsMC42LDAuMiwxLjIsMC4zLDEuN2MwLjEsMS4zLDAuNywyLjMsMS41LDMuMgoJCWMwLjQsMC40LDAuOCwwLjcsMS43LDAuMmMwLTAuOSwwLjEtMiwwLjEtMy4xYzAtMTAuNCwwLTIwLjgsMC0zMS4yYzAtMC45LDAtMS44LDAuMS0yLjZDOTIuNyw4My4zLDkzLjIsODMsOTMuNCw4Mi43eiIvPgoJPHBhdGggY2xhc3M9InN0MiIgZD0iTTkzLjgsODIuN2MtMC42LDAuNC0xLDAuNy0xLjEsMWMtMC4xLDAuOS0wLjEsMS44LTAuMSwyLjZjMCwxMC40LDAsMjAuOCwwLDMxLjJjMCwxLjEtMC4xLDIuMi0wLjEsMy4xCgkJYy0wLjgsMC41LTEuMywwLjItMS43LTAuMmMtMC45LTAuOS0xLjQtMi0xLjUtMy4yYy0wLjEtMC41LTAuMi0xLjEtMC4zLTEuN2MtMC45LTAuMS0xLjYtMC4yLTIuNy0wLjVjLTAuMy0xLjQtMC4yLTIuNiwwLTMuNwoJCWMxLjcsMC4xLDItMS40LDMtMi4xYzEuOS0xLjMsMS42LTMuNy0wLjQtNC43Yy0wLjgtMC40LTEuOS0wLjQtMi45LTAuOWMwLTIuOCwwLTUuMiwwLjItNy43YzAuNC0wLjIsMC42LTAuNSwwLjgtMC43CgkJYy0wLjMtMC4yLTAuNi0wLjQtMS0wLjljLTAuMS0zLjUtMC4xLTYuNy0wLjEtOS45YzAtMC42LTAuMi0xLjItMC4zLTJjLTEuMiwwLTIuMywwLTMuNCwwYy0xMS43LDAtMjMuNCwwLTM1LjEsMAoJCWMtMS4yLDAtMi40LTAuMS0zLjYtMC4xYzAuMS0wLjUsMC4xLTEuMiwwLjQtMS41YzEuNy0xLjUsMS43LTMuNCwxLjYtNS42YzMuNi0wLjMsNy4xLTAuNCwxMS0wLjFjMS45LDIuMSwyLjYsMiwzLjYtMC4xCgkJYzEuMy0wLjEsMi42LTAuMSw0LTAuMWM2LjEsMCwxMi4yLDAsMTguMywwYzEuMSwwLDIuMi0wLjEsMy40LTAuMWMwLjEtMC44LDAuMi0xLjQsMC4yLTJjMC0zLjgsMC03LjUsMC4xLTExLjMKCQljMC4yLTYuMywxLjItMTIuNSwzLjMtMTguNmM0LjItMTIuMywxMi4zLTIxLjEsMjQtMjYuNWM2LjUtMywxMy4zLTQuOCwyMC4zLTUuOWM2LjgtMS4xLDEzLjYtMS42LDIwLjUtMS43YzAuOCwwLDEuNSwwLjEsMi4zLDAuMQoJCWMwLjIsMC40LDAuNCwwLjcsMC40LDFjMC40LDEzLjYtMC43LDI3LTUsNDBjLTEuOSw1LjUtNC42LDEwLjUtOC4yLDE1LjFjLTYuNSw4LjMtMTUsMTMuMy0yNS4xLDE1LjhjLTUuMSwxLjMtMTAuMiwxLjktMTUuNCwxLjkKCQlDMTAwLjEsODIuNyw5Ny4xLDgyLjcsOTMuOCw4Mi43IE0xMzcuMSw2MC4xYzAsMCwwLDAuMSwwLjQsMGMwLjItMC4yLDAuMy0wLjUsMC45LTAuOWMzLjUtNSw1LjktMTAuNiw3LjYtMTYuNQoJCWMyLjItNy45LDMuMi0xNiwzLjItMjQuMmMwLTAuNS0wLjItMS0wLjMtMS43Yy0wLjctMC4xLTEuMi0wLjItMS43LTAuMmMtOCwwLjMtMTUuOCwxLjQtMjMuNSwzLjdjLTMuMywxLTYuNiwyLTkuNyw0CgkJYy0wLjIsMC4xLTAuMywwLjItMC4yLDAuNGMwLDAsMC0wLjEtMC40LDBjLTAuMywwLjItMC43LDAuNS0wLjksMC43YzAsMCwwLTAuMS0wLjQsMGMtMC4xLDAuMi0wLjIsMC40LTAuMywwLjZjMCwwLDAtMC4xLTAuNC0wLjEKCQljLTAuMywwLjMtMC42LDAuNS0wLjksMC44YzAsMCwwLDAtMC41LDBjLTcsNC44LTExLjUsMTEuNi0xNC4xLDE5LjZjLTIuMyw3LjEtMywxNC41LTIuNiwyMmMwLDAuMSwwLjMsMC4zLDAuNSwwLjUKCQljMS45LTEuOSw0LjEtMy42LDYtNi4yYzAuNS0wLjUsMS0wLjksMS40LTEuNGM3LjMtNy41LDE0LjYtMTUuMSwyMS44LTIyLjZjMC40LTAuNCwxLTAuOCwxLjQtMS4yYzMuMSwyLjQsMy43LDMuMSw0LjgsNS4yCgkJYy0wLjMsMC40LTAuNiwwLjgtMSwxLjJjLTcsNy4zLTE0LjEsMTQuNi0yMS4xLDIxLjljLTEsMS0xLjgsMi4yLTMuMSwzLjVjLTEuNSwxLjYtMy4xLDMuMi00LjYsNC44Yy0wLjEsMC4xLTAuMSwwLjQtMC4xLDAuNgoJCWMwLjIsMC4xLDAuMywwLjMsMC41LDAuM2M3LjgsMC4yLDE1LjQtMC43LDIyLjctMy42YzQuNC0xLjgsOC40LTQuMywxMS44LTcuN2MwLjUtMC41LDAuOS0wLjksMC44LTEuN2MwLDAsMCwwLDAuNSwwCgkJYzAuNi0wLjIsMS4xLTAuNSwwLjktMS4zYzAsMCwwLDAsMC40LDAuMUMxMzcsNjAuNywxMzcuMSw2MC40LDEzNy4xLDYwLjEgTTQ3LjksNzkuOWMxLjEsMC44LDIuMiwxLDMuNCwwLjJjMC45LTAuNiwxLjktMSwxLjgtMi41CgkJYy0xLjctMC4zLTMuMy0wLjUtNC45LDAuNUM0Ny42LDc4LjQsNDcuNSw3OC45LDQ3LjksNzkuOSBNNzcuMyw4MC40YzAuNC0wLjMsMS4xLTAuNCwwLjktMS4xYy0wLjEtMC4zLTAuNy0wLjUtMS0wLjUKCQljLTAuNSwwLTEsMC4xLTEuNiwwLjJDNzUuNiw4MCw3NS45LDgwLjUsNzcuMyw4MC40eiIvPgoJPHBhdGggY2xhc3M9InN0MyIgZD0iTTM5Ny43LDI5LjRjMC42LDAuMiwxLjIsMC40LDEuMywwLjdjMC4yLDAuNiwwLjEsMS4zLDAuMSwyYzAsMTIuOSwwLDI1LjksMCwzOC44YzAsMC44LTAuMSwxLjUtMC4yLDIuMwoJCWMtMi45LDAuMy01LjYsMC4xLTguNiwwLjFjLTYuOS04LjQtMTMuOC0xNi44LTIwLjgtMjUuMmMtMS4xLDAuNC0wLjgsMS4yLTAuOCwxLjhjMCw2LjUsMCwxMywwLDE5LjZjMCwxLjEsMCwyLjIsMCwzLjUKCQljLTAuNywwLjItMS4zLDAuNC0yLDAuNGMtMi42LDAtNS4zLDAtOC4xLDBjLTAuMi0wLjYtMC40LTEuMS0wLjQtMS42YzAtMTMuNywwLTI3LjQsMC00MS4xYzAtMC4zLDAuMS0wLjYsMC4yLTEKCQljMi45LTAuMyw1LjctMC4zLDguNi0wLjFjMS4yLDEuNCwyLjMsMi43LDMuNCw0LjFjMS4yLDEuNCwyLjQsMi45LDMuNiw0LjNjMS4xLDEuNCwyLjIsMi43LDMuNCw0LjFjMS4xLDEuNCwyLjIsMi43LDMuNCw0LjEKCQljMS4yLDEuNSwyLjQsMi45LDMuNiw0LjRjMS4xLDEuMywyLjEsMi44LDMuNCw0YzEtMC42LDAuOC0xLjQsMC44LTIuMWMwLTYuMSwwLTEyLjIsMC0xOC4yYzAtMS40LDAtMi44LDAtNC40CgkJYzEuNS0wLjUsMy0wLjIsNC40LTAuM0MzOTQuNiwyOS40LDM5NiwyOS40LDM5Ny43LDI5LjR6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q0IiBkPSJNNjkuNCwzNi40YzUuMiwwLDEwLjEsMCwxNC45LDAuMWMwLjIsMCwwLjQsMC4yLDAuOCwwLjNjLTAuMSwwLjYtMC4xLDEuMi0wLjMsMS44Yy0xLjEsMy40LTIuMyw2LjctMi45LDEwLjIKCQljLTEsNS4yLTEuNSwxMC41LTEuNCwxNS44YzAsMS4xLDAsMi4yLTAuMSwzLjNjLTAuMSwwLjktMC42LDEuNC0xLjUsMS41Yy0wLjUsMC4xLTEuMSwwLjEtMS43LDAuMWMtMTAuNCwwLTIwLjgsMC0zMS4yLDAKCQljLTAuNywwLTEuNS0wLjEtMi40LTAuMmMtMC4xLTAuOS0wLjItMS43LTAuMi0yLjRjMC05LjEsMC0xOC4yLDAtMjcuMmMwLTAuNiwwLTEuMSwwLjEtMS43YzAuMS0wLjksMC42LTEuNCwxLjUtMS40CgkJYzAuOC0wLjEsMS41LTAuMSwyLjMtMC4xQzU0LjYsMzYuNCw2MS44LDM2LjQsNjkuNCwzNi40eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTEyMy4yLDEyMC43Yy03LjgsMC0xNS40LTAuMS0yMi45LTAuMWMtMC4yLDAtMC40LTAuMi0wLjgtMC4zYy0wLjEtMC40LTAuMy0wLjktMC4zLTEuNGMwLTkuNiwwLTE5LjIsMC0yOC45CgkJYzAtMC40LDAuMS0wLjksMC4yLTEuNGMwLjYtMC4xLDEuMy0wLjMsMS45LTAuNGMxLjktMC4xLDMuOCwwLDUuNi0wLjFjOC40LTAuMiwxNi40LTIuMSwyMy45LTUuOGMxLjQtMC43LDIuOC0xLjcsNC41LTIuMQoJCWMwLjIsMC41LDAuNCwwLjgsMC40LDEuMWMwLDEyLjksMCwyNS44LDAsMzljLTAuOCwwLjItMS42LDAuNC0yLjMsMC40QzEzMC4xLDEyMC43LDEyNi44LDEyMC43LDEyMy4yLDEyMC43eiIvPgoJPHBhdGggY2xhc3M9InN0NiIgZD0iTTEwMS4yLDE1MC41Yy0xOS4zLDAtMzguMiwwLTU3LjEsMGMtMS0xLjgtMC41LTMuNi0wLjYtNS4zYy0wLjEtMS42LTAuMi0zLjMsMC4yLTVjMS4zLTAuNiwyLjUtMC40LDMuNy0wLjQKCQljMTIuNiwwLDI1LjIsMCwzNy45LDBjMjMuNSwwLDQ2LjksMCw3MC40LDBjMS4yLDAsMi40LDAuMSwzLjcsMC4xYzAuNiwzLjUsMC4yLDYuNywwLjMsOS44Yy0xLjEsMS4xLTIuMywwLjctMy40LDAuNwoJCWMtOS4xLDAtMTguMiwwLTI3LjIsMEMxMjAsMTUwLjUsMTEwLjgsMTUwLjUsMTAxLjIsMTUwLjV6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q3IiBkPSJNMjM4LjUsNzMuNGMtMi45LDAtNS42LDAtOC40LDBjLTAuMS0wLjgtMC4zLTEuNC0wLjMtMmMwLTEzLjMsMC0yNi41LDAtMzkuOGMwLTAuNSwwLjEtMS4xLDAuMS0xLjgKCQljMC42LTAuMSwxLjMtMC4zLDEuOS0wLjNjNiwwLDExLjksMCwxNy45LDBjMi44LDAsNS41LDAuNCw4LjEsMS4zYzUuNywyLDkuMyw2LDEwLjEsMTJjMC44LDYuMi0xLjIsMTEuMy02LjQsMTUKCQljLTAuMywwLjItMC42LDAuMy0wLjgsMC41Yy0wLjMsMC4yLTAuNSwwLjQtMC44LDAuNmMtMC4xLDAuOSwwLjUsMS40LDAuOSwyYzIuMywzLjQsNC43LDYuNyw3LDEwLjFjMC40LDAuNiwwLjgsMS4zLDEuMywyLjIKCQljLTMuOSwwLjMtNy41LDAuMS0xMS4zLDAuMWMtMi44LTQuMS01LjYtOC4xLTguNS0xMi40Yy0xLjQsMC0yLjgsMC00LjMsMGMtMS40LDAtMi44LTAuMi00LjQsMC4yYy0wLjUsMi0wLjIsNC0wLjMsNgoJCWMtMC4xLDIsMCw0LDAsNkMyMzkuNiw3My4yLDIzOS4yLDczLjMsMjM4LjUsNzMuNCBNMjQwLjMsNTAuMmMwLDAuNiwwLjEsMS4zLDAuMSwxLjhjMC40LDAuMiwwLjUsMC40LDAuNywwLjRjMywwLDYsMC4xLDguOSwwCgkJYzEuNCwwLDIuOC0wLjUsNC4xLTEuM2MyLjctMS44LDMuNi00LjQsMy4yLTcuNWMtMC4zLTIuNy0yLjMtNC43LTUuMi01LjRjLTEuMi0wLjMtMi40LTAuNC0zLjYtMC40Yy0yLjEtMC4xLTQuMi0wLjEtNi4zLDAKCQljLTAuNiwwLTEuMiwwLjItMS44LDAuM2MtMC4xLDAuNC0wLjIsMC42LTAuMiwwLjhDMjQwLjMsNDIuNiwyNDAuMyw0Ni4xLDI0MC4zLDUwLjJ6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q4IiBkPSJNMjAuOCw4LjljMS40LDAsMi41LDAuMSwzLjUsMC4xYzAuOCwxLjMsMC41LDIuNiwwLjUsMy44YzAsMTEuMSwwLDIyLjEsMCwzMy4yYzAsMjMuNSwwLDQ2LjksMCw3MC40CgkJYzAsMS4zLTAuMSwyLjYtMC4xLDQuMWMtMy41LDAuNi02LjcsMC4yLTEwLjIsMC4zYy0wLjItMC45LTAuNC0xLjYtMC40LTIuNGMwLTMuMSwwLTYuMiwwLTkuM2MwLTMxLjksMC02My43LDAtOTUuNgoJCWMwLTEuMywwLTIuNiwwLTQuMWMwLjgtMC4yLDEuNC0wLjQsMi4xLTAuNEMxNy42LDguOCwxOSw4LjksMjAuOCw4Ljl6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q3IiBkPSJNMzA1LjcsMzcuOGMtNi41LDAtMTIuNywwLjEtMTguOSwwLjFjLTAuMiwwLTAuNCwwLjItMC43LDAuM2MtMC4zLDIuNi0wLjIsNS40LDAsOC4zYzAuNywwLjEsMS40LDAuMiwyLDAuMgoJCWM0LjksMCw5LjcsMCwxNC42LDBjMS4xLDAsMi4yLDAsMy40LDBjMC42LDIuNywwLjMsNS4yLDAuMyw3LjljLTAuOCwwLjEtMS40LDAuMy0yLDAuM2MtNC43LDAtOS4zLDAtMTQsMGMtMS4zLDAtMi42LDAtNCwwCgkJYy0wLjcsMS43LTAuMywzLjItMC40LDQuN2MtMC4xLDEuNSwwLDMuMSwwLDQuOWMwLjgsMC4xLDEuNSwwLjMsMi4yLDAuM2M2LDAsMTIsMCwxNy45LDBjMS4xLDAsMi4yLDAsMy41LDAKCQljMC43LDIuOCwwLjQsNS41LDAuMiw4LjRjLTMuOSwwLjMtNy42LDAuMS0xMS40LDAuMWMtMy44LDAtNy41LDAtMTEuMywwYy0zLjcsMC03LjUsMC4xLTExLjEtMC4xYy0wLjItMC4yLTAuMy0wLjMtMC4zLTAuNAoJCWMtMC4xLTAuMS0wLjEtMC4yLTAuMS0wLjNjMC0xMy44LTAuMS0yNy43LTAuMS00MS41YzAtMC40LDAuMS0wLjksMC4yLTEuNGMwLjYtMC4xLDEuMS0wLjIsMS42LTAuMmM3LjYtMC4zLDI4LjktMC4xLDMxLjcsMC4zCgkJYzAuMywyLjYsMC4yLDUuMiwwLDhDMzA3LjksMzcuNywzMDcsMzcuOCwzMDUuNywzNy44eiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTIwNC4yLDc0Yy00LjYsMC04LjctMC42LTEyLjUtMi42Yy03LjUtNC0xMS43LTEwLjMtMTIuMS0xOC45Yy0wLjUtMTIuNiw4LTIyLjMsMjAuNi0yMy43CgkJYzcuOC0wLjgsMTQuNywxLDIwLjcsNi4xYzAuMywwLjMsMC43LDAuNSwxLDAuOGMtMS4xLDItMyw0LTYuNCw2LjVjLTAuNy0wLjUtMS4zLTEtMi4xLTEuNWMtNC4xLTIuOS04LjctMy44LTEzLjYtMi42CgkJYy00LjgsMS4yLTgsNC4yLTkuMiw5Yy0xLjQsNS40LTAuMywxMC4zLDMuOCwxNC4zYzIsMiw0LjUsMy4xLDcuNCwzLjRjMy4yLDAuMyw2LjQsMCw5LjUtMS42YzAuNi0yLDAuMi00LjEsMC4zLTYuMgoJCWMwLjEtMi4xLTAuMS00LjIsMC4xLTYuNGMzLjItMC40LDYuMy0wLjMsOS4zLTAuMWMwLjUsMi42LDAuNywxMS4yLDAuMywxNy44Yy0xLjgsMS43LTQuMSwyLjctNi41LDMuNgoJCUMyMTEuNSw3My4zLDIwOCw3My45LDIwNC4yLDc0eiIvPgoJPHBhdGggY2xhc3M9InN0MTAiIGQ9Ik0zMTkuMyw3My40Yy0wLjgsMC0xLjQtMC4xLTEuOC0wLjFjLTAuNS0yLjctMC41LTQwLjMtMC4xLTQzLjVjMi42LTAuNCwyOS43LTAuNSwzMi45LTAuMQoJCWMwLjQsMi42LDAuMSw1LjIsMC4yLDcuOWMtMi43LDAuNi01LjMsMC4yLTcuOCwwLjNjLTIuNCwwLjEtNC45LDAtNy4zLDBjLTIuNSwwLTUtMC4xLTcuNiwwLjFjLTAuNSwxLjYtMC4zLDMtMC4zLDQuNAoJCWMwLDEuMywwLDIuNiwwLDQuMWMwLjksMC4xLDEuNywwLjMsMi40LDAuM2M0LjksMCw5LjcsMCwxNC42LDBjMSwwLDEuOSwwLjEsMywwLjJjMC4zLDEuNywwLjIsMy4yLDAuMiw0LjdjMCwxLTAuMSwxLjktMC4yLDMuMQoJCWMtMi40LDAuMi00LjUsMC4xLTYuNywwLjFjLTIuMSwwLTQuMiwwLTYuMywwYy0yLjIsMC00LjQtMC4xLTYuNywwLjFjLTAuNywzLjItMC4xLDYuMy0wLjQsOS41YzAuOSwwLjEsMS42LDAuMywyLjMsMC4zCgkJYzYsMCwxMS45LDAsMTcuOSwwYzEuMSwwLDIuMiwwLDMuMiwwYzAuNywyLjQsMC44LDUuNSwwLjIsOC40Yy0zLjUsMC4zLTcsMC4xLTEwLjUsMC4yYy0zLjQsMC02LjksMC0xMC4zLDAKCQlDMzI2LjcsNzMuNCwzMjMuMiw3My40LDMxOS4zLDczLjR6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxMSIgZD0iTTQxNS40LDkyLjdjMS4zLDMuMSwyLjQsNi4xLDMuNSw5LjJjMi4zLDYuNyw0LjYsMTMuNCw2LjksMjAuMWMwLjIsMC42LDAuNSwxLjIsMC43LDEuN2MxLjMsMCwxLjItMSwxLjQtMS42CgkJYzEuOS01LjUsMy44LTExLjEsNS42LTE2LjdjMS40LTQuMiwyLjgtOC40LDQuMi0xMi43YzEuOC0wLjUsMy41LTAuMyw1LjUtMC4yYzIsNS4yLDMuNiwxMC42LDUuNSwxNS45YzEuOCw1LjIsMy42LDEwLjQsNS41LDE2LjIKCQljMC42LTEuMiwxLTEuOCwxLjItMi41YzMuMS05LjEsNi4yLTE4LjIsOS4zLTI3LjNjMC4yLTAuNywwLjUtMS40LDAuOC0yLjJjMS44LDAsMy42LDAsNS41LDBjLTAuMSwwLjYtMC4xLDEuMS0wLjMsMS42CgkJYy00LjIsMTIuNS04LjUsMjQuOS0xMi43LDM3LjRjLTAuMiwwLjUtMC41LDEtMC43LDEuNmMtMS45LDAtMy43LDAtNS45LDBjLTMuNi0xMC4xLTcuMi0yMC40LTEwLjgtMzFjLTAuNSwwLjktMC45LDEuNC0xLjEsMS45CgkJYy0yLjksOC42LTUuOCwxNy4yLTguNywyNS44Yy0wLjMsMS0wLjcsMi4xLTEuMiwzLjNjLTIsMC4zLTMuOSwwLjItNS45LDAuMWMtMS40LTIuNS0xMC41LTI4LjgtMTQtNDAuM2MwLjYtMC4xLDEuMi0wLjMsMS44LTAuNAoJCUM0MTIuNyw5Mi41LDQxMy45LDkyLjUsNDE1LjQsOTIuN3oiLz4KCTxwYXRoIGNsYXNzPSJzdDEyIiBkPSJNMjA4LjYsMTEzLjZjNC4yLTcuMiw4LjMtMTQuMSwxMi4zLTIxYzEuOC0wLjIsMy40LTAuMyw1LjIsMC4xYzAsMTMuNSwwLDI2LjksMCw0MC40Yy0xLjgsMC4zLTMuNiwwLjMtNS42LDAKCQljMC0yLjQsMC00LjcsMC03YzAtMi4zLDAtNC42LDAtN2MwLTIuMywwLTQuNiwwLTdjMC0yLjMsMC4xLTQuNS0wLjEtNi43Yy0wLjQtMC4xLTAuNS0wLjItMC42LTAuMmMtMC4xLDAtMC4yLDAuMS0wLjIsMC4yCgkJYy00LjQsNy41LTguOSwxNS0xMy40LDIyLjdjLTAuOSwwLTEuOSwwLjEtMywwLjFjLTQuNi03LjctOS4zLTE1LjQtMTMuOC0yMi45Yy0xLjEsMC4xLTAuOSwwLjgtMC45LDEuM2MwLDcuNSwwLDE1LDAsMjIuNgoJCWMwLDEuMiwwLDIuNCwwLDMuOGMtMiwwLjUtMy44LDAuNC01LjcsMC4xYzAtMTMuNSwwLTI2LjgsMC00MC4zYzAuOC0wLjEsMS41LTAuMiwyLjMtMC4zYzAuOCwwLDEuNSwwLDIuNSwwCgkJYzAuNSwwLjgsMS4xLDEuNSwxLjYsMi40YzQuNiw3LjcsOS4zLDE1LjMsMTMuOSwyM2MwLjUsMC44LDAuOSwxLjUsMS41LDIuNGMxLjItMC44LDEuNi0yLjEsMi4zLTMuMgoJCUMyMDcuMywxMTYsMjA3LjksMTE0LjksMjA4LjYsMTEzLjZ6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxMyIgZD0iTTMxOS4yLDEzMS4xYzAtMTIuOSwwLTI1LjUsMC0zOC4zYzAuOC0wLjEsMS40LTAuMywyLTAuM2M1LjIsMCwxMC40LTAuMSwxNS42LDBjNCwwLDcuOSwwLjcsMTEuNSwyLjcKCQljNi4yLDMuNSw5LjUsOC44LDEwLjEsMTUuOGMwLjIsMi41LDAuMSw1LjEtMC42LDcuNmMtMS42LDYuMS01LjMsMTAuMy0xMS4xLDEyLjhjLTIuNywxLjEtNS41LDEuOS04LjQsMS45Yy02LDAuMS0xMiwwLTE3LjksMAoJCWMtMC4zLDAtMC42LTAuMi0xLjEtMC4zQzMxOS4zLDEzMi41LDMxOS4zLDEzMS45LDMxOS4yLDEzMS4xIE0zMzYuNywxMjguMWMwLjktMC4xLDEuOC0wLjEsMi42LTAuMmM2LjMtMC43LDExLjItNC44LDEyLjgtMTAuOQoJCWMwLjctMi45LDAuNy01LjktMC4yLTguOWMtMS40LTQuNy00LjQtNy45LTktOS40Yy0yLjEtMC43LTQuMy0xLTYuNS0xLjFjLTMuMS0wLjItNi4yLTAuMS05LjMsMGMtMC42LDAtMS4yLDAuMi0xLjksMC40CgkJYzAsOS44LDAsMTkuNCwwLDI5YzAsMC4zLDAuMiwwLjYsMC4zLDEuMUMzMjksMTI4LjMsMzMyLjUsMTI4LjEsMzM2LjcsMTI4LjF6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxMSIgZD0iTTM5MS40LDEzM2MtNC43LDEuMi05LDEtMTMuMy0wLjRjLTguOC0yLjgtMTQuNS0xMC44LTE0LjMtMjAuMWMwLjItOS4zLDYuNC0xNy41LDE1LjMtMTkuOAoJCWM3LjMtMS44LDE0LjMtMC45LDIwLjMsNC4xYzYsNS4xLDguMywxMS42LDcuMiwxOS4yQzQwNS4yLDEyNC45LDQwMC4xLDEzMC41LDM5MS40LDEzMyBNMzgzLjYsMTI4LjRjMSwwLDIsMC4xLDMsMAoJCWM2LjItMC43LDEwLjktMy42LDEzLjEtOS43YzIuMi02LjEsMS40LTExLjktMy4xLTE2LjdjLTUuNC01LjgtMTQuOS02LjMtMjEuMi0xLjNjLTYsNC44LTcuNSwxMy44LTMuNCwyMC40CgkJQzM3NC42LDEyNS4yLDM3OC4zLDEyNy42LDM4My42LDEyOC40eiIvPgoJPHBhdGggY2xhc3M9InN0MTIiIGQ9Ik0yNDcuNCw5Ny42Yy0xLjMsMC4xLTIuMywwLjEtMy4yLDAuMWMtMC43LDIuNC0wLjcsOS4yLDAsMTIuMWMzLjIsMC4yLDYuNSwwLjEsOS44LDAuMWMzLjMsMCw2LjYsMCwxMCwwCgkJYzAuNSwxLjcsMC4yLDMuMiwwLjMsNC44Yy0wLjgsMC4xLTEuNSwwLjMtMi4xLDAuM2MtNSwwLTEwLDAtMTQuOSwwYy0xLjEsMC0yLjIsMC4xLTMuNCwwLjJjLTAuNCw0LjItMC4xLDguMy0wLjIsMTIuMgoJCWMwLjgsMSwxLjgsMC43LDIuNiwwLjdjNS45LDAsMTEuNywwLDE3LjYsMGMxLjEsMCwyLjIsMCwzLjMsMGMwLjcsMS43LDAuNCwzLjMsMC4zLDQuOWMtMy4yLDAuNS0yNy4yLDAuNC0yOS43LTAuMQoJCWMwLTEzLjMsMC0yNi43LDAtNDBjMi42LTAuNiwxOS4zLTAuOCwyOC43LTAuM2MwLjYsMS41LDAuMywzLjEsMC4yLDQuOWMtMi4yLDAuMS00LjMsMC4xLTYuNCwwLjFjLTIuMSwwLTQuMiwwLTYuMywwCgkJQzI1MS45LDk3LjYsMjQ5LjgsOTcuNiwyNDcuNCw5Ny42eiIvPgoJPHBhdGggY2xhc3M9InN0MSIgZD0iTTI4OC4yLDkzLjZjMC40LTAuOCwwLjgtMS4xLDEuNC0xLjFjMS43LDAsMy4zLDAsNC43LDBjMC4zLDAuMiwwLjQsMC4yLDAuNSwwLjNjMC4xLDAuMSwwLjIsMC4xLDAuMiwwLjIKCQljNiwxMi45LDEyLDI1LjgsMTgsMzguN2MwLjEsMC4zLDAuMiwwLjYsMC4zLDAuOWMwLDAuMSwwLDAuMiwwLDAuNWMtMS45LDAuMy0zLjksMC4yLTYuMSwwYy0xLjUtMy4yLTMtNi41LTQuNS05LjcKCQljLTMuMy0wLjQtMTkuMi0wLjMtMjEuOCwwYy0xLjQsMy4xLTIuOSw2LjMtNC40LDkuNmMtMiwwLjMtMy44LDAuMi01LjksMGMwLjMtMC45LDAuNi0xLjcsMC45LTIuNQoJCUMyNzcuMSwxMTguNCwyODIuNiwxMDYuMSwyODguMiw5My42IE0yODYsMTExLjdjLTAuOCwyLjEtMi4xLDQuMS0yLjYsNi4zYzAuNCwwLjIsMC42LDAuMywwLjgsMC4zYzUuMSwwLDEwLjIsMCwxNS4zLDAKCQljMC4zLDAsMC41LTAuMywwLjgtMC41Yy0wLjItMC41LTAuMy0wLjktMC41LTEuM2MtMi41LTUuNS01LTExLjEtNy41LTE2LjZjLTAuMS0wLjItMC41LTAuMy0wLjgtMC42CgkJQzI4OS43LDEwMy40LDI4OCwxMDcuMywyODYsMTExLjd6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxMyIgZD0iTTQ4MS43LDEyNy4xYzMuNiwxLjUsNy4xLDEuOCwxMC42LDEuNWMxLjctMC4xLDMuMy0wLjYsNC43LTEuNWMxLjctMS4xLDIuNy0yLjYsMi43LTQuNwoJCWMwLTEuNy0wLjctMy4xLTIuMS0zLjljLTEuMy0wLjgtMi43LTEuNS00LjItMmMtMi40LTAuOC00LjktMS4yLTcuNC0xLjljLTEuOS0wLjYtMy44LTEuMi01LjYtMmMtNy4xLTMuNC02LjYtMTEuNy0zLTE1LjgKCQljMS41LTEuNywzLjMtMyw1LjQtMy42YzctMi4yLDEzLjctMS43LDIwLjEsMi4xYzAuMiwwLjEsMC4zLDAuMywwLjYsMC42Yy0wLjMsMS41LTAuOSwzLTEuOCw0LjVjLTAuOS0wLjQtMS43LTAuOC0yLjQtMS4yCgkJYy0zLjctMS45LTcuNi0yLjMtMTEuNi0xLjhjLTEuNywwLjItMy4yLDAuOC00LjYsMS43Yy0yLjksMS45LTMuMSw2LjgsMC40LDguNmMxLjQsMC43LDIuOCwxLjMsNC4zLDEuN2MyLjUsMC43LDUuMiwxLjIsNy43LDIKCQljMS44LDAuNSwzLjYsMS4yLDUuMiwyLjFjNy4zLDQuMSw1LjksMTQuMywwLjMsMTcuNWMtMiwxLjItNC4xLDIuMS02LjUsMi41Yy01LjYsMS0xMSwwLjMtMTYuMi0yYy0xLjUtMC43LTIuOS0xLjYtNC4xLTIuOQoJCWMwLjEtMS43LDEuMS0zLjEsMS45LTQuNkM0NzguMSwxMjUsNDc5LjgsMTI2LDQ4MS43LDEyNy4xeiIvPgoJPHBhdGggY2xhc3M9InN0NiIgZD0iTTIxLjQsMTM5LjhjMS4yLDAuMSwyLjEsMC4xLDMsMC4yYzAuNywxLjcsMC4zLDMuNCwwLjQsNWMwLjEsMS42LDAsMy4zLDAsNWMtMS44LDEtMy42LDAuNS01LjMsMC42CgkJYy0xLjYsMC4xLTMuMywwLTUuMS0wLjFjLTAuNi0zLjUtMC4yLTYuOC0wLjMtMTAuMmMwLjgtMC4yLDEuNC0wLjQsMi0wLjRDMTcuOCwxMzkuOCwxOS41LDEzOS44LDIxLjQsMTM5Ljh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNTkuOCw3NC45Yy0wLjgsMi4zLTEuNSwyLjQtMywwLjNDNTcuNyw3NSw1OC42LDc0LjksNTkuOCw3NC45eiIvPgoJPHBhdGggY2xhc3M9InN0MTQiIGQ9Ik0xMTQuNCwyNC41YzIuOC0yLDYuMS0zLDkuNC00YzcuNy0yLjMsMTUuNS0zLjQsMjMuNS0zLjdjMC41LDAsMS4xLDAuMSwxLjcsMC4yYzAuMSwwLjYsMC4zLDEuMiwwLjMsMS43CgkJYy0wLjEsOC4yLTEuMSwxNi4zLTMuMiwyNC4yYy0xLjYsNS45LTQuMSwxMS40LTcuOSwxNi43Yy0wLjYsMC40LTAuOCwwLjUtMSwwLjdjMCwwLDAtMC4xLTAuMSwwYy0wLjMsMC4zLTAuNCwwLjUtMC41LDAuNwoJCWMwLDAsMCwwLTAuMiwwYy0wLjgsMC4yLTEuMiwwLjYtMS4xLDEuNGMwLDAsMCwwLTAuMi0wLjFjLTAuNywwLjItMS4zLDAuNC0xLjcsMC43Yy0yLjgsMi02LDMuMi05LjMsNC4zYy0zLDEuMS02LjIsMS40LTkuNCwxLjkKCQljLTMuNCwwLjUtNi44LDAuNS0xMC4yLDAuM2MwLjktMS4xLDEuOC0yLjIsMi44LTMuM2M3LTcuMywxNC4xLTE0LjYsMjEuMS0yMS45YzAuNC0wLjQsMC43LTAuOCwxLTEuMmMtMS4xLTIuMS0xLjctMi44LTQuOC01LjIKCQljLTAuNSwwLjQtMSwwLjctMS40LDEuMmMtNy4zLDcuNS0xNC42LDE1LjEtMjEuOCwyMi42Yy0wLjUsMC41LTAuOSwwLjktMS43LDEuMWMtMC41LTQuNi0wLjQtOC45LDAuNC0xMy4xCgkJYzEuMS01LjEsMi4zLTEwLjEsNS4xLTE0LjZjMS4zLTIuMiwyLjgtNC4yLDQuNS02LjFjMC41LTAuNiwxLjEtMS4xLDAuOS0yYzAsMCwwLDAsMC4yLDBjMC41LTAuMiwwLjgtMC41LDEuMi0wLjdjMCwwLDAsMC4xLDAuMSwwCgkJYzAuMy0wLjMsMC40LTAuNSwwLjUtMC42YzAsMCwwLDAuMSwwLjIsMGMwLjUtMC4zLDAuOC0wLjUsMS4yLTAuN2MwLDAsMCwwLjEsMCwwQzExNC4xLDI0LjYsMTE0LjIsMjQuNSwxMTQuNCwyNC41eiIvPgoJPHBhdGggY2xhc3M9InN0MSIgZD0iTTg2LjMsMTExLjNjLTAuMy0yLjItMC4zLTQuNS0wLjMtN2MxLTAuMSwyLTAuMSwyLjksMC4zYzIsMSwyLjMsMy40LDAuNCw0LjdDODguNCwxMDkuOSw4OCwxMTEuNCw4Ni4zLDExMS4zegoJCSIvPgoJPHBhdGggY2xhc3M9InN0MSIgZD0iTTQ3LjgsNzkuN2MtMC4zLTAuOC0wLjEtMS4zLDAuNC0xLjZjMS41LTAuOSwzLjEtMC44LDQuOS0wLjVjMC4yLDEuNS0wLjksMS45LTEuOCwyLjUKCQlDNTAuMSw4MC45LDQ5LDgwLjcsNDcuOCw3OS43eiIvPgoJPHBhdGggY2xhc3M9InN0MSIgZD0iTTc3LjEsODAuNWMtMS4yLDAuMS0xLjUtMC40LTEuNS0xLjVjMC42LTAuMSwxLjEtMC4yLDEuNi0wLjJjMC40LDAsMC45LDAuMiwxLDAuNQoJCUM3OC41LDgwLDc3LjcsODAuMSw3Ny4xLDgwLjV6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNODYuMyw5NmMtMC4yLTAuMy0wLjMtMC42LTAuMi0xLjFjMC40LDAsMC43LDAuMiwxLDAuNEM4Ni44LDk1LjUsODYuNyw5NS44LDg2LjMsOTZ6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTM3LjMsNjAuMmMwLTAuMiwwLjItMC4zLDAuNS0wLjZDMTM3LjksNTkuNywxMzcuNyw2MCwxMzcuMyw2MC4yeiIvPgoJPHBhdGggY2xhc3M9InN0MCIgZD0iTTEzNi43LDYwLjljLTAuMS0wLjIsMC0wLjQsMC4zLTAuN0MxMzcuMSw2MC40LDEzNyw2MC43LDEzNi43LDYwLjl6Ii8+Cgk8cGF0aCBjbGFzcz0ic3QxNSIgZD0iTTgwLjMsOTQuN2MwLDguNywwLDE3LjEsMCwyNS42Yy0wLjYsMC4yLTEuMSwwLjQtMS42LDAuNGMtMTEuMiwwLTIyLjMsMC0zMy41LDBjLTAuMywwLTAuNi0wLjEtMS4yLTAuMgoJCWMtMC4xLTAuNS0wLjMtMS0wLjMtMS41YzAtOS43LDAtMTkuNCwwLTI5LjJjMC0wLjUsMC4xLTEuMSwwLjItMS41YzIuOS0wLjUsMjQtMC42LDM0LjYtMC4zYzAuNSwwLDEuMSwwLjIsMS42LDAuMgoJCUM4MC41LDkwLjQsODAuMiw5Mi40LDgwLjMsOTQuN3oiLz4KPC9nPgo8L3N2Zz4K" alt="Project Logo" style={{ height: m ? 36 : 50, width: "auto", display: "block" }} />
+        </div>
+        {!m && (
+        <div style={{ background: "#00000080", backdropFilter: "blur(12px)", borderRadius: "50%", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #ffffff20" }}>
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <polyline points="14,6 10,12 14,8 18,12" stroke="#ffffff90" strokeWidth="1.5" fill="none" strokeLinejoin="round" />
+            <text x="14" y="22" textAnchor="middle" fill="#ffffffc0" fontSize="9" fontWeight="700" fontFamily="Outfit">N</text>
+          </svg>
+        </div>
+        )}
+      </div>
+      )}
+
+      {/* ── TOP RIGHT: The Dimensions Logo ── */}
+      {!(m && sel) && (
+      <a href="https://thedimensions.co" target="_blank" rel="noopener noreferrer"
+        style={{
+          position: "absolute", top: m ? 10 : 16, right: m ? 10 : 16, zIndex: 25,
+          background: "#00000070", backdropFilter: "blur(12px)", borderRadius: m ? 8 : 10,
+          padding: m ? "15px 8px" : "20px 10px", border: "1px solid #ffffff10",
+          textDecoration: "none", cursor: "pointer", transition: "background .2s",
+          display: "flex", alignItems: "center",
+        }}
+        onMouseEnter={e => e.currentTarget.style.background = "#00000090"}
+        onMouseLeave={e => e.currentTarget.style.background = "#00000070"}
+      >
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI3LjMuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzMDMgNTYuMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMzAzIDU2LjI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCXBhdGh7ZmlsbDojRkZGRkZGO30KCS5zdDB7ZmlsbDojRkZGRkZGO30KCS5zdDF7ZmlsbDojRkZGRkZGO30KCS5zdDJ7ZmlsbDojZmZmZmZmODA7fQoJLnN0M3tmaWxsOm5vbmU7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjAuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9Cgkuc3Q0e2ZpbGw6Izk5ODc3Njt9Cgkuc3Q1e2ZpbGw6I2ZmZmZmZjkwO30KPC9zdHlsZT4KPGc+Cgk8cGF0aCBjbGFzcz0ic3Q0IiBkPSJNMTAuNCw5LjNIMy4yVjQuOGgxOS42djQuNmgtNy4yVjMwaC01LjJWOS4zeiIvPgoJPHBhdGggY2xhc3M9InN0NCIgZD0iTTI2LjYsNC44aDUuMnYxMi45aDEwLjhWNC44aDUuMlYzMGgtNS4ydi03LjdIMzEuN1YzMGgtNS4yVjQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDQiIGQ9Ik01Myw0LjhoMTYuN3Y0LjZINTguMXY4aDEwLjF2NC40SDU4LjF2My42aDEyVjMwSDUzVjQuOHoiLz4KCTxwYXRoIGQ9Ik04My4xLDQuOGg3LjdjNy43LDAsMTMuMyw1LjEsMTMuMywxMi42YzAsNy40LTUuNSwxMi42LTEzLjMsMTIuNmgtNy43VjQuOHogTTkwLjYsMjUuNGM1LjYsMCw4LjEtMy4zLDguMS04cy0yLjYtOC04LjEtOAoJCWgtMi4zdjE2LjFIOTAuNnoiLz4KCTxwYXRoIGQ9Ik0xMDguNiw0LjhoNS4yVjMwaC01LjJWNC44eiIvPgoJPHBhdGggZD0iTTExOS4xLDQuNWgwLjRMMTMyLDE4LjJsMTIuMi0xMy42aDAuNFYzMGgtNXYtOS40YzAtMS43LDAuMi00LjQsMC4yLTQuNHMtMS41LDIuMi0yLjcsMy42bC01LDUuNmgtMC41bC01LTUuNgoJCWMtMS4yLTEuMy0yLjctMy42LTIuNy0zLjZzMC4yLDIuNywwLjIsNC40VjMwaC01VjQuNXoiLz4KCTxwYXRoIGQ9Ik0xNDkuOSw0LjhoMTYuN3Y0LjZoLTExLjV2OGgxMC4xdjQuNGgtMTAuMXYzLjZoMTJWMzBoLTE3LjJWNC44eiIvPgoJPHBhdGggZD0iTTE3OS40LDE4LjNjLTEuMy0xLjItMy0zLjQtMy0zLjRzMC40LDIuOCwwLjQsNC42VjMwaC00LjlWNC42aDAuNWwxMi43LDExLjljMS4yLDEuMSwzLDMuNCwzLDMuNHMtMC4zLTIuOS0wLjMtNC42VjQuOAoJCWg0Ljl2MjUuNGgtMC41TDE3OS40LDE4LjN6Ii8+Cgk8cGF0aCBkPSJNMTk1LjcsMjVsNC4yLTIuNGMxLjEsMS44LDIuNiwzLjEsNS4xLDMuMWMyLjEsMCwzLjUtMS4xLDMuNS0yLjZjMC0xLjgtMS40LTIuNC0zLjgtMy40bC0xLjMtMC42CgkJYy0zLjctMS42LTYuMi0zLjYtNi4yLTcuOGMwLTMuOSwzLTYuOSw3LjYtNi45YzMuMywwLDUuNywxLjEsNy40LDQuMWwtNCwyLjZjLTAuOS0xLjYtMS45LTIuMi0zLjMtMi4yYy0xLjUsMC0yLjUsMS0yLjUsMi4yCgkJYzAsMS42LDEsMi4yLDMuMiwzLjFsMS4zLDAuNmM0LjQsMS45LDYuOSwzLjgsNi45LDguMWMwLDQuNy0zLjcsNy4yLTguNiw3LjJDMjAwLjMsMzAuMywxOTcuMiwyOCwxOTUuNywyNXoiLz4KCTxwYXRoIGQ9Ik0yMTcuOCw0LjhoNS4yVjMwaC01LjJWNC44eiIvPgoJPHBhdGggZD0iTTIyNy41LDE3LjRjMC03LjQsNS44LTEyLjksMTMtMTIuOWM3LjMsMCwxMyw1LjUsMTMsMTIuOWMwLDcuNC01LjgsMTIuOS0xMywxMi45QzIzMy4zLDMwLjMsMjI3LjUsMjQuOCwyMjcuNSwxNy40egoJCSBNMjQ4LjIsMTcuNGMwLTQuNy0zLjEtOC4zLTcuNy04LjNjLTQuNiwwLTcuNywzLjYtNy43LDguM3MzLjEsOC4zLDcuNyw4LjNDMjQ1LjEsMjUuNywyNDguMiwyMi4xLDI0OC4yLDE3LjR6Ii8+Cgk8cGF0aCBkPSJNMjY1LjUsMTguM2MtMS4zLTEuMi0zLTMuNC0zLTMuNHMwLjQsMi44LDAuNCw0LjZWMzBIMjU4VjQuNmgwLjVsMTIuNywxMS45YzEuMiwxLjEsMywzLjQsMywzLjRzLTAuMy0yLjktMC4zLTQuNlY0LjhoNC45CgkJdjI1LjRoLTAuNUwyNjUuNSwxOC4zeiIvPgoJPHBhdGggZD0iTTI4MS44LDI1bDQuMi0yLjRjMS4xLDEuOCwyLjYsMy4xLDUuMSwzLjFjMi4xLDAsMy41LTEuMSwzLjUtMi42YzAtMS44LTEuNC0yLjQtMy44LTMuNGwtMS4zLTAuNgoJCWMtMy43LTEuNi02LjItMy42LTYuMi03LjhjMC0zLjksMy02LjksNy42LTYuOWMzLjMsMCw1LjcsMS4xLDcuNCw0LjFsLTQsMi42Yy0wLjktMS42LTEuOS0yLjItMy4zLTIuMmMtMS41LDAtMi41LDEtMi41LDIuMgoJCWMwLDEuNiwxLDIuMiwzLjIsMy4xbDEuMywwLjZjNC40LDEuOSw2LjksMy44LDYuOSw4LjFjMCw0LjctMy43LDcuMi04LjYsNy4yQzI4Ni40LDMwLjMsMjgzLjMsMjgsMjgxLjgsMjV6Ii8+CjwvZz4KPGc+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNOS42LDQ0LjhoMmMyLjUsMCwzLjcsMS40LDMuNywzLjRjMCwyLTEuMywzLjQtMy43LDMuNGgtMS4xdjIuMmgtMVY0NC44eiBNMTEuNiw1MC43YzIsMCwyLjgtMS4xLDIuOC0yLjUKCQljMC0xLjUtMC44LTIuNS0yLjgtMi41aC0xdjUuMUgxMS42eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTE3LjMsNDQuOGgxdjguMWg0LjJ2MC44aC01LjJWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNy4zLDQ0LjdoMC4ybDMuOCw5LjFoLTFsLTAuNi0xLjVoLTQuNmwtMC42LDEuNWgtMC45TDI3LjMsNDQuN3ogTTI5LjMsNTEuNWwtMS42LTQKCQljLTAuMi0wLjQtMC4zLTEuMS0wLjMtMS4xUzI3LjEsNDcsMjcsNDcuNWwtMS42LDRIMjkuM3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0zNC40LDQ3LjVjLTAuMy0wLjMtMC42LTAuOC0wLjYtMC44czAuMSwwLjYsMC4xLDF2Ni4xaC0wLjl2LTkuMWgwLjJsNS40LDYuNGMwLjMsMC4zLDAuNiwwLjgsMC42LDAuOAoJCXMtMC4xLTAuNi0wLjEtMXYtNi4xaDAuOXY5LjFoLTAuMkwzNC40LDQ3LjV6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNNDMuOCw0Ny41Yy0wLjMtMC4zLTAuNi0wLjgtMC42LTAuOHMwLjEsMC42LDAuMSwxdjYuMWgtMC45di05LjFoMC4ybDUuNCw2LjRjMC4zLDAuMywwLjYsMC44LDAuNiwwLjgKCQlzLTAuMS0wLjYtMC4xLTF2LTYuMWgwLjl2OS4xaC0wLjJMNDMuOCw0Ny41eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTUxLjgsNDQuOGgxdjloLTFWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik01Ni43LDQ3LjVjLTAuMy0wLjMtMC42LTAuOC0wLjYtMC44czAuMSwwLjYsMC4xLDF2Ni4xaC0wLjl2LTkuMWgwLjJsNS40LDYuNGMwLjMsMC4zLDAuNiwwLjgsMC42LDAuOAoJCXMtMC4xLTAuNi0wLjEtMXYtNi4xaDAuOXY5LjFoLTAuMkw1Ni43LDQ3LjV6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNNjQuMiw0OS4zYzAtMi43LDItNC42LDQuNi00LjZjMS4zLDAsMi40LDAuNCwzLjEsMS4ybC0wLjYsMC42Yy0wLjYtMC42LTEuNC0xLTIuNS0xYy0yLjEsMC0zLjYsMS42LTMuNiwzLjcKCQlzMS41LDMuNywzLjcsMy43YzEuMiwwLDIuMS0wLjQsMi43LTAuOHYtMS45aC0yLjd2LTAuOGgzLjZ2My4xYy0wLjcsMC42LTEuOSwxLjItMy42LDEuMkM2Ni4yLDUzLjksNjQuMiw1Miw2NC4yLDQ5LjN6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNNzcuNiw0NC4yaDAuOXYxMS4yaC0wLjlWNDQuMnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik04Nyw0NC43aDAuMmwzLjgsOS4xaC0xbC0wLjYtMS41aC00LjZsLTAuNiwxLjVoLTAuOUw4Nyw0NC43eiBNODksNTEuNWwtMS42LTRDODcuMiw0Nyw4Nyw0Ni40LDg3LDQ2LjQKCQlzLTAuMiwwLjYtMC40LDEuMWwtMS42LDRIODl6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNOTguNSw1My44aC0xLjFsLTEuNy0yLjVjLTAuMywwLjEtMC42LDAuMS0xLDAuMWgtMS4xdjIuNGgtMXYtOWgyYzIuNSwwLDMuNywxLjQsMy43LDMuMwoJCWMwLDEuMy0wLjYsMi40LTEuOSwyLjlMOTguNSw1My44eiBNOTQuNiw1MC42YzIsMCwyLjgtMSwyLjgtMi41cy0wLjgtMi41LTIuOC0yLjVoLTF2NC45SDk0LjZ6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTAwLDQ5LjNjMC0yLjcsMi4xLTQuNiw0LjYtNC42YzEuNiwwLDIuOCwwLjYsMy42LDEuN2wtMC43LDAuNWMtMC42LTAuOS0xLjUtMS40LTIuOC0xLjQKCQljLTIuMSwwLTMuNiwxLjYtMy42LDMuN3MxLjUsMy43LDMuNiwzLjdjMS4zLDAsMi4zLTAuNiwzLTEuNWwwLjcsMC41Yy0wLjgsMS4yLTIuMSwxLjktMy43LDEuOUMxMDIuMSw1My45LDEwMCw1MiwxMDAsNDkuM3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xMTAuMSw0NC44aDF2NS4xaDQuOHYtNS4xaDF2OWgtMXYtMy4xaC00Ljh2My4xaC0xVjQ0Ljh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTE5LjMsNDQuOGgxdjloLTFWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xMjQuOCw0NS42SDEyMnYtMC44aDYuNXYwLjhoLTIuOHY4LjFoLTFWNDUuNnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xMzAuMiw0NC44aDUuNXYwLjhoLTQuNXY0LjJoNHYwLjhoLTR2Mi4yaDQuN3YwLjhoLTUuN1Y0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTEzNy4zLDQ5LjNjMC0yLjcsMi4xLTQuNiw0LjYtNC42YzEuNiwwLDIuOCwwLjYsMy42LDEuN2wtMC43LDAuNWMtMC42LTAuOS0xLjUtMS40LTIuOC0xLjQKCQljLTIuMSwwLTMuNiwxLjYtMy42LDMuN3MxLjUsMy43LDMuNiwzLjdjMS4zLDAsMi4zLTAuNiwzLTEuNWwwLjcsMC41Yy0wLjgsMS4yLTIuMSwxLjktMy43LDEuOUMxMzkuMyw1My45LDEzNy4zLDUyLDEzNy4zLDQ5LjN6IgoJCS8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTQ5LjMsNDUuNmgtMi44di0wLjhoNi41djAuOGgtMi44djguMWgtMVY0NS42eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTE1NC42LDUwLjd2LTUuOWgxdjUuOWMwLDEuNiwwLjksMi40LDIuMywyLjRjMS40LDAsMi4zLTAuOCwyLjMtMi40di01LjloMXY1LjljMCwyLjEtMS40LDMuMi0zLjIsMy4yCgkJQzE1Niw1My45LDE1NC42LDUyLjgsMTU0LjYsNTAuN3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xNjkuMyw1My44aC0xLjFsLTEuNy0yLjVjLTAuMywwLjEtMC42LDAuMS0xLDAuMWgtMS4xdjIuNGgtMXYtOWgyYzIuNSwwLDMuNywxLjQsMy43LDMuMwoJCWMwLDEuMy0wLjYsMi40LTEuOSwyLjlMMTY5LjMsNTMuOHogTTE2NS40LDUwLjZjMiwwLDIuOC0xLDIuOC0yLjVzLTAuOC0yLjUtMi44LTIuNWgtMXY0LjlIMTY1LjR6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTcxLjMsNDQuOGg1LjV2MC44aC00LjV2NC4yaDR2MC44aC00djIuMmg0Ljd2MC44aC01LjdWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xODIsNDQuMmgwLjl2MTEuMkgxODJWNDQuMnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xODguNCw0NC44aDF2OWgtMVY0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTE5My4zLDQ3LjVjLTAuMy0wLjMtMC42LTAuOC0wLjYtMC44czAuMSwwLjYsMC4xLDF2Ni4xaC0wLjl2LTkuMWgwLjJsNS40LDYuNGMwLjMsMC4zLDAuNiwwLjgsMC42LDAuOAoJCXMtMC4xLTAuNi0wLjEtMXYtNi4xaDAuOXY5LjFoLTAuMkwxOTMuMyw0Ny41eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTIwMy4zLDQ1LjZoLTIuOHYtMC44aDYuNXYwLjhoLTIuOHY4LjFoLTFWNDUuNnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yMDguNyw0NC44aDUuNXYwLjhoLTQuNXY0LjJoNHYwLjhoLTR2Mi4yaDQuN3YwLjhoLTUuN1Y0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTIyMi4yLDUzLjhIMjIxbC0xLjctMi41Yy0wLjMsMC4xLTAuNiwwLjEtMSwwLjFoLTEuMXYyLjRoLTF2LTloMmMyLjUsMCwzLjcsMS40LDMuNywzLjMKCQljMCwxLjMtMC42LDIuNC0xLjksMi45TDIyMi4yLDUzLjh6IE0yMTguMyw1MC42YzIsMCwyLjgtMSwyLjgtMi41cy0wLjgtMi41LTIuOC0yLjVoLTF2NC45SDIxOC4zeiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTIyNC4zLDQ0LjhoMXY5aC0xVjQ0Ljh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMjI3LjIsNDkuM2MwLTIuNywyLjEtNC42LDQuNi00LjZjMi42LDAsNC42LDEuOSw0LjYsNC42cy0yLjEsNC42LTQuNiw0LjZDMjI5LjMsNTMuOSwyMjcuMiw1MiwyMjcuMiw0OS4zegoJCSBNMjM1LjUsNDkuM2MwLTIuMS0xLjUtMy43LTMuNi0zLjdjLTIuMSwwLTMuNiwxLjYtMy42LDMuN3MxLjUsMy43LDMuNiwzLjdDMjMzLjksNTMsMjM1LjUsNTEuNCwyMzUuNSw0OS4zeiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTI0NC4yLDUzLjhoLTEuMWwtMS43LTIuNWMtMC4zLDAuMS0wLjYsMC4xLTEsMC4xaC0xLjF2Mi40aC0xdi05aDJjMi41LDAsMy43LDEuNCwzLjcsMy4zCgkJYzAsMS4zLTAuNiwyLjQtMS45LDIuOUwyNDQuMiw1My44eiBNMjQwLjQsNTAuNmMyLDAsMi44LTEsMi44LTIuNXMtMC44LTIuNS0yLjgtMi41aC0xdjQuOUgyNDAuNHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNDkuNCw0NC44aDIuMmMzLDAsNC45LDEuOCw0LjksNC41cy0xLjksNC41LTQuOSw0LjVoLTIuMlY0NC44eiBNMjUxLjUsNTIuOWMyLjcsMCwzLjktMS41LDMuOS0zLjYKCQlzLTEuMy0zLjYtMy45LTMuNmgtMS4ydjcuM0gyNTEuNXoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNTguNCw0NC44aDUuNXYwLjhoLTQuNXY0LjJoNHYwLjhoLTR2Mi4yaDQuN3YwLjhoLTUuN1Y0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTI2NS4yLDUyLjFsMC44LTAuNGMwLjQsMC44LDEsMS40LDIuMywxLjRjMSwwLDEuOS0wLjYsMS45LTEuNWMwLTAuOS0wLjYtMS40LTEuNy0xLjlsLTAuNy0wLjMKCQljLTEuMy0wLjYtMi0xLjItMi0yLjVjMC0xLjMsMS0yLjIsMi40LTIuMmMxLjIsMCwyLDAuNiwyLjQsMS4zbC0wLjgsMC41Yy0wLjMtMC42LTAuOC0xLTEuNy0xYy0wLjksMC0xLjQsMC41LTEuNCwxLjMKCQljMCwwLjgsMC40LDEuMiwxLjQsMS42bDAuNywwLjNjMS41LDAuNywyLjMsMS40LDIuMywyLjhjMCwxLjUtMS4yLDIuNC0yLjgsMi40QzI2Ni42LDUzLjksMjY1LjcsNTMsMjY1LjIsNTIuMXoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNzMuMSw0NC44aDF2OWgtMVY0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTI3Ni4xLDQ5LjNjMC0yLjcsMi00LjYsNC42LTQuNmMxLjMsMCwyLjQsMC40LDMuMSwxLjJsLTAuNiwwLjZjLTAuNi0wLjYtMS40LTEtMi41LTFjLTIuMSwwLTMuNiwxLjYtMy42LDMuNwoJCXMxLjUsMy43LDMuNywzLjdjMS4yLDAsMi4xLTAuNCwyLjctMC44di0xLjloLTIuN3YtMC44aDMuNnYzLjFjLTAuNywwLjYtMS45LDEuMi0zLjYsMS4yQzI3OC4xLDUzLjksMjc2LjEsNTIsMjc2LjEsNDkuM3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yODcuOSw0Ny41Yy0wLjMtMC4zLTAuNi0wLjgtMC42LTAuOHMwLjEsMC42LDAuMSwxdjYuMWgtMC45di05LjFoMC4ybDUuNCw2LjRjMC4zLDAuMywwLjYsMC44LDAuNiwwLjgKCQlzLTAuMS0wLjYtMC4xLTF2LTYuMWgwLjl2OS4xaC0wLjJMMjg3LjksNDcuNXoiLz4KPC9nPgo8L3N2Zz4K" alt="The Dimensions" style={{ height: m ? 14 : 21, width: "auto", display: "block" }} />
+      </a>
+      )}
+
+      {/* ── LEFT SIDE: Types & Status toggles (fixed position, categories ABOVE) ── */}
+      <div style={{ position: "absolute", left: m ? 10 : 16, bottom: m ? 110 : 140, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0 }}>
+        {/* Categories dropdown - appears ABOVE the buttons */}
+        {statusFilter && (
+          <div style={{ marginBottom: 8, background: "#00000090", backdropFilter: "blur(16px)", borderRadius: 12, padding: 10, border: "1px solid #ffffff10", display: "flex", flexDirection: "column", gap: 5 }}>
+            {ALL_STATUSES.map(s => {
+              const on = activeStatuses.has(s);
+              return (
+                <div key={s} onClick={() => toggleSt(s)} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", opacity: on ? 1 : .35, transition: "opacity .2s" }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 2, background: STATUS_CFG[s].color }} />
+                  <span style={{ fontSize: 11, fontFamily: "Outfit", fontWeight: 500 }}>{STATUS_CFG[s].label}</span>
+                  <span style={{ fontSize: 10, color: "#ffffff60", fontFamily: "Outfit" }}>({stats[s]})</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {typesFilter && (
+          <div style={{ marginBottom: 8, background: "#00000090", backdropFilter: "blur(16px)", borderRadius: 12, padding: 10, border: "1px solid #ffffff10", display: "flex", flexDirection: "column", gap: 5 }}>
+            {ALL_TYPES.map(t => {
+              const on = activeTypes.has(t);
+              return (
+                <div key={t} onClick={() => toggleTp(t)} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", opacity: on ? 1 : .35, transition: "opacity .2s" }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 2, background: TYPE_CFG[t].color }} />
+                  <span style={{ fontSize: 11, fontFamily: "Outfit", fontWeight: 500 }}>{TYPE_CFG[t].label}</span>
+                  <span style={{ fontSize: 10, color: "#ffffff60", fontFamily: "Outfit" }}>({typeStats[t]})</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {/* Toggle buttons - always at fixed position */}
+        <div style={S.pill(typesFilter)} onClick={toggleTypesFilter}>
+          Types <div style={S.toggle(typesFilter)}><div style={S.toggleDot(typesFilter)} /></div>
+        </div>
+        <div style={{ height: 8 }} />
+        <div style={S.pill(statusFilter)} onClick={toggleStatusFilter}>
+          Status <div style={S.toggle(statusFilter)}><div style={S.toggleDot(statusFilter)} /></div>
+        </div>
+      </div>
+
+      {/* ── RIGHT SIDE: Share, Map, Home (HORIZONTAL) ── */}
+      <div style={{ position: "absolute", right: m ? 10 : 16, bottom: m ? 110 : 140, display: "flex", flexDirection: "row", gap: m ? 6 : 8, zIndex: 10 }}>
+        <div style={S.iconBtn} title="Share" onClick={() => { if (navigator.clipboard) navigator.clipboard.writeText(window.location.href); }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" /></svg>
+        </div>
+        <div style={S.iconBtn} title="Map View">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" /><line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" /></svg>
+        </div>
+        <div style={{ ...S.iconBtn, background: sel ? "#4ade8020" : "#00000060", borderColor: sel ? "#4ade8040" : "#ffffff15" }} title="Reset View" onClick={resetView}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+        </div>
+      </div>
+
+      {/* ── BOTTOM: Search + Action Bar ── */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: m ? "0 10px 10px" : "0 16px 16px", display: "flex", flexDirection: "column", gap: m ? 6 : 10, zIndex: 10, pointerEvents: "none" }}>
+
+        {/* Search bar */}
+        <div style={{ pointerEvents: "auto", display: "flex", background: "#00000070", backdropFilter: "blur(16px)", borderRadius: m ? 10 : 14, padding: m ? "7px 12px" : "10px 16px", border: "1px solid #ffffff12", alignItems: "center", gap: m ? 6 : 10 }}>
+          <svg width={m ? 14 : 16} height={m ? 14 : 16} viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          <input
+            type="text" placeholder="Search Plot" value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") searchAndGo(); }}
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: "#fff", fontSize: m ? 13 : 14, fontFamily: "Outfit" }}
+          />
+          {search && (
+            <div onClick={() => setSearch("")} style={{ cursor: "pointer", color: "#64748b", fontSize: 14, marginRight: 4 }}>✕</div>
+          )}
+          <div onClick={searchAndGo} style={{
+            width: 32, height: 32, borderRadius: 8, background: search ? "#4ade8030" : "#ffffff08",
+            border: "1px solid " + (search ? "#4ade8050" : "#ffffff10"),
+            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+            transition: "all .2s"
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={search ? "#4ade80" : "#64748b"} strokeWidth="2.5"><polyline points="9 18 15 12 9 6" /></svg>
+          </div>
+        </div>
+
+        {/* Action bar */}
+        <div style={{ pointerEvents: "auto", display: "flex", gap: 8, justifyContent: "center" }}>
+          <div style={S.bottomBtn(infoPanel === "gallery")} onClick={() => setInfoPanel(infoPanel === "gallery" ? null : "gallery")}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+            Gallery
+          </div>
+          <div style={S.bottomBtn(infoPanel === "info")} onClick={() => setInfoPanel(infoPanel === "info" ? null : "info")}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+            Info
+          </div>
+          <div style={S.bottomBtn(false)} onClick={() => window.open("https://maps.app.goo.gl/AF864pNhQb2HruK56", "_blank")}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+            Locate
+          </div>
+        </div>
+      </div>
+
+      {/* ── SELECTED PLOT INFO OVERLAY ── */}
+      {selPlot && (
+        <div style={{
+          position: "absolute", top: m ? 10 : 16, left: m ? 10 : "50%", right: m ? 10 : "auto",
+          transform: m ? "none" : "translateX(-50%)",
+          background: "#00000090", backdropFilter: "blur(20px)", borderRadius: m ? 10 : 12,
+          padding: m ? "8px 12px" : "10px 16px", border: "1px solid #ffffff15", zIndex: 20,
+          display: "flex", alignItems: "center", gap: m ? 8 : 14, flexWrap: m ? "wrap" : "nowrap",
+        }}>
+          {/* Plot Number */}
+          <div style={{ fontFamily: "Outfit", fontWeight: 700, fontSize: m ? 16 : 20, color: "#fff", minWidth: m ? 22 : 28, textAlign: "center" }}>{sel}</div>
+
+          <div style={{ width: 1, height: m ? 24 : 32, background: "#ffffff15" }} />
+
+          {/* Area */}
+          <div>
+            <div style={{ fontSize: m ? 13 : 15, fontWeight: 700, fontFamily: "Outfit" }}>{selPlot.a} sq yd</div>
+            <div style={{ fontSize: m ? 9 : 10, color: "#ffffff50", fontFamily: "Outfit" }}>{selPlot.am} m²</div>
+          </div>
+
+          <div style={{ width: 1, height: m ? 24 : 32, background: "#ffffff15" }} />
+
+          {/* Plot Type */}
+          <div style={{ fontSize: m ? 10 : 12, fontFamily: "Outfit", fontWeight: 500, color: "#ffffffb0" }}>{selPlot.tp}</div>
+
+          <div style={{ width: 1, height: m ? 24 : 32, background: "#ffffff15" }} />
+
+          {/* Status */}
+          <div style={{
+            padding: m ? "3px 8px" : "4px 12px", borderRadius: 6,
+            background: STATUS_CFG[statuses[sel]].color + "20",
+            color: STATUS_CFG[statuses[sel]].color,
+            fontSize: m ? 10 : 12, fontWeight: 600, fontFamily: "Outfit"
+          }}>
+            {STATUS_CFG[statuses[sel]].label}
+          </div>
+
+          <div onClick={() => { setSel(null); resetView(); }} style={{ cursor: "pointer", color: "#ffffff40", fontSize: m ? 12 : 14, marginLeft: m ? "auto" : 2 }}>✕</div>
+        </div>
+      )}
+
+      {/* ── HOVER TOOLTIP (desktop only) ── */}
+      {!isMobile && hovPlot && !sel && visIds.has(hovPlot.id) && (
+        <div style={{
+          position: "absolute", top: 16, left: "50%", transform: "translateX(-50%)",
+          background: "#00000090", backdropFilter: "blur(16px)", borderRadius: 12,
+          padding: "8px 16px", border: "1px solid #ffffff12", zIndex: 15,
+          display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <span style={{ fontFamily: "Outfit", fontWeight: 700, fontSize: 16 }}>Plot {hovPlot.id}</span>
+          <span style={{ fontSize: 13, color: "#ffffff70", fontFamily: "Outfit" }}>{hovPlot.a} sq yd</span>
+          <div style={{ padding: "3px 10px", borderRadius: 6, background: STATUS_CFG[statuses[hovPlot.id]].color + "20", color: STATUS_CFG[statuses[hovPlot.id]].color, fontSize: 11, fontWeight: 600, fontFamily: "Outfit" }}>
+            {STATUS_CFG[statuses[hovPlot.id]].label}
+          </div>
+        </div>
+      )}
+
+      {/* ── INFO PANELS (placeholders) ── */}
+      {infoPanel && (
+        <div style={{
+          position: "absolute", bottom: m ? 130 : 180, left: m ? 10 : 16, right: m ? 10 : 16,
+          background: "#00000090", backdropFilter: "blur(20px)", borderRadius: m ? 12 : 16,
+          padding: m ? 14 : 20, border: "1px solid #ffffff12", zIndex: 15,
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <span style={{ fontFamily: "Outfit", fontWeight: 600, fontSize: 16, textTransform: "capitalize" }}>{infoPanel}</span>
+            <div onClick={() => setInfoPanel(null)} style={{ cursor: "pointer", color: "#ffffff50", fontSize: 14 }}>✕</div>
+          </div>
+          {infoPanel === "gallery" && (
+            <div style={{ display: "flex", gap: 10, overflowX: "auto" }}>
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} style={{ width: 140, height: 90, borderRadius: 10, background: "#ffffff08", border: "1px solid #ffffff10", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#ffffff30", fontSize: 12, fontFamily: "Outfit" }}>
+                  Photo {i}
+                </div>
+              ))}
+            </div>
+          )}
+          {infoPanel === "info" && (
+            <div style={{ fontFamily: "Outfit", fontSize: 13, color: "#ffffff70", lineHeight: 1.8 }}>
+              <div><strong style={{ color: "#fff" }}>Project:</strong> Your Project Name</div>
+              <div><strong style={{ color: "#fff" }}>Total Area:</strong> 7,724.57 sq m</div>
+              <div><strong style={{ color: "#fff" }}>Total Plots:</strong> 46</div>
+              <div><strong style={{ color: "#fff" }}>Amenities:</strong> Clubhouse, Open Space, MSEB</div>
+              <div><strong style={{ color: "#fff" }}>RERA No:</strong> [Add RERA number]</div>
+            </div>
+          )}
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+
+ReactDOM.createRoot(document.getElementById("root")).render(<SpacerMap />);
+</script>
+</body>
+</html>
