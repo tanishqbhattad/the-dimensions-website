@@ -10,16 +10,15 @@
 </style>
 <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
-
 </head>
 <body>
 <div id="root"></div>
 <script>const {
   useState,
-  useRef,
-  useEffect,
+  useMemo,
   useCallback,
-  useMemo
+  useRef,
+  useEffect
 } = React;
 
 /* ═══════════════════════════════════════════
@@ -1544,257 +1543,535 @@ function initTypes() {
 /* ═══════════════════════════════════════════
    COMPONENT
    ═══════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════
+   MATRIX HELPERS - GPU-accelerated transforms
+   ═══════════════════════════════════════════ */
+function mmul(a, b) {
+  return [a[0] * b[0] + a[2] * b[1], a[1] * b[0] + a[3] * b[1], a[0] * b[2] + a[2] * b[3], a[1] * b[2] + a[3] * b[3], a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5]];
+}
+function srAroundPt(s, rad, cx, cy) {
+  var co = Math.cos(rad) * s,
+    si = Math.sin(rad) * s;
+  return [co, si, -si, co, cx * (1 - co) + cy * si, cy * (1 - co) - cx * si];
+}
+function scaleAroundPt(s, cx, cy) {
+  return [s, 0, 0, s, cx * (1 - s), cy * (1 - s)];
+}
+function mScale(m) {
+  return Math.sqrt(m[0] * m[0] + m[1] * m[1]);
+}
+function mAngle(m) {
+  return Math.atan2(m[1], m[0]);
+}
+var VIEW_X = -56,
+  VIEW_Y = 15,
+  VIEW_W = 600,
+  VIEW_H = 1080;
+var VIEW_CX = VIEW_X + VIEW_W / 2,
+  VIEW_CY = VIEW_Y + VIEW_H / 2;
+
+/* ═══════════════════════════════════════════
+   COMPONENT
+   ═══════════════════════════════════════════ */
 function SpacerMap() {
-  const [statuses, setStatuses] = useState(initStatuses);
-  const [plotTypes] = useState(initTypes);
-  const [sel, setSel] = useState(null);
-  const [hov, setHov] = useState(null);
-  const [search, setSearch] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
-  const [statusFilter, setStatusFilter] = useState(false);
-  const [typesFilter, setTypesFilter] = useState(false);
-  const [activeStatuses, setActiveStatuses] = useState(new Set(ALL_STATUSES));
-  const [activeTypes, setActiveTypes] = useState(new Set(ALL_TYPES));
-  const [showInfra, setShowInfra] = useState(true);
-  const [vb, setVb] = useState({
-    x: -56,
-    y: 15,
-    w: 600,
-    h: 1080
+  var _s = useState(initStatuses),
+    statuses = _s[0],
+    setStatuses = _s[1];
+  var _pt = useState(initTypes),
+    plotTypes = _pt[0];
+  var _sel = useState(null),
+    sel = _sel[0],
+    setSel = _sel[1];
+  var _hov = useState(null),
+    hov = _hov[0],
+    setHov = _hov[1];
+  var _srch = useState(""),
+    search = _srch[0],
+    setSearch = _srch[1];
+  var _sf = useState(false),
+    statusFilter = _sf[0],
+    setStatusFilter = _sf[1];
+  var _tf = useState(false),
+    typesFilter = _tf[0],
+    setTypesFilter = _tf[1];
+  var _as = useState(function () {
+      return new Set(ALL_STATUSES);
+    }),
+    activeStatuses = _as[0],
+    setActiveStatuses = _as[1];
+  var _at = useState(function () {
+      return new Set(ALL_TYPES);
+    }),
+    activeTypes = _at[0],
+    setActiveTypes = _at[1];
+  var _si = useState(true),
+    showInfra = _si[0];
+  var _ip = useState(null),
+    infoPanel = _ip[0],
+    setInfoPanel = _ip[1];
+  var _mob = useState(false),
+    isMobile = _mob[0],
+    setIsMobile = _mob[1];
+  var _lbl = useState(true),
+    labelsVisible = _lbl[0],
+    setLabelsVisible = _lbl[1];
+  var containerRef = useRef(null);
+  var svgRef = useRef(null);
+  var matRef = useRef(null);
+  var baseScaleRef = useRef(1);
+  var momRef = useRef({
+    vx: 0,
+    vy: 0,
+    raf: null
   });
-  const [isPan, setIsPan] = useState(false);
-  const [panO, setPanO] = useState(null);
-  const [infoPanel, setInfoPanel] = useState(null); // 'gallery' | 'info' | 'locate' | null
-  const [isMobile, setIsMobile] = useState(false);
-  const svgRef = useRef(null);
-  const lastTouchDist = useRef(null);
-  const lastTouchCenter = useRef(null);
+  var animRef = useRef(null);
+  var selRef = useRef(null);
+  selRef.current = sel;
 
   // Detect mobile
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+  useEffect(function () {
+    var check = function () {
+      setIsMobile(window.innerWidth < 768);
+    };
     check();
     window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    return function () {
+      window.removeEventListener("resize", check);
+    };
   }, []);
 
-  // Max zoom-out bounds (125% more than content)
-  const MAX_W = SVG_W * 2.25;
-  const MAX_H = SVG_H * 2.25;
-  const MIN_X = -(MAX_W - SVG_W) / 2;
-  const MIN_Y = -(MAX_H - SVG_H) / 2;
+  // Apply matrix to DOM
+  var applyMatrix = useCallback(function () {
+    var svg = svgRef.current,
+      m = matRef.current;
+    if (!svg || !m) return;
+    svg.style.transform = "matrix(" + m[0] + "," + m[1] + "," + m[2] + "," + m[3] + "," + m[4] + "," + m[5] + ")";
+  }, []);
 
-  // Filtered plots
-  const visIds = useMemo(() => {
-    const s = new Set();
-    PLOTS.forEach(p => {
+  // Update label visibility
+  var updateLabels = useCallback(function () {
+    if (!matRef.current || !baseScaleRef.current) return;
+    var z = mScale(matRef.current) / baseScaleRef.current;
+    setLabelsVisible(z > 1.0);
+  }, []);
+
+  // Compute initial matrix for given container size
+  var computeInitMatrix = useCallback(function (cw, ch) {
+    var bs = Math.min(cw / VIEW_W, ch / VIEW_H);
+    var tx = cw / 2 - VIEW_CX * bs;
+    var ty = ch / 2 - VIEW_CY * bs;
+    return [bs, 0, 0, bs, tx, ty];
+  }, []);
+
+  // Init transform + handle resize
+  useEffect(function () {
+    var el = containerRef.current;
+    if (!el) return;
+    var cw = el.clientWidth,
+      ch = el.clientHeight;
+    var initMat = computeInitMatrix(cw, ch);
+    baseScaleRef.current = mScale(initMat);
+    matRef.current = initMat.slice();
+    applyMatrix();
+    updateLabels();
+    function onResize() {
+      var ncw = el.clientWidth,
+        nch = el.clientHeight;
+      var newInit = computeInitMatrix(ncw, nch);
+      var newBase = mScale(newInit);
+      // Preserve relative zoom and position
+      if (matRef.current && baseScaleRef.current > 0) {
+        var relScale = mScale(matRef.current) / baseScaleRef.current;
+        var angle = mAngle(matRef.current);
+        var s = newBase * relScale;
+        var co = Math.cos(angle) * s,
+          si = Math.sin(angle) * s;
+        matRef.current = [co, si, -si, co, ncw / 2 - VIEW_CX * co + VIEW_CY * si, nch / 2 - VIEW_CX * si - VIEW_CY * co];
+      } else {
+        matRef.current = newInit.slice();
+      }
+      baseScaleRef.current = newBase;
+      applyMatrix();
+      updateLabels();
+    }
+    window.addEventListener("resize", onResize);
+    return function () {
+      window.removeEventListener("resize", onResize);
+    };
+  }, [applyMatrix, updateLabels, computeInitMatrix]);
+
+  // Animate to target matrix
+  var animateTo = useCallback(function (target, duration) {
+    duration = duration || 400;
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    if (momRef.current.raf) {
+      cancelAnimationFrame(momRef.current.raf);
+      momRef.current.raf = null;
+    }
+    var start = matRef.current.slice();
+    var t0 = performance.now();
+    function frame(now) {
+      var p = Math.min(1, (now - t0) / duration);
+      var ease = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      matRef.current = start.map(function (v, i) {
+        return v + (target[i] - v) * ease;
+      });
+      applyMatrix();
+      updateLabels();
+      if (p < 1) animRef.current = requestAnimationFrame(frame);else animRef.current = null;
+    }
+    animRef.current = requestAnimationFrame(frame);
+  }, [applyMatrix, updateLabels]);
+
+  // Zoom to plot
+  var zoomToPlot = useCallback(function (plot) {
+    var el = containerRef.current;
+    if (!el || !matRef.current) return;
+    var cw = el.clientWidth,
+      ch = el.clientHeight;
+    var curAngle = mAngle(matRef.current);
+    var co = Math.cos(curAngle),
+      si = Math.sin(curAngle);
+    var targetScale = Math.min(cw / 62, ch / 115);
+    var cx = plot.c[0],
+      cy = plot.c[1];
+    var tx = cw / 2 - targetScale * (co * cx - si * cy);
+    var ty = ch / 2 - targetScale * (si * cx + co * cy);
+    animateTo([targetScale * co, targetScale * si, -targetScale * si, targetScale * co, tx, ty], 400);
+  }, [animateTo]);
+
+  // Reset view
+  var resetView = useCallback(function () {
+    var el = containerRef.current;
+    if (!el) return;
+    var target = computeInitMatrix(el.clientWidth, el.clientHeight);
+    animateTo(target, 400);
+    setSel(null);
+  }, [animateTo, computeInitMatrix]);
+
+  // ═══ GESTURE SYSTEM ═══
+  useEffect(function () {
+    var el = containerRef.current;
+    if (!el) return;
+    var mom = momRef.current;
+    var prevTouches = null;
+    var touchMoved = false;
+    var touchStartTime = 0;
+    var touchStartPos = null;
+    function cancelMom() {
+      if (mom.raf) {
+        cancelAnimationFrame(mom.raf);
+        mom.raf = null;
+      }
+      mom.vx = 0;
+      mom.vy = 0;
+    }
+    function startMom() {
+      if (Math.hypot(mom.vx, mom.vy) < 0.5) return;
+      function tick() {
+        matRef.current[4] += mom.vx;
+        matRef.current[5] += mom.vy;
+        mom.vx *= 0.95;
+        mom.vy *= 0.95;
+        applyMatrix();
+        if (Math.hypot(mom.vx, mom.vy) > 0.1) mom.raf = requestAnimationFrame(tick);else {
+          mom.raf = null;
+          updateLabels();
+        }
+      }
+      mom.raf = requestAnimationFrame(tick);
+    }
+
+    // ── TOUCH ──
+    function onTS(e) {
+      cancelMom();
+      if (animRef.current) {
+        cancelAnimationFrame(animRef.current);
+        animRef.current = null;
+      }
+      prevTouches = Array.from(e.touches).map(function (t) {
+        return {
+          x: t.clientX,
+          y: t.clientY,
+          id: t.identifier
+        };
+      });
+      touchMoved = false;
+      touchStartTime = performance.now();
+      touchStartPos = prevTouches[0] ? {
+        x: prevTouches[0].x,
+        y: prevTouches[0].y
+      } : null;
+      mom.vx = 0;
+      mom.vy = 0;
+      if (e.touches.length >= 2) e.preventDefault();
+    }
+    var prevTime = 0;
+    function onTM(e) {
+      if (!matRef.current) return;
+      var cur = Array.from(e.touches).map(function (t) {
+        return {
+          x: t.clientX,
+          y: t.clientY,
+          id: t.identifier
+        };
+      });
+      if (!prevTouches) {
+        prevTouches = cur;
+        return;
+      }
+      var now = performance.now();
+      var dt = now - prevTime || 1;
+      prevTime = now;
+      if (cur.length === 1 && prevTouches.length >= 1) {
+        var prev = prevTouches[0];
+        var dx = cur[0].x - prev.x;
+        var dy = cur[0].y - prev.y;
+        var totalMove = touchStartPos ? Math.hypot(cur[0].x - touchStartPos.x, cur[0].y - touchStartPos.y) : 0;
+        if (totalMove > 8) {
+          e.preventDefault();
+          touchMoved = true;
+          matRef.current[4] += dx;
+          matRef.current[5] += dy;
+          applyMatrix();
+          var alpha = 0.3;
+          mom.vx = alpha * (dx / dt * 16) + (1 - alpha) * mom.vx;
+          mom.vy = alpha * (dy / dt * 16) + (1 - alpha) * mom.vy;
+        }
+      } else if (cur.length >= 2 && prevTouches.length >= 2) {
+        e.preventDefault();
+        touchMoved = true;
+        var p0 = prevTouches[0],
+          p1 = prevTouches[1];
+        var c0 = cur[0],
+          c1 = cur[1];
+        var prevC = {
+          x: (p0.x + p1.x) / 2,
+          y: (p0.y + p1.y) / 2
+        };
+        var curC = {
+          x: (c0.x + c1.x) / 2,
+          y: (c0.y + c1.y) / 2
+        };
+        var prevDist = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+        var curDist = Math.hypot(c1.x - c0.x, c1.y - c0.y);
+        var prevAng = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+        var curAng = Math.atan2(c1.y - c0.y, c1.x - c0.x);
+        var ds = prevDist > 10 ? curDist / prevDist : 1;
+        var da = curAng - prevAng;
+
+        // Clamp scale
+        var curScale = mScale(matRef.current);
+        var minS = baseScaleRef.current * 0.4;
+        var maxS = baseScaleRef.current * 25;
+        if (curScale * ds < minS) ds = minS / curScale;
+        if (curScale * ds > maxS) ds = maxS / curScale;
+        var sr = srAroundPt(ds, da, prevC.x, prevC.y);
+        sr[4] += curC.x - prevC.x;
+        sr[5] += curC.y - prevC.y;
+        matRef.current = mmul(sr, matRef.current);
+        applyMatrix();
+        var panDx = curC.x - prevC.x,
+          panDy = curC.y - prevC.y;
+        var alpha2 = 0.3;
+        mom.vx = alpha2 * (panDx / dt * 16) + (1 - alpha2) * mom.vx;
+        mom.vy = alpha2 * (panDy / dt * 16) + (1 - alpha2) * mom.vy;
+      }
+      prevTouches = cur;
+      updateLabels();
+    }
+    function onTE(e) {
+      if (e.touches.length === 0) {
+        if (touchMoved) {
+          startMom();
+        } else if (touchStartPos && performance.now() - touchStartTime < 300) {
+          // Tap on empty space → deselect
+          var target = document.elementFromPoint(touchStartPos.x, touchStartPos.y);
+          if (target && !target.closest("[data-plot]")) {
+            el.dispatchEvent(new Event("map-deselect"));
+          }
+        }
+        prevTouches = null;
+      } else {
+        prevTouches = Array.from(e.touches).map(function (t) {
+          return {
+            x: t.clientX,
+            y: t.clientY,
+            id: t.identifier
+          };
+        });
+        mom.vx = 0;
+        mom.vy = 0;
+      }
+    }
+
+    // ── MOUSE ──
+    var mouseDown = false,
+      mouseStart = null,
+      mouseMoved = false;
+    function onMD(e) {
+      if (e.target.closest("[data-plot]")) return;
+      if (e.button !== 0) return;
+      cancelMom();
+      if (animRef.current) {
+        cancelAnimationFrame(animRef.current);
+        animRef.current = null;
+      }
+      mouseDown = true;
+      mouseStart = {
+        x: e.clientX,
+        y: e.clientY
+      };
+      mouseMoved = false;
+      el.style.cursor = "grabbing";
+    }
+    function onMM(e) {
+      if (!mouseDown || !matRef.current) return;
+      var dx = e.clientX - mouseStart.x,
+        dy = e.clientY - mouseStart.y;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) mouseMoved = true;
+      matRef.current[4] += e.clientX - mouseStart.x;
+      matRef.current[5] += e.clientY - mouseStart.y;
+      mouseStart = {
+        x: e.clientX,
+        y: e.clientY
+      };
+      applyMatrix();
+    }
+    function onMU(e) {
+      if (mouseDown && !mouseMoved) el.dispatchEvent(new Event("map-deselect"));
+      mouseDown = false;
+      el.style.cursor = "grab";
+    }
+
+    // ── WHEEL ──
+    function onWH(e) {
+      e.preventDefault();
+      cancelMom();
+      if (!matRef.current) return;
+      var rect = el.getBoundingClientRect();
+      var cx = e.clientX - rect.left,
+        cy = e.clientY - rect.top;
+      var factor = e.deltaY > 0 ? 0.9 : 1.1;
+      // Clamp
+      var curScale = mScale(matRef.current);
+      var minS = baseScaleRef.current * 0.4,
+        maxS = baseScaleRef.current * 25;
+      if (curScale * factor < minS) factor = minS / curScale;
+      if (curScale * factor > maxS) factor = maxS / curScale;
+      matRef.current = mmul(scaleAroundPt(factor, cx, cy), matRef.current);
+      applyMatrix();
+      updateLabels();
+    }
+    el.addEventListener("touchstart", onTS, {
+      passive: false
+    });
+    el.addEventListener("touchmove", onTM, {
+      passive: false
+    });
+    el.addEventListener("touchend", onTE);
+    el.addEventListener("touchcancel", onTE);
+    el.addEventListener("mousedown", onMD);
+    window.addEventListener("mousemove", onMM);
+    window.addEventListener("mouseup", onMU);
+    el.addEventListener("wheel", onWH, {
+      passive: false
+    });
+    return function () {
+      el.removeEventListener("touchstart", onTS);
+      el.removeEventListener("touchmove", onTM);
+      el.removeEventListener("touchend", onTE);
+      el.removeEventListener("touchcancel", onTE);
+      el.removeEventListener("mousedown", onMD);
+      window.removeEventListener("mousemove", onMM);
+      window.removeEventListener("mouseup", onMU);
+      el.removeEventListener("wheel", onWH);
+    };
+  }, [applyMatrix, updateLabels]);
+
+  // Deselect handler
+  useEffect(function () {
+    var el = containerRef.current;
+    if (!el) return;
+    var handler = function () {
+      setSel(null);
+    };
+    el.addEventListener("map-deselect", handler);
+    return function () {
+      el.removeEventListener("map-deselect", handler);
+    };
+  }, []);
+
+  // ═══ ACTIONS ═══
+  var toggleSt = function (s) {
+    setActiveStatuses(function (prev) {
+      var n = new Set(prev);
+      if (n.has(s)) n.delete(s);else n.add(s);
+      return n;
+    });
+  };
+  var toggleTp = function (t) {
+    setActiveTypes(function (prev) {
+      var n = new Set(prev);
+      if (n.has(t)) n.delete(t);else n.add(t);
+      return n;
+    });
+  };
+  var toggleStatusFilter = function () {
+    if (!statusFilter) {
+      setStatusFilter(true);
+      setTypesFilter(false);
+    } else setStatusFilter(false);
+  };
+  var toggleTypesFilter = function () {
+    if (!typesFilter) {
+      setTypesFilter(true);
+      setStatusFilter(false);
+    } else setTypesFilter(false);
+  };
+
+  // ═══ COMPUTED ═══
+  var visIds = useMemo(function () {
+    var s = new Set();
+    PLOTS.forEach(function (p) {
       if (statusFilter && !activeStatuses.has(statuses[p.id])) return;
       if (typesFilter && !activeTypes.has(plotTypes[p.id])) return;
       s.add(p.id);
     });
     return s;
   }, [statuses, activeStatuses, statusFilter, plotTypes, activeTypes, typesFilter]);
-
-  // Stats
-  const stats = useMemo(() => {
-    const s = {};
-    ALL_STATUSES.forEach(k => {
+  var stats = useMemo(function () {
+    var s = {};
+    ALL_STATUSES.forEach(function (k) {
       s[k] = 0;
     });
-    Object.values(statuses).forEach(k => {
+    Object.values(statuses).forEach(function (k) {
       s[k]++;
     });
     return s;
   }, [statuses]);
-  const typeStats = useMemo(() => {
-    const s = {};
-    ALL_TYPES.forEach(k => {
+  var typeStats = useMemo(function () {
+    var s = {};
+    ALL_TYPES.forEach(function (k) {
       s[k] = 0;
     });
-    Object.values(plotTypes).forEach(k => {
+    Object.values(plotTypes).forEach(function (k) {
       s[k]++;
     });
     return s;
   }, [plotTypes]);
-
-  // Zoom
-  const onWheel = useCallback(e => {
-    e.preventDefault();
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) / rect.width;
-    const my = (e.clientY - rect.top) / rect.height;
-    const f = e.deltaY > 0 ? 1.12 : 0.89;
-    setVb(v => {
-      const nw = Math.min(MAX_W, Math.max(40, v.w * f));
-      const nh = Math.min(MAX_H, Math.max(75, v.h * f));
-      return {
-        x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - nw, v.x + (v.w - nw) * mx)),
-        y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - nh, v.y + (v.h - nh) * my)),
-        w: nw,
-        h: nh
-      };
+  var selPlot = sel ? PLOTS.find(function (p) {
+    return p.id === sel;
+  }) : null;
+  var hovPlot = hov ? PLOTS.find(function (p) {
+    return p.id === hov;
+  }) : null;
+  var searchAndGo = function () {
+    var num = parseInt(search, 10);
+    var found = PLOTS.find(function (p) {
+      return p.id === num;
     });
-  }, []);
-  useEffect(() => {
-    const s = svgRef.current;
-    if (s) s.addEventListener("wheel", onWheel, {
-      passive: false
-    });
-    return () => {
-      if (s) s.removeEventListener("wheel", onWheel);
-    };
-  }, [onWheel]);
-
-  // Touch pinch-to-zoom
-  const onTouchStart = useCallback(e => {
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      lastTouchDist.current = Math.hypot(dx, dy);
-      lastTouchCenter.current = {
-        x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2
-      };
-    }
-  }, []);
-  const onTouchMove = useCallback(e => {
-    if (e.touches.length === 2 && lastTouchDist.current) {
-      e.preventDefault();
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.hypot(dx, dy);
-      const scale = lastTouchDist.current / dist;
-      const svg = svgRef.current;
-      if (!svg) return;
-      const rect = svg.getBoundingClientRect();
-      const cx = (lastTouchCenter.current.x - rect.left) / rect.width;
-      const cy = (lastTouchCenter.current.y - rect.top) / rect.height;
-      setVb(v => {
-        const nw = Math.min(MAX_W, Math.max(40, v.w * scale));
-        const nh = Math.min(MAX_H, Math.max(75, v.h * scale));
-        return {
-          x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - nw, v.x + (v.w - nw) * cx)),
-          y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - nh, v.y + (v.h - nh) * cy)),
-          w: nw,
-          h: nh
-        };
-      });
-      lastTouchDist.current = dist;
-    }
-  }, []);
-  const onTouchEnd = useCallback(() => {
-    lastTouchDist.current = null;
-    lastTouchCenter.current = null;
-  }, []);
-  useEffect(() => {
-    const s = svgRef.current;
-    if (!s) return;
-    s.addEventListener("touchstart", onTouchStart, {
-      passive: false
-    });
-    s.addEventListener("touchmove", onTouchMove, {
-      passive: false
-    });
-    s.addEventListener("touchend", onTouchEnd);
-    return () => {
-      s.removeEventListener("touchstart", onTouchStart);
-      s.removeEventListener("touchmove", onTouchMove);
-      s.removeEventListener("touchend", onTouchEnd);
-    };
-  }, [onTouchStart, onTouchMove, onTouchEnd]);
-
-  // Pan
-  const onPanDown = e => {
-    if (e.target.closest("[data-plot]")) return;
-    setIsPan(true);
-    setPanO({
-      x: e.clientX,
-      y: e.clientY,
-      vb: {
-        ...vb
-      }
-    });
-  };
-  const onPanMove = e => {
-    if (!isPan || !panO) return;
-    const svg = svgRef.current;
-    if (!svg) return;
-    const r = svg.getBoundingClientRect();
-    const dx = (e.clientX - panO.x) * (vb.w / r.width);
-    const dy = (e.clientY - panO.y) * (vb.h / r.height);
-    setVb({
-      ...panO.vb,
-      x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - vb.w, panO.vb.x - dx)),
-      y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - vb.h, panO.vb.y - dy))
-    });
-  };
-  const onPanUp = e => {
-    // If pointer barely moved, it's a click on blank area → deselect
-    if (isPan && panO && Math.abs(e.clientX - panO.x) < 4 && Math.abs(e.clientY - panO.y) < 4) {
-      setSel(null);
-    }
-    setIsPan(false);
-    setPanO(null);
-  };
-
-  // Actions
-  const zoomToPlot = plot => {
-    const zw = 62,
-      zh = 115;
-    setVb({
-      x: Math.max(MIN_X, Math.min(SVG_W + Math.abs(MIN_X) - zw, plot.c[0] - zw / 2)),
-      y: Math.max(MIN_Y, Math.min(SVG_H + Math.abs(MIN_Y) - zh, plot.c[1] - zh / 2)),
-      w: zw,
-      h: zh
-    });
-  };
-  const resetView = () => {
-    setVb({
-      x: -56,
-      y: 15,
-      w: 600,
-      h: 1080
-    });
-    setSel(null);
-  };
-  const toggleSt = s => {
-    setActiveStatuses(prev => {
-      const n = new Set(prev);
-      if (n.has(s)) n.delete(s);else n.add(s);
-      return n;
-    });
-  };
-  const toggleTp = t => {
-    setActiveTypes(prev => {
-      const n = new Set(prev);
-      if (n.has(t)) n.delete(t);else n.add(t);
-      return n;
-    });
-  };
-  // Mutual exclusivity: turning one on turns the other off
-  const toggleStatusFilter = () => {
-    if (!statusFilter) {
-      setStatusFilter(true);
-      setTypesFilter(false);
-    } else setStatusFilter(false);
-  };
-  const toggleTypesFilter = () => {
-    if (!typesFilter) {
-      setTypesFilter(true);
-      setStatusFilter(false);
-    } else setTypesFilter(false);
-  };
-  const selPlot = sel ? PLOTS.find(p => p.id === sel) : null;
-  const hovPlot = hov ? PLOTS.find(p => p.id === hov) : null;
-  const zoomLevel = SVG_W / vb.w;
-
-  // Search and go to plot
-  const searchAndGo = () => {
-    const num = parseInt(search, 10);
-    const found = PLOTS.find(p => p.id === num);
     if (found) {
       setSel(found.id);
       zoomToPlot(found);
@@ -1803,8 +2080,8 @@ function SpacerMap() {
   };
 
   // ═══ STYLES ═══
-  const m = isMobile;
-  const S = {
+  var m = isMobile;
+  var S = {
     root: {
       width: "100%",
       height: "100vh",
@@ -1813,61 +2090,70 @@ function SpacerMap() {
       overflow: "hidden",
       fontFamily: "'Outfit', 'Manrope', system-ui, sans-serif",
       color: "#e2e8f0",
-      touchAction: "none"
+      touchAction: "none",
+      cursor: "grab"
     },
-    pill: active => ({
-      padding: m ? "6px 12px" : "8px 18px",
-      borderRadius: 30,
-      border: "1px solid " + (active ? "#ffffff30" : "#ffffff15"),
-      background: active ? "#ffffff15" : "#00000040",
-      backdropFilter: "blur(12px)",
-      cursor: "pointer",
-      fontSize: m ? 11 : 13,
-      fontWeight: 500,
-      color: active ? "#fff" : "#94a3b8",
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      transition: "all .2s",
-      userSelect: "none"
-    }),
-    toggle: on => ({
-      width: m ? 30 : 36,
-      height: m ? 16 : 20,
-      borderRadius: 10,
-      background: on ? "#4ade80" : "#334155",
-      position: "relative",
-      cursor: "pointer",
-      transition: "background .2s",
-      flexShrink: 0
-    }),
-    toggleDot: on => ({
-      width: m ? 12 : 16,
-      height: m ? 12 : 16,
-      borderRadius: 8,
-      background: "#fff",
-      position: "absolute",
-      top: 2,
-      left: on ? m ? 16 : 18 : 2,
-      transition: "left .2s"
-    }),
-    bottomBtn: active => ({
-      padding: m ? "8px 14px" : "10px 20px",
-      borderRadius: 12,
-      background: active ? "#ffffff20" : "#00000060",
-      border: "1px solid #ffffff15",
-      backdropFilter: "blur(12px)",
-      color: active ? "#fff" : "#94a3b8",
-      fontSize: m ? 11 : 13,
-      fontWeight: 500,
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      gap: 5,
-      transition: "all .2s",
-      flex: m ? 1 : "none",
-      justifyContent: "center"
-    }),
+    pill: function (active) {
+      return {
+        padding: m ? "6px 12px" : "8px 18px",
+        borderRadius: 30,
+        border: "1px solid " + (active ? "#ffffff30" : "#ffffff15"),
+        background: active ? "#ffffff15" : "#00000040",
+        backdropFilter: "blur(12px)",
+        cursor: "pointer",
+        fontSize: m ? 11 : 13,
+        fontWeight: 500,
+        color: active ? "#fff" : "#94a3b8",
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        transition: "all .2s",
+        userSelect: "none"
+      };
+    },
+    toggle: function (on) {
+      return {
+        width: m ? 30 : 36,
+        height: m ? 16 : 20,
+        borderRadius: 10,
+        background: on ? "#4ade80" : "#334155",
+        position: "relative",
+        cursor: "pointer",
+        transition: "background .2s",
+        flexShrink: 0
+      };
+    },
+    toggleDot: function (on) {
+      return {
+        width: m ? 12 : 16,
+        height: m ? 12 : 16,
+        borderRadius: 8,
+        background: "#fff",
+        position: "absolute",
+        top: 2,
+        left: on ? m ? 16 : 18 : 2,
+        transition: "left .2s"
+      };
+    },
+    bottomBtn: function (active) {
+      return {
+        padding: m ? "8px 14px" : "10px 20px",
+        borderRadius: 12,
+        background: active ? "#ffffff20" : "#00000060",
+        border: "1px solid #ffffff15",
+        backdropFilter: "blur(12px)",
+        color: active ? "#fff" : "#94a3b8",
+        fontSize: m ? 11 : 13,
+        fontWeight: 500,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: 5,
+        transition: "all .2s",
+        flex: m ? 1 : "none",
+        justifyContent: "center"
+      };
+    },
     iconBtn: {
       width: m ? 36 : 42,
       height: m ? 36 : 42,
@@ -1883,25 +2169,26 @@ function SpacerMap() {
       fontSize: m ? 14 : 16
     }
   };
+
+  // ═══ RENDER ═══
   return /*#__PURE__*/React.createElement("div", {
+    ref: containerRef,
     style: S.root
   }, /*#__PURE__*/React.createElement("link", {
     href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap",
     rel: "stylesheet"
   }), /*#__PURE__*/React.createElement("svg", {
     ref: svgRef,
-    viewBox: `${vb.x} ${vb.y} ${vb.w} ${vb.h}`,
+    viewBox: "0 0 " + SVG_W + " " + SVG_H,
+    width: SVG_W,
+    height: SVG_H,
     style: {
-      width: "100%",
-      height: "100%",
-      cursor: isPan ? "grabbing" : "grab",
       position: "absolute",
-      inset: 0
-    },
-    onPointerDown: onPanDown,
-    onPointerMove: onPanMove,
-    onPointerUp: onPanUp,
-    onPointerLeave: onPanUp
+      left: 0,
+      top: 0,
+      transformOrigin: "0 0",
+      willChange: "transform"
+    }
   }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("pattern", {
     id: "grid",
     width: "20",
@@ -1972,61 +2259,65 @@ function SpacerMap() {
       pointerEvents: "none",
       transition: "opacity .3s"
     }
-  }, CONTEXT.map((ln, i) => /*#__PURE__*/React.createElement("line", {
-    key: i,
-    x1: ln.s[0],
-    y1: ln.s[1],
-    x2: ln.e[0],
-    y2: ln.e[1],
-    stroke: "#ffffff60",
-    strokeWidth: "1",
-    strokeDasharray: "4 3"
-  }))), /*#__PURE__*/React.createElement("g", {
+  }, CONTEXT.map(function (ln, i) {
+    return /*#__PURE__*/React.createElement("line", {
+      key: i,
+      x1: ln.s[0],
+      y1: ln.s[1],
+      x2: ln.e[0],
+      y2: ln.e[1],
+      stroke: "#ffffff60",
+      strokeWidth: "1",
+      strokeDasharray: "4 3"
+    });
+  })), /*#__PURE__*/React.createElement("g", {
     opacity: sel ? 0.5 : 1,
     style: {
       transition: "opacity .3s"
     }
-  }, showInfra && INFRA.map((inf, i) => /*#__PURE__*/React.createElement("g", {
-    key: i
-  }, inf.path ? /*#__PURE__*/React.createElement("path", {
-    d: inf.path,
-    fill: inf.type === "Internal Roads" ? "#515151" : inf.color,
-    stroke: "#000000",
-    strokeWidth: inf.type === "Internal Roads" ? 0.3 : 0.5
-  }) : /*#__PURE__*/React.createElement("polygon", {
-    points: p2s(inf.pts),
-    fill: inf.type === "Internal Roads" ? "#515151" : inf.color,
-    stroke: "#000000",
-    strokeWidth: inf.type === "Internal Roads" ? 0.3 : 0.5
-  }), inf.type !== "Internal Roads" && zoomLevel > 1.2 && /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("text", {
-    x: inf.c[0],
-    y: inf.c[1] - 3,
-    textAnchor: "middle",
-    fontSize: "9",
-    style: {
-      pointerEvents: "none"
-    }
-  }, inf.icon), /*#__PURE__*/React.createElement("text", {
-    x: inf.c[0],
-    y: inf.c[1] + 8,
-    textAnchor: "middle",
-    fill: "#fff",
-    fontSize: "4",
-    fontFamily: "Outfit",
-    fontWeight: "600",
-    opacity: ".9",
-    style: {
-      pointerEvents: "none"
-    }
-  }, inf.type))))), /*#__PURE__*/React.createElement("g", {
+  }, showInfra && INFRA.map(function (inf, i) {
+    return /*#__PURE__*/React.createElement("g", {
+      key: i
+    }, inf.path ? /*#__PURE__*/React.createElement("path", {
+      d: inf.path,
+      fill: inf.type === "Internal Roads" ? "#515151" : inf.color,
+      stroke: "#000000",
+      strokeWidth: inf.type === "Internal Roads" ? 0.3 : 0.5
+    }) : /*#__PURE__*/React.createElement("polygon", {
+      points: p2s(inf.pts),
+      fill: inf.type === "Internal Roads" ? "#515151" : inf.color,
+      stroke: "#000000",
+      strokeWidth: inf.type === "Internal Roads" ? 0.3 : 0.5
+    }), inf.type !== "Internal Roads" && labelsVisible && /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("text", {
+      x: inf.c[0],
+      y: inf.c[1] - 3,
+      textAnchor: "middle",
+      fontSize: "9",
+      style: {
+        pointerEvents: "none"
+      }
+    }, inf.icon), /*#__PURE__*/React.createElement("text", {
+      x: inf.c[0],
+      y: inf.c[1] + 8,
+      textAnchor: "middle",
+      fill: "#fff",
+      fontSize: "4",
+      fontFamily: "Outfit",
+      fontWeight: "600",
+      opacity: ".9",
+      style: {
+        pointerEvents: "none"
+      }
+    }, inf.type)));
+  })), /*#__PURE__*/React.createElement("g", {
     opacity: sel ? 0.25 : 0.6,
     style: {
       pointerEvents: "none",
       transition: "opacity .3s"
     }
-  }, ROAD_TEXTS.map((t, i) => {
-    const isVertical = i === 3 || i === 4;
-    const angle = isVertical ? -74 : 16;
+  }, ROAD_TEXTS.map(function (t, i) {
+    var isVertical = i === 3 || i === 4;
+    var angle = isVertical ? -74 : 16;
     return /*#__PURE__*/React.createElement("text", {
       key: i,
       x: t.x,
@@ -2037,7 +2328,7 @@ function SpacerMap() {
       fontSize: "6",
       fontFamily: "Outfit",
       fontWeight: "500",
-      transform: `rotate(${angle}, ${t.x}, ${t.y})`
+      transform: "rotate(" + angle + ", " + t.x + ", " + t.y + ")"
     }, t.text);
   })), /*#__PURE__*/React.createElement("g", {
     opacity: sel ? 0.5 : 1,
@@ -2061,36 +2352,34 @@ function SpacerMap() {
     fontSize: "5",
     fontFamily: "Outfit",
     fontWeight: "700",
-    transform: `rotate(16, ${ENTRANCE_C[0]}, ${ENTRANCE_C[1] + 1})`,
+    transform: "rotate(16, " + ENTRANCE_C[0] + ", " + (ENTRANCE_C[1] + 1) + ")",
     style: {
       pointerEvents: "none"
     }
-  }, "ENTRY")), PLOTS.map(p => {
-    const vis = visIds.has(p.id);
-    const isSel = sel === p.id;
-    const isHov = hov === p.id;
-    const rot = plotRotation(p.e);
-
-    // Determine fill color based on active filter
-    let plotFill = "#CFC4AB";
-    if (statusFilter && vis) {
-      plotFill = STATUS_CFG[statuses[p.id]]?.color || "#CFC4AB";
-    } else if (typesFilter && vis) {
-      plotFill = TYPE_CFG[plotTypes[p.id]]?.color || "#CFC4AB";
-    }
+  }, "ENTRY")), PLOTS.map(function (p) {
+    var vis = visIds.has(p.id);
+    var isSel = sel === p.id;
+    var isHov = hov === p.id;
+    var rot = plotRotation(p.e);
+    var plotFill = "#CFC4AB";
+    if (statusFilter && vis) plotFill = STATUS_CFG[statuses[p.id]] ? STATUS_CFG[statuses[p.id]].color : "#CFC4AB";else if (typesFilter && vis) plotFill = TYPE_CFG[plotTypes[p.id]] ? TYPE_CFG[plotTypes[p.id]].color : "#CFC4AB";
     return /*#__PURE__*/React.createElement("g", {
       key: p.id,
       "data-plot": p.id,
       style: {
         cursor: "pointer"
       },
-      onClick: () => {
+      onClick: function () {
         setSel(p.id);
         zoomToPlot(p);
         setInfoPanel(null);
       },
-      onPointerEnter: () => setHov(p.id),
-      onPointerLeave: () => setHov(null)
+      onPointerEnter: function () {
+        setHov(p.id);
+      },
+      onPointerLeave: function () {
+        setHov(null);
+      }
     }, p.path ? /*#__PURE__*/React.createElement("path", {
       d: p.path,
       fill: vis ? isSel ? "#3B9AE8" : plotFill : "#CFC4AB20",
@@ -2122,13 +2411,13 @@ function SpacerMap() {
       stroke: statusFilter || typesFilter ? "#00000050" : "none",
       strokeWidth: statusFilter || typesFilter ? ".5" : "0",
       paintOrder: "stroke",
-      transform: `rotate(${rot}, ${p.c[0]}, ${p.c[1]})`,
+      transform: "rotate(" + rot + ", " + p.c[0] + ", " + p.c[1] + ")",
       style: {
         pointerEvents: "none",
         transition: "opacity .3s, fill .3s"
       }
     }, p.id), isSel && /*#__PURE__*/React.createElement("g", {
-      transform: `rotate(${rot}, ${p.c[0]}, ${p.c[1]})`,
+      transform: "rotate(" + rot + ", " + p.c[0] + ", " + p.c[1] + ")",
       style: {
         pointerEvents: "none"
       }
@@ -2151,37 +2440,41 @@ function SpacerMap() {
       fontFamily: "Outfit",
       fontWeight: "600"
     }, p.a, " sq yd")));
-  }), sel && (() => {
-    const p = PLOTS.find(pl => pl.id === sel);
+  }), sel && function () {
+    var p = PLOTS.find(function (pl) {
+      return pl.id === sel;
+    });
     if (!p) return null;
-    const corners = p.oc || p.pts;
-    // Compute centroid from the corners used (not the filleted centroid)
-    const ccx = corners.reduce((s, c) => s + c[0], 0) / corners.length;
-    const ccy = corners.reduce((s, c) => s + c[1], 0) / corners.length;
-    return p.e.map((edge, ei) => {
-      const dist = 2.5;
-      const pi = corners[ei];
-      const pj = corners[(ei + 1) % corners.length];
-      const edx = pj[0] - pi[0];
-      const edy = pj[1] - pi[1];
-      const cross = edx * (ccy - pi[1]) - edy * (ccx - pi[0]);
-      let outX, outY;
+    var corners = p.oc || p.pts;
+    var ccx = corners.reduce(function (s, c) {
+      return s + c[0];
+    }, 0) / corners.length;
+    var ccy = corners.reduce(function (s, c) {
+      return s + c[1];
+    }, 0) / corners.length;
+    return p.e.map(function (edge, ei) {
+      var dist = 2.5;
+      var pi = corners[ei];
+      var pj = corners[(ei + 1) % corners.length];
+      var edx = pj[0] - pi[0],
+        edy = pj[1] - pi[1];
+      var cross = edx * (ccy - pi[1]) - edy * (ccx - pi[0]);
+      var len = Math.hypot(edx, edy);
+      var outX, outY;
       if (cross > 0) {
-        const len = Math.hypot(edx, edy);
         outX = edy / len * dist;
         outY = -edx / len * dist;
       } else {
-        const len = Math.hypot(edx, edy);
         outX = -edy / len * dist;
         outY = edx / len * dist;
       }
-      const nx = outX;
-      const ny = outY;
-      const tk = 1.8;
-      const outLen = Math.hypot(outX, outY);
-      const uX = outX / outLen;
-      const uY = outY / outLen;
-      const tAng = edge.a > 90 || edge.a < -90 ? edge.a + 180 : edge.a;
+      var nx = outX,
+        ny = outY;
+      var tk = 1.8;
+      var outLen = Math.hypot(outX, outY);
+      var uX = outX / outLen,
+        uY = outY / outLen;
+      var tAng = edge.a > 90 || edge.a < -90 ? edge.a + 180 : edge.a;
       return /*#__PURE__*/React.createElement("g", {
         key: ei,
         style: {
@@ -2237,10 +2530,10 @@ function SpacerMap() {
         stroke: "#232323",
         strokeWidth: "2",
         paintOrder: "stroke",
-        transform: `rotate(${tAng}, ${edge.mx + nx}, ${edge.my + ny})`
+        transform: "rotate(" + tAng + ", " + (edge.mx + nx) + ", " + (edge.my + ny) + ")"
       }, edge.l, " m"));
     });
-  })()), !(m && sel) && /*#__PURE__*/React.createElement("div", {
+  }()), !(m && sel) && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       top: m ? 10 : 16,
@@ -2317,8 +2610,12 @@ function SpacerMap() {
       display: "flex",
       alignItems: "center"
     },
-    onMouseEnter: e => e.currentTarget.style.background = "#00000090",
-    onMouseLeave: e => e.currentTarget.style.background = "#00000070"
+    onMouseEnter: function (e) {
+      e.currentTarget.style.background = "#00000090";
+    },
+    onMouseLeave: function (e) {
+      e.currentTarget.style.background = "#00000070";
+    }
   }, /*#__PURE__*/React.createElement("img", {
     src: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI3LjMuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAzMDMgNTYuMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMzAzIDU2LjI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4KCXBhdGh7ZmlsbDojRkZGRkZGO30KCS5zdDB7ZmlsbDojRkZGRkZGO30KCS5zdDF7ZmlsbDojRkZGRkZGO30KCS5zdDJ7ZmlsbDojZmZmZmZmODA7fQoJLnN0M3tmaWxsOm5vbmU7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjAuNTtzdHJva2UtbWl0ZXJsaW1pdDoxMDt9Cgkuc3Q0e2ZpbGw6Izk5ODc3Njt9Cgkuc3Q1e2ZpbGw6I2ZmZmZmZjkwO30KPC9zdHlsZT4KPGc+Cgk8cGF0aCBjbGFzcz0ic3Q0IiBkPSJNMTAuNCw5LjNIMy4yVjQuOGgxOS42djQuNmgtNy4yVjMwaC01LjJWOS4zeiIvPgoJPHBhdGggY2xhc3M9InN0NCIgZD0iTTI2LjYsNC44aDUuMnYxMi45aDEwLjhWNC44aDUuMlYzMGgtNS4ydi03LjdIMzEuN1YzMGgtNS4yVjQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDQiIGQ9Ik01Myw0LjhoMTYuN3Y0LjZINTguMXY4aDEwLjF2NC40SDU4LjF2My42aDEyVjMwSDUzVjQuOHoiLz4KCTxwYXRoIGQ9Ik04My4xLDQuOGg3LjdjNy43LDAsMTMuMyw1LjEsMTMuMywxMi42YzAsNy40LTUuNSwxMi42LTEzLjMsMTIuNmgtNy43VjQuOHogTTkwLjYsMjUuNGM1LjYsMCw4LjEtMy4zLDguMS04cy0yLjYtOC04LjEtOAoJCWgtMi4zdjE2LjFIOTAuNnoiLz4KCTxwYXRoIGQ9Ik0xMDguNiw0LjhoNS4yVjMwaC01LjJWNC44eiIvPgoJPHBhdGggZD0iTTExOS4xLDQuNWgwLjRMMTMyLDE4LjJsMTIuMi0xMy42aDAuNFYzMGgtNXYtOS40YzAtMS43LDAuMi00LjQsMC4yLTQuNHMtMS41LDIuMi0yLjcsMy42bC01LDUuNmgtMC41bC01LTUuNgoJCWMtMS4yLTEuMy0yLjctMy42LTIuNy0zLjZzMC4yLDIuNywwLjIsNC40VjMwaC01VjQuNXoiLz4KCTxwYXRoIGQ9Ik0xNDkuOSw0LjhoMTYuN3Y0LjZoLTExLjV2OGgxMC4xdjQuNGgtMTAuMXYzLjZoMTJWMzBoLTE3LjJWNC44eiIvPgoJPHBhdGggZD0iTTE3OS40LDE4LjNjLTEuMy0xLjItMy0zLjQtMy0zLjRzMC40LDIuOCwwLjQsNC42VjMwaC00LjlWNC42aDAuNWwxMi43LDExLjljMS4yLDEuMSwzLDMuNCwzLDMuNHMtMC4zLTIuOS0wLjMtNC42VjQuOAoJCWg0Ljl2MjUuNGgtMC41TDE3OS40LDE4LjN6Ii8+Cgk8cGF0aCBkPSJNMTk1LjcsMjVsNC4yLTIuNGMxLjEsMS44LDIuNiwzLjEsNS4xLDMuMWMyLjEsMCwzLjUtMS4xLDMuNS0yLjZjMC0xLjgtMS40LTIuNC0zLjgtMy40bC0xLjMtMC42CgkJYy0zLjctMS42LTYuMi0zLjYtNi4yLTcuOGMwLTMuOSwzLTYuOSw3LjYtNi45YzMuMywwLDUuNywxLjEsNy40LDQuMWwtNCwyLjZjLTAuOS0xLjYtMS45LTIuMi0zLjMtMi4yYy0xLjUsMC0yLjUsMS0yLjUsMi4yCgkJYzAsMS42LDEsMi4yLDMuMiwzLjFsMS4zLDAuNmM0LjQsMS45LDYuOSwzLjgsNi45LDguMWMwLDQuNy0zLjcsNy4yLTguNiw3LjJDMjAwLjMsMzAuMywxOTcuMiwyOCwxOTUuNywyNXoiLz4KCTxwYXRoIGQ9Ik0yMTcuOCw0LjhoNS4yVjMwaC01LjJWNC44eiIvPgoJPHBhdGggZD0iTTIyNy41LDE3LjRjMC03LjQsNS44LTEyLjksMTMtMTIuOWM3LjMsMCwxMyw1LjUsMTMsMTIuOWMwLDcuNC01LjgsMTIuOS0xMywxMi45QzIzMy4zLDMwLjMsMjI3LjUsMjQuOCwyMjcuNSwxNy40egoJCSBNMjQ4LjIsMTcuNGMwLTQuNy0zLjEtOC4zLTcuNy04LjNjLTQuNiwwLTcuNywzLjYtNy43LDguM3MzLjEsOC4zLDcuNyw4LjNDMjQ1LjEsMjUuNywyNDguMiwyMi4xLDI0OC4yLDE3LjR6Ii8+Cgk8cGF0aCBkPSJNMjY1LjUsMTguM2MtMS4zLTEuMi0zLTMuNC0zLTMuNHMwLjQsMi44LDAuNCw0LjZWMzBIMjU4VjQuNmgwLjVsMTIuNywxMS45YzEuMiwxLjEsMywzLjQsMywzLjRzLTAuMy0yLjktMC4zLTQuNlY0LjhoNC45CgkJdjI1LjRoLTAuNUwyNjUuNSwxOC4zeiIvPgoJPHBhdGggZD0iTTI4MS44LDI1bDQuMi0yLjRjMS4xLDEuOCwyLjYsMy4xLDUuMSwzLjFjMi4xLDAsMy41LTEuMSwzLjUtMi42YzAtMS44LTEuNC0yLjQtMy44LTMuNGwtMS4zLTAuNgoJCWMtMy43LTEuNi02LjItMy42LTYuMi03LjhjMC0zLjksMy02LjksNy42LTYuOWMzLjMsMCw1LjcsMS4xLDcuNCw0LjFsLTQsMi42Yy0wLjktMS42LTEuOS0yLjItMy4zLTIuMmMtMS41LDAtMi41LDEtMi41LDIuMgoJCWMwLDEuNiwxLDIuMiwzLjIsMy4xbDEuMywwLjZjNC40LDEuOSw2LjksMy44LDYuOSw4LjFjMCw0LjctMy43LDcuMi04LjYsNy4yQzI4Ni40LDMwLjMsMjgzLjMsMjgsMjgxLjgsMjV6Ii8+CjwvZz4KPGc+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNOS42LDQ0LjhoMmMyLjUsMCwzLjcsMS40LDMuNywzLjRjMCwyLTEuMywzLjQtMy43LDMuNGgtMS4xdjIuMmgtMVY0NC44eiBNMTEuNiw1MC43YzIsMCwyLjgtMS4xLDIuOC0yLjUKCQljMC0xLjUtMC44LTIuNS0yLjgtMi41aC0xdjUuMUgxMS42eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTE3LjMsNDQuOGgxdjguMWg0LjJ2MC44aC01LjJWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNy4zLDQ0LjdoMC4ybDMuOCw5LjFoLTFsLTAuNi0xLjVoLTQuNmwtMC42LDEuNWgtMC45TDI3LjMsNDQuN3ogTTI5LjMsNTEuNWwtMS42LTQKCQljLTAuMi0wLjQtMC4zLTEuMS0wLjMtMS4xUzI3LjEsNDcsMjcsNDcuNWwtMS42LDRIMjkuM3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0zNC40LDQ3LjVjLTAuMy0wLjMtMC42LTAuOC0wLjYtMC44czAuMSwwLjYsMC4xLDF2Ni4xaC0wLjl2LTkuMWgwLjJsNS40LDYuNGMwLjMsMC4zLDAuNiwwLjgsMC42LDAuOAoJCXMtMC4xLTAuNi0wLjEtMXYtNi4xaDAuOXY5LjFoLTAuMkwzNC40LDQ3LjV6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNNDMuOCw0Ny41Yy0wLjMtMC4zLTAuNi0wLjgtMC42LTAuOHMwLjEsMC42LDAuMSwxdjYuMWgtMC45di05LjFoMC4ybDUuNCw2LjRjMC4zLDAuMywwLjYsMC44LDAuNiwwLjgKCQlzLTAuMS0wLjYtMC4xLTF2LTYuMWgwLjl2OS4xaC0wLjJMNDMuOCw0Ny41eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTUxLjgsNDQuOGgxdjloLTFWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik01Ni43LDQ3LjVjLTAuMy0wLjMtMC42LTAuOC0wLjYtMC44czAuMSwwLjYsMC4xLDF2Ni4xaC0wLjl2LTkuMWgwLjJsNS40LDYuNGMwLjMsMC4zLDAuNiwwLjgsMC42LDAuOAoJCXMtMC4xLTAuNi0wLjEtMXYtNi4xaDAuOXY5LjFoLTAuMkw1Ni43LDQ3LjV6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNNjQuMiw0OS4zYzAtMi43LDItNC42LDQuNi00LjZjMS4zLDAsMi40LDAuNCwzLjEsMS4ybC0wLjYsMC42Yy0wLjYtMC42LTEuNC0xLTIuNS0xYy0yLjEsMC0zLjYsMS42LTMuNiwzLjcKCQlzMS41LDMuNywzLjcsMy43YzEuMiwwLDIuMS0wLjQsMi43LTAuOHYtMS45aC0yLjd2LTAuOGgzLjZ2My4xYy0wLjcsMC42LTEuOSwxLjItMy42LDEuMkM2Ni4yLDUzLjksNjQuMiw1Miw2NC4yLDQ5LjN6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNNzcuNiw0NC4yaDAuOXYxMS4yaC0wLjlWNDQuMnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik04Nyw0NC43aDAuMmwzLjgsOS4xaC0xbC0wLjYtMS41aC00LjZsLTAuNiwxLjVoLTAuOUw4Nyw0NC43eiBNODksNTEuNWwtMS42LTRDODcuMiw0Nyw4Nyw0Ni40LDg3LDQ2LjQKCQlzLTAuMiwwLjYtMC40LDEuMWwtMS42LDRIODl6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNOTguNSw1My44aC0xLjFsLTEuNy0yLjVjLTAuMywwLjEtMC42LDAuMS0xLDAuMWgtMS4xdjIuNGgtMXYtOWgyYzIuNSwwLDMuNywxLjQsMy43LDMuMwoJCWMwLDEuMy0wLjYsMi40LTEuOSwyLjlMOTguNSw1My44eiBNOTQuNiw1MC42YzIsMCwyLjgtMSwyLjgtMi41cy0wLjgtMi41LTIuOC0yLjVoLTF2NC45SDk0LjZ6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTAwLDQ5LjNjMC0yLjcsMi4xLTQuNiw0LjYtNC42YzEuNiwwLDIuOCwwLjYsMy42LDEuN2wtMC43LDAuNWMtMC42LTAuOS0xLjUtMS40LTIuOC0xLjQKCQljLTIuMSwwLTMuNiwxLjYtMy42LDMuN3MxLjUsMy43LDMuNiwzLjdjMS4zLDAsMi4zLTAuNiwzLTEuNWwwLjcsMC41Yy0wLjgsMS4yLTIuMSwxLjktMy43LDEuOUMxMDIuMSw1My45LDEwMCw1MiwxMDAsNDkuM3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xMTAuMSw0NC44aDF2NS4xaDQuOHYtNS4xaDF2OWgtMXYtMy4xaC00Ljh2My4xaC0xVjQ0Ljh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTE5LjMsNDQuOGgxdjloLTFWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xMjQuOCw0NS42SDEyMnYtMC44aDYuNXYwLjhoLTIuOHY4LjFoLTFWNDUuNnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xMzAuMiw0NC44aDUuNXYwLjhoLTQuNXY0LjJoNHYwLjhoLTR2Mi4yaDQuN3YwLjhoLTUuN1Y0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTEzNy4zLDQ5LjNjMC0yLjcsMi4xLTQuNiw0LjYtNC42YzEuNiwwLDIuOCwwLjYsMy42LDEuN2wtMC43LDAuNWMtMC42LTAuOS0xLjUtMS40LTIuOC0xLjQKCQljLTIuMSwwLTMuNiwxLjYtMy42LDMuN3MxLjUsMy43LDMuNiwzLjdjMS4zLDAsMi4zLTAuNiwzLTEuNWwwLjcsMC41Yy0wLjgsMS4yLTIuMSwxLjktMy43LDEuOUMxMzkuMyw1My45LDEzNy4zLDUyLDEzNy4zLDQ5LjN6IgoJCS8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTQ5LjMsNDUuNmgtMi44di0wLjhoNi41djAuOGgtMi44djguMWgtMVY0NS42eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTE1NC42LDUwLjd2LTUuOWgxdjUuOWMwLDEuNiwwLjksMi40LDIuMywyLjRjMS40LDAsMi4zLTAuOCwyLjMtMi40di01LjloMXY1LjljMCwyLjEtMS40LDMuMi0zLjIsMy4yCgkJQzE1Niw1My45LDE1NC42LDUyLjgsMTU0LjYsNTAuN3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xNjkuMyw1My44aC0xLjFsLTEuNy0yLjVjLTAuMywwLjEtMC42LDAuMS0xLDAuMWgtMS4xdjIuNGgtMXYtOWgyYzIuNSwwLDMuNywxLjQsMy43LDMuMwoJCWMwLDEuMy0wLjYsMi40LTEuOSwyLjlMMTY5LjMsNTMuOHogTTE2NS40LDUwLjZjMiwwLDIuOC0xLDIuOC0yLjVzLTAuOC0yLjUtMi44LTIuNWgtMXY0LjlIMTY1LjR6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMTcxLjMsNDQuOGg1LjV2MC44aC00LjV2NC4yaDR2MC44aC00djIuMmg0Ljd2MC44aC01LjdWNDQuOHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xODIsNDQuMmgwLjl2MTEuMkgxODJWNDQuMnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0xODguNCw0NC44aDF2OWgtMVY0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTE5My4zLDQ3LjVjLTAuMy0wLjMtMC42LTAuOC0wLjYtMC44czAuMSwwLjYsMC4xLDF2Ni4xaC0wLjl2LTkuMWgwLjJsNS40LDYuNGMwLjMsMC4zLDAuNiwwLjgsMC42LDAuOAoJCXMtMC4xLTAuNi0wLjEtMXYtNi4xaDAuOXY5LjFoLTAuMkwxOTMuMyw0Ny41eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTIwMy4zLDQ1LjZoLTIuOHYtMC44aDYuNXYwLjhoLTIuOHY4LjFoLTFWNDUuNnoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yMDguNyw0NC44aDUuNXYwLjhoLTQuNXY0LjJoNHYwLjhoLTR2Mi4yaDQuN3YwLjhoLTUuN1Y0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTIyMi4yLDUzLjhIMjIxbC0xLjctMi41Yy0wLjMsMC4xLTAuNiwwLjEtMSwwLjFoLTEuMXYyLjRoLTF2LTloMmMyLjUsMCwzLjcsMS40LDMuNywzLjMKCQljMCwxLjMtMC42LDIuNC0xLjksMi45TDIyMi4yLDUzLjh6IE0yMTguMyw1MC42YzIsMCwyLjgtMSwyLjgtMi41cy0wLjgtMi41LTIuOC0yLjVoLTF2NC45SDIxOC4zeiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTIyNC4zLDQ0LjhoMXY5aC0xVjQ0Ljh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q1IiBkPSJNMjI3LjIsNDkuM2MwLTIuNywyLjEtNC42LDQuNi00LjZjMi42LDAsNC42LDEuOSw0LjYsNC42cy0yLjEsNC42LTQuNiw0LjZDMjI5LjMsNTMuOSwyMjcuMiw1MiwyMjcuMiw0OS4zegoJCSBNMjM1LjUsNDkuM2MwLTIuMS0xLjUtMy43LTMuNi0zLjdjLTIuMSwwLTMuNiwxLjYtMy42LDMuN3MxLjUsMy43LDMuNiwzLjdDMjMzLjksNTMsMjM1LjUsNTEuNCwyMzUuNSw0OS4zeiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTI0NC4yLDUzLjhoLTEuMWwtMS43LTIuNWMtMC4zLDAuMS0wLjYsMC4xLTEsMC4xaC0xLjF2Mi40aC0xdi05aDJjMi41LDAsMy43LDEuNCwzLjcsMy4zCgkJYzAsMS4zLTAuNiwyLjQtMS45LDIuOUwyNDQuMiw1My44eiBNMjQwLjQsNTAuNmMyLDAsMi44LTEsMi44LTIuNXMtMC44LTIuNS0yLjgtMi41aC0xdjQuOUgyNDAuNHoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNDkuNCw0NC44aDIuMmMzLDAsNC45LDEuOCw0LjksNC41cy0xLjksNC41LTQuOSw0LjVoLTIuMlY0NC44eiBNMjUxLjUsNTIuOWMyLjcsMCwzLjktMS41LDMuOS0zLjYKCQlzLTEuMy0zLjYtMy45LTMuNmgtMS4ydjcuM0gyNTEuNXoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNTguNCw0NC44aDUuNXYwLjhoLTQuNXY0LjJoNHYwLjhoLTR2Mi4yaDQuN3YwLjhoLTUuN1Y0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTI2NS4yLDUyLjFsMC44LTAuNGMwLjQsMC44LDEsMS40LDIuMywxLjRjMSwwLDEuOS0wLjYsMS45LTEuNWMwLTAuOS0wLjYtMS40LTEuNy0xLjlsLTAuNy0wLjMKCQljLTEuMy0wLjYtMi0xLjItMi0yLjVjMC0xLjMsMS0yLjIsMi40LTIuMmMxLjIsMCwyLDAuNiwyLjQsMS4zbC0wLjgsMC41Yy0wLjMtMC42LTAuOC0xLTEuNy0xYy0wLjksMC0xLjQsMC41LTEuNCwxLjMKCQljMCwwLjgsMC40LDEuMiwxLjQsMS42bDAuNywwLjNjMS41LDAuNywyLjMsMS40LDIuMywyLjhjMCwxLjUtMS4yLDIuNC0yLjgsMi40QzI2Ni42LDUzLjksMjY1LjcsNTMsMjY1LjIsNTIuMXoiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yNzMuMSw0NC44aDF2OWgtMVY0NC44eiIvPgoJPHBhdGggY2xhc3M9InN0NSIgZD0iTTI3Ni4xLDQ5LjNjMC0yLjcsMi00LjYsNC42LTQuNmMxLjMsMCwyLjQsMC40LDMuMSwxLjJsLTAuNiwwLjZjLTAuNi0wLjYtMS40LTEtMi41LTFjLTIuMSwwLTMuNiwxLjYtMy42LDMuNwoJCXMxLjUsMy43LDMuNywzLjdjMS4yLDAsMi4xLTAuNCwyLjctMC44di0xLjloLTIuN3YtMC44aDMuNnYzLjFjLTAuNywwLjYtMS45LDEuMi0zLjYsMS4yQzI3OC4xLDUzLjksMjc2LjEsNTIsMjc2LjEsNDkuM3oiLz4KCTxwYXRoIGNsYXNzPSJzdDUiIGQ9Ik0yODcuOSw0Ny41Yy0wLjMtMC4zLTAuNi0wLjgtMC42LTAuOHMwLjEsMC42LDAuMSwxdjYuMWgtMC45di05LjFoMC4ybDUuNCw2LjRjMC4zLDAuMywwLjYsMC44LDAuNiwwLjgKCQlzLTAuMS0wLjYtMC4xLTF2LTYuMWgwLjl2OS4xaC0wLjJMMjg3LjksNDcuNXoiLz4KPC9nPgo8L3N2Zz4K",
     alt: "The Dimensions",
@@ -2350,11 +2647,13 @@ function SpacerMap() {
       flexDirection: "column",
       gap: 5
     }
-  }, ALL_STATUSES.map(s => {
-    const on = activeStatuses.has(s);
+  }, ALL_STATUSES.map(function (s) {
+    var on = activeStatuses.has(s);
     return /*#__PURE__*/React.createElement("div", {
       key: s,
-      onClick: () => toggleSt(s),
+      onClick: function () {
+        toggleSt(s);
+      },
       style: {
         display: "flex",
         alignItems: "center",
@@ -2395,11 +2694,13 @@ function SpacerMap() {
       flexDirection: "column",
       gap: 5
     }
-  }, ALL_TYPES.map(t => {
-    const on = activeTypes.has(t);
+  }, ALL_TYPES.map(function (t) {
+    var on = activeTypes.has(t);
     return /*#__PURE__*/React.createElement("div", {
       key: t,
-      onClick: () => toggleTp(t),
+      onClick: function () {
+        toggleTp(t);
+      },
       style: {
         display: "flex",
         alignItems: "center",
@@ -2459,7 +2760,7 @@ function SpacerMap() {
   }, /*#__PURE__*/React.createElement("div", {
     style: S.iconBtn,
     title: "Share",
-    onClick: () => {
+    onClick: function () {
       if (navigator.clipboard) navigator.clipboard.writeText(window.location.href);
     }
   }, /*#__PURE__*/React.createElement("svg", {
@@ -2564,8 +2865,10 @@ function SpacerMap() {
     type: "text",
     placeholder: "Search Plot",
     value: search,
-    onChange: e => setSearch(e.target.value),
-    onKeyDown: e => {
+    onChange: function (e) {
+      setSearch(e.target.value);
+    },
+    onKeyDown: function (e) {
       if (e.key === "Enter") searchAndGo();
     },
     style: {
@@ -2578,7 +2881,9 @@ function SpacerMap() {
       fontFamily: "Outfit"
     }
   }), search && /*#__PURE__*/React.createElement("div", {
-    onClick: () => setSearch(""),
+    onClick: function () {
+      setSearch("");
+    },
     style: {
       cursor: "pointer",
       color: "#64748b",
@@ -2617,7 +2922,9 @@ function SpacerMap() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: S.bottomBtn(infoPanel === "gallery"),
-    onClick: () => setInfoPanel(infoPanel === "gallery" ? null : "gallery")
+    onClick: function () {
+      setInfoPanel(infoPanel === "gallery" ? null : "gallery");
+    }
   }, /*#__PURE__*/React.createElement("svg", {
     width: "14",
     height: "14",
@@ -2639,7 +2946,9 @@ function SpacerMap() {
     points: "21 15 16 10 5 21"
   })), "Gallery"), /*#__PURE__*/React.createElement("div", {
     style: S.bottomBtn(infoPanel === "info"),
-    onClick: () => setInfoPanel(infoPanel === "info" ? null : "info")
+    onClick: function () {
+      setInfoPanel(infoPanel === "info" ? null : "info");
+    }
   }, /*#__PURE__*/React.createElement("svg", {
     width: "14",
     height: "14",
@@ -2663,7 +2972,9 @@ function SpacerMap() {
     y2: "8"
   })), "Info"), /*#__PURE__*/React.createElement("div", {
     style: S.bottomBtn(false),
-    onClick: () => window.open("https://maps.app.goo.gl/AF864pNhQb2HruK56", "_blank")
+    onClick: function () {
+      window.open("https://maps.app.goo.gl/AF864pNhQb2HruK56", "_blank");
+    }
   }, /*#__PURE__*/React.createElement("svg", {
     width: "14",
     height: "14",
@@ -2752,7 +3063,7 @@ function SpacerMap() {
       fontFamily: "Outfit"
     }
   }, STATUS_CFG[statuses[sel]].label), /*#__PURE__*/React.createElement("div", {
-    onClick: () => {
+    onClick: function () {
       setSel(null);
       resetView();
     },
@@ -2828,7 +3139,9 @@ function SpacerMap() {
       textTransform: "capitalize"
     }
   }, infoPanel), /*#__PURE__*/React.createElement("div", {
-    onClick: () => setInfoPanel(null),
+    onClick: function () {
+      setInfoPanel(null);
+    },
     style: {
       cursor: "pointer",
       color: "#ffffff50",
@@ -2840,23 +3153,25 @@ function SpacerMap() {
       gap: 10,
       overflowX: "auto"
     }
-  }, [1, 2, 3, 4].map(i => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    style: {
-      width: 140,
-      height: 90,
-      borderRadius: 10,
-      background: "#ffffff08",
-      border: "1px solid #ffffff10",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexShrink: 0,
-      color: "#ffffff30",
-      fontSize: 12,
-      fontFamily: "Outfit"
-    }
-  }, "Photo ", i))), infoPanel === "info" && /*#__PURE__*/React.createElement("div", {
+  }, [1, 2, 3, 4].map(function (i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        width: 140,
+        height: 90,
+        borderRadius: 10,
+        background: "#ffffff08",
+        border: "1px solid #ffffff10",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        color: "#ffffff30",
+        fontSize: 12,
+        fontFamily: "Outfit"
+      }
+    }, "Photo ", i);
+  })), infoPanel === "info" && /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Outfit",
       fontSize: 13,
@@ -2885,6 +3200,6 @@ function SpacerMap() {
     }
   }, "RERA No:"), " [Add RERA number]"))));
 }
-ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(SpacerMap, null));</script>
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(SpacerMap));</script>
 </body>
 </html>
