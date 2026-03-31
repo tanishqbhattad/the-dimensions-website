@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Green Meadows - Interactive Master Plan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Green Meadows, Ozar(Mig), Nashik | Interactive Layout Viewer</title>
+<meta property="og:title" content="Green Meadows, Ozar(Mig), Nashik" />
+<meta property="og:description" content="Interactive Layout Viewer" />
+<meta property="og:type" content="website" />
+<meta name="description" content="Green Meadows, Ozar(Mig), Nashik - Interactive Layout Viewer" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+  html, body, #root { width: 100%; height: 100dvh; height: 100vh; overflow: hidden; }
+  @supports (height: 100dvh) { html, body, #root { height: 100dvh; } }
 </style>
 <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
@@ -1618,6 +1625,8 @@ function SpacerMap() {
     setLabelsVisible = _lbl[1];
   var containerRef = useRef(null);
   var svgRef = useRef(null);
+  var gRef = useRef(null);
+  var compassRef = useRef(null);
   var matRef = useRef(null);
   var baseScaleRef = useRef(1);
   var momRef = useRef({
@@ -1641,12 +1650,17 @@ function SpacerMap() {
     };
   }, []);
 
-  // Apply matrix to DOM
+  // Apply matrix to DOM (SVG <g> transform for crisp rendering at any zoom)
   var applyMatrix = useCallback(function () {
-    var svg = svgRef.current,
+    var g = gRef.current,
       m = matRef.current;
-    if (!svg || !m) return;
-    svg.style.transform = "matrix(" + m[0] + "," + m[1] + "," + m[2] + "," + m[3] + "," + m[4] + "," + m[5] + ")";
+    if (!g || !m) return;
+    g.setAttribute("transform", "matrix(" + m[0] + "," + m[1] + "," + m[2] + "," + m[3] + "," + m[4] + "," + m[5] + ")");
+    // Rotate compass in real-time
+    if (compassRef.current) {
+      var angle = Math.atan2(m[1], m[0]) * 180 / Math.PI;
+      compassRef.current.style.transform = "rotate(" + -angle + "deg)";
+    }
   }, []);
 
   // Update label visibility
@@ -2084,7 +2098,7 @@ function SpacerMap() {
   var S = {
     root: {
       width: "100%",
-      height: "100vh",
+      height: "100dvh",
       background: "#232323",
       position: "relative",
       overflow: "hidden",
@@ -2179,15 +2193,13 @@ function SpacerMap() {
     rel: "stylesheet"
   }), /*#__PURE__*/React.createElement("svg", {
     ref: svgRef,
-    viewBox: "0 0 " + SVG_W + " " + SVG_H,
-    width: SVG_W,
-    height: SVG_H,
     style: {
       position: "absolute",
       left: 0,
       top: 0,
-      transformOrigin: "0 0",
-      willChange: "transform"
+      width: "100%",
+      height: "100%",
+      overflow: "visible"
     }
   }, /*#__PURE__*/React.createElement("defs", null, /*#__PURE__*/React.createElement("pattern", {
     id: "grid",
@@ -2232,7 +2244,9 @@ function SpacerMap() {
     offset: "100%",
     stopColor: "#4ade80",
     stopOpacity: "0"
-  }))), /*#__PURE__*/React.createElement("rect", {
+  }))), /*#__PURE__*/React.createElement("g", {
+    ref: gRef
+  }, /*#__PURE__*/React.createElement("rect", {
     x: "0",
     y: "0",
     width: SVG_W,
@@ -2533,7 +2547,7 @@ function SpacerMap() {
         transform: "rotate(" + tAng + ", " + (edge.mx + nx) + ", " + (edge.my + ny) + ")"
       }, edge.l, " m"));
     });
-  }()), !(m && sel) && /*#__PURE__*/React.createElement("div", {
+  }())), !(m && sel) && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       top: m ? 10 : 16,
@@ -2559,21 +2573,23 @@ function SpacerMap() {
       width: "auto",
       display: "block"
     }
-  })), !m && /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
+    ref: compassRef,
     style: {
       background: "#00000080",
       backdropFilter: "blur(12px)",
       borderRadius: "50%",
-      width: 42,
-      height: 42,
+      width: m ? 34 : 42,
+      height: m ? 34 : 42,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      border: "1px solid #ffffff20"
+      border: "1px solid #ffffff20",
+      transition: "transform 0.1s ease-out"
     }
   }, /*#__PURE__*/React.createElement("svg", {
-    width: "28",
-    height: "28",
+    width: m ? 22 : 28,
+    height: m ? 22 : 28,
     viewBox: "0 0 28 28",
     fill: "none"
   }, /*#__PURE__*/React.createElement("polyline", {
@@ -2628,7 +2644,7 @@ function SpacerMap() {
     style: {
       position: "absolute",
       left: m ? 10 : 16,
-      bottom: m ? 110 : 140,
+      bottom: m ? "calc(110px + env(safe-area-inset-bottom, 0px))" : 140,
       zIndex: 10,
       display: "flex",
       flexDirection: "column",
@@ -2751,7 +2767,7 @@ function SpacerMap() {
     style: {
       position: "absolute",
       right: m ? 10 : 16,
-      bottom: m ? 110 : 140,
+      bottom: m ? "calc(110px + env(safe-area-inset-bottom, 0px))" : 140,
       display: "flex",
       flexDirection: "row",
       gap: m ? 6 : 8,
@@ -2826,7 +2842,7 @@ function SpacerMap() {
       bottom: 0,
       left: 0,
       right: 0,
-      padding: m ? "0 10px 10px" : "0 16px 16px",
+      padding: m ? "0 10px calc(10px + env(safe-area-inset-bottom, 0px))" : "0 16px 16px",
       display: "flex",
       flexDirection: "column",
       gap: m ? 6 : 10,
@@ -3114,7 +3130,7 @@ function SpacerMap() {
   }, STATUS_CFG[statuses[hovPlot.id]].label)), infoPanel && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
-      bottom: m ? 130 : 180,
+      bottom: m ? "calc(130px + env(safe-area-inset-bottom, 0px))" : 180,
       left: m ? 10 : 16,
       right: m ? 10 : 16,
       background: "#00000090",
