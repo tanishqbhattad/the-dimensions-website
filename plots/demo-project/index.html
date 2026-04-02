@@ -1502,6 +1502,10 @@ const STATUS_CFG = {
 };
 const ALL_STATUSES = Object.keys(STATUS_CFG);
 const TYPE_CFG = {
+  "Detached": {
+    color: "#ef4444",
+    label: "Detached"
+  },
   "Semi-detached": {
     color: "#f59e0b",
     label: "Semi-detached"
@@ -1541,8 +1545,9 @@ function initStatuses() {
 }
 function initTypes() {
   const m = {};
+  const detachedIds = new Set([3, 4, 5, 6, 17, 18, 26, 27]);
   PLOTS.forEach(p => {
-    m[p.id] = p.tp;
+    m[p.id] = detachedIds.has(p.id) ? "Detached" : p.tp;
   });
   return m;
 }
@@ -2299,14 +2304,14 @@ function SpacerMap() {
       }
     }, inf.path ? /*#__PURE__*/React.createElement("path", {
       d: inf.path,
-      fill: isRoad ? "#515151" : inf.color,
-      stroke: "#000000",
+      fill: isInfSel ? "#3B9AE8" : isRoad ? "#515151" : inf.color,
+      stroke: isInfSel ? "#ffffff" : "#000000",
       strokeWidth: isRoad ? 0.3 : isInfSel ? 2 : 1.5,
       opacity: isInfSel ? 1 : undefined
     }) : /*#__PURE__*/React.createElement("polygon", {
       points: p2s(inf.pts),
-      fill: isRoad ? "#515151" : inf.color,
-      stroke: "#000000",
+      fill: isInfSel ? "#3B9AE8" : isRoad ? "#515151" : inf.color,
+      stroke: isInfSel ? "#ffffff" : "#000000",
       strokeWidth: isRoad ? 0.3 : isInfSel ? 2 : 1.5,
       opacity: isInfSel ? 1 : undefined
     }));
@@ -2315,26 +2320,20 @@ function SpacerMap() {
     opacity: sel || selInfra !== null ? 0.5 : 1
   }, showInfra && INFRA.map(function (inf, i) {
     if (inf.type === "Internal Roads") return null;
+    var lx = inf.type === "Open Space" ? inf.c[0] + 15 : inf.c[0];
+    var ly = inf.c[1];
     return /*#__PURE__*/React.createElement("g", {
       key: i,
-      transform: "rotate(16, " + inf.c[0] + ", " + inf.c[1] + ")"
+      transform: "rotate(16, " + lx + ", " + ly + ")"
     }, /*#__PURE__*/React.createElement("text", {
-      x: inf.c[0],
-      y: inf.c[1] - 3,
+      x: lx,
+      y: ly,
       textAnchor: "middle",
-      fontSize: "9",
-      style: {
-        pointerEvents: "none"
-      }
-    }, inf.icon), /*#__PURE__*/React.createElement("text", {
-      x: inf.c[0],
-      y: inf.c[1] + 8,
-      textAnchor: "middle",
-      fill: "#fff",
-      fontSize: "4",
+      dominantBaseline: "middle",
+      fill: "#1a1a1a",
+      fontSize: "6.75",
       fontFamily: "Outfit",
-      fontWeight: "600",
-      opacity: ".9",
+      fontWeight: "700",
       style: {
         pointerEvents: "none"
       }
@@ -2353,8 +2352,8 @@ function SpacerMap() {
       y: t.y,
       textAnchor: "start",
       dominantBaseline: "hanging",
-      fill: "#ffffffc0",
-      fontSize: "6",
+      fill: "#ffffffe0",
+      fontSize: "8.4",
       fontFamily: "Outfit",
       fontWeight: "500",
       transform: "rotate(" + angle + ", " + t.x + ", " + t.y + ")"
@@ -2553,6 +2552,98 @@ function SpacerMap() {
         transform: "rotate(" + tAng + ", " + (edge.mx + nx) + ", " + (edge.my + ny) + ")"
       }, edge.l, " m"));
     });
+  }(), selInfra === 0 && function () {
+    var inf = INFRA[0];
+    var corners = inf.pts;
+    var linScale = 0.2535;
+    var ccx = corners.reduce(function (s, c) {
+      return s + c[0];
+    }, 0) / corners.length;
+    var ccy = corners.reduce(function (s, c) {
+      return s + c[1];
+    }, 0) / corners.length;
+    var dist = 5;
+    return corners.map(function (pi, ei) {
+      var pj = corners[(ei + 1) % corners.length];
+      var edx = pj[0] - pi[0],
+        edy = pj[1] - pi[1];
+      var len = Math.hypot(edx, edy);
+      var realLen = (len * linScale).toFixed(1);
+      var cross = edx * (ccy - pi[1]) - edy * (ccx - pi[0]);
+      var outX, outY;
+      if (cross > 0) {
+        outX = edy / len * dist;
+        outY = -edx / len * dist;
+      } else {
+        outX = -edy / len * dist;
+        outY = edx / len * dist;
+      }
+      var mx = (pi[0] + pj[0]) / 2,
+        my = (pi[1] + pj[1]) / 2;
+      var ang = Math.atan2(edy, edx) * 180 / Math.PI;
+      var tAng = ang > 90 || ang < -90 ? ang + 180 : ang;
+      var outLen = Math.hypot(outX, outY);
+      var uX = outX / outLen,
+        uY = outY / outLen;
+      var tk = 3;
+      return /*#__PURE__*/React.createElement("g", {
+        key: ei,
+        style: {
+          pointerEvents: "none"
+        }
+      }, /*#__PURE__*/React.createElement("line", {
+        x1: pi[0] + outX,
+        y1: pi[1] + outY,
+        x2: pj[0] + outX,
+        y2: pj[1] + outY,
+        stroke: "#ffffffb0",
+        strokeWidth: ".5",
+        strokeDasharray: "2 2"
+      }), /*#__PURE__*/React.createElement("line", {
+        x1: pi[0] + outX - uX * tk * .4,
+        y1: pi[1] + outY - uY * tk * .4,
+        x2: pi[0] + outX + uX * tk * .4,
+        y2: pi[1] + outY + uY * tk * .4,
+        stroke: "#ffffffb0",
+        strokeWidth: ".5"
+      }), /*#__PURE__*/React.createElement("line", {
+        x1: pj[0] + outX - uX * tk * .4,
+        y1: pj[1] + outY - uY * tk * .4,
+        x2: pj[0] + outX + uX * tk * .4,
+        y2: pj[1] + outY + uY * tk * .4,
+        stroke: "#ffffffb0",
+        strokeWidth: ".5"
+      }), /*#__PURE__*/React.createElement("line", {
+        x1: pi[0],
+        y1: pi[1],
+        x2: pi[0] + outX,
+        y2: pi[1] + outY,
+        stroke: "#ffffff50",
+        strokeWidth: ".3",
+        strokeDasharray: "1.5 1.5"
+      }), /*#__PURE__*/React.createElement("line", {
+        x1: pj[0],
+        y1: pj[1],
+        x2: pj[0] + outX,
+        y2: pj[1] + outY,
+        stroke: "#ffffff50",
+        strokeWidth: ".3",
+        strokeDasharray: "1.5 1.5"
+      }), /*#__PURE__*/React.createElement("text", {
+        x: mx + outX,
+        y: my + outY,
+        textAnchor: "middle",
+        dominantBaseline: "middle",
+        fill: "#fff",
+        fontSize: "5",
+        fontFamily: "Outfit",
+        fontWeight: "600",
+        stroke: "#232323",
+        strokeWidth: "3",
+        paintOrder: "stroke",
+        transform: "rotate(" + tAng + ", " + (mx + outX) + ", " + (my + outY) + ")"
+      }, realLen, " m"));
+    });
   }())), !(m && sel) && !(m && selInfra !== null) && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
@@ -2607,7 +2698,7 @@ function SpacerMap() {
     y: "22",
     textAnchor: "middle",
     fill: "#ffffffc0",
-    fontSize: "9",
+    fontSize: "11",
     fontWeight: "700",
     fontFamily: "Outfit"
   }, "N")))), !(m && sel) && !(m && selInfra !== null) && /*#__PURE__*/React.createElement("a", {
@@ -2621,15 +2712,15 @@ function SpacerMap() {
       zIndex: 25,
       background: "#000000c0",
       borderRadius: m ? 8 : 10,
-      padding: m ? "10px 8px" : "14px 10px",
+      padding: m ? "4px 6px" : "6px 10px",
       border: "1px solid #ffffff10",
       textDecoration: "none",
       cursor: "pointer",
       transition: "background .2s",
       display: "flex",
       flexDirection: "column",
-      alignItems: "center",
-      gap: m ? 3 : 4
+      alignItems: "flex-start",
+      gap: m ? 2 : 3
     },
     onMouseEnter: function (e) {
       e.currentTarget.style.background = "#000000e5";
@@ -2639,7 +2730,7 @@ function SpacerMap() {
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
-      fontSize: m ? 7 : 9,
+      fontSize: m ? 6 : 7,
       fontFamily: "Outfit",
       fontWeight: 400,
       color: "#ffffff60",
@@ -3282,8 +3373,10 @@ function SpacerMap() {
     style: {
       position: "absolute",
       bottom: m ? "calc(130px + env(safe-area-inset-bottom, 0px))" : 180,
-      left: m ? 10 : 16,
-      right: m ? 10 : 16,
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: m ? "calc(100% - 20px)" : "calc(100% - 32px)",
+      maxWidth: 600,
       background: "#000000e5",
       borderRadius: m ? 12 : 16,
       padding: m ? 14 : 20,
