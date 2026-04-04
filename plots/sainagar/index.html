@@ -2280,10 +2280,14 @@ function SpacerMap() {
   };
 
   // ═══ RENDER ═══
-  if (loading) return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
+    ref: containerRef,
+    style: S.root
+  }, loading && /*#__PURE__*/React.createElement("div", {
     style: {
-      width: "100%",
-      height: "100dvh",
+      position: "absolute",
+      inset: 0,
+      zIndex: 9999,
       background: "#232323",
       display: "flex",
       flexDirection: "column",
@@ -2291,10 +2295,7 @@ function SpacerMap() {
       justifyContent: "center",
       fontFamily: "'Outfit', sans-serif"
     }
-  }, /*#__PURE__*/React.createElement("link", {
-    href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap",
-    rel: "stylesheet"
-  }), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: {
       width: 60,
       height: 60,
@@ -2322,11 +2323,7 @@ function SpacerMap() {
     dangerouslySetInnerHTML: {
       __html: "@keyframes spin { to { transform: rotate(360deg); } }"
     }
-  }));
-  return /*#__PURE__*/React.createElement("div", {
-    ref: containerRef,
-    style: S.root
-  }, /*#__PURE__*/React.createElement("link", {
+  })), /*#__PURE__*/React.createElement("link", {
     href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap",
     rel: "stylesheet"
   }), /*#__PURE__*/React.createElement("svg", {
