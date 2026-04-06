@@ -1899,9 +1899,13 @@ function SpacerMap() {
       }
       mom.raf = requestAnimationFrame(tick);
     }
+    function inPanel(e) {
+      return e.target && e.target.closest && e.target.closest('[data-panel]');
+    }
 
     // ── TOUCH ──
     function onTS(e) {
+      if (inPanel(e)) return;
       cancelMom();
       if (animRef.current) {
         cancelAnimationFrame(animRef.current);
@@ -1926,6 +1930,7 @@ function SpacerMap() {
     }
     var prevTime = 0;
     function onTM(e) {
+      if (inPanel(e)) return;
       if (!matRef.current) return;
       var cur = Array.from(e.touches).map(function (t) {
         return {
@@ -1998,6 +2003,7 @@ function SpacerMap() {
       prevTouches = cur;
     }
     function onTE(e) {
+      if (inPanel(e)) return;
       if (e.touches.length === 0) {
         if (touchMoved) {
           startMom();
@@ -2063,6 +2069,7 @@ function SpacerMap() {
 
     // ── WHEEL ──
     function onWH(e) {
+      if (inPanel(e)) return;
       e.preventDefault();
       cancelMom();
       if (!matRef.current) return;
@@ -3257,7 +3264,7 @@ function SpacerMap() {
   })), "Locate"), /*#__PURE__*/React.createElement("div", {
     style: S.bottomBtn(false),
     onClick: function () {
-      window.location.href = "tel:+919422765001";
+      window.location.href = "tel:+919890041283";
     }
   }, /*#__PURE__*/React.createElement("svg", {
     width: "14",
@@ -3343,7 +3350,7 @@ function SpacerMap() {
     }
   }, STATUS_CFG[statuses[sel]] ? STATUS_CFG[statuses[sel]].label : "Available"), /*#__PURE__*/React.createElement("div", {
     onClick: function () {
-      window.location.href = "tel:+919422765001";
+      window.location.href = "tel:+919890041283";
     },
     style: {
       cursor: "pointer",
@@ -3436,7 +3443,7 @@ function SpacerMap() {
     }
   }, "Available"), /*#__PURE__*/React.createElement("div", {
     onClick: function () {
-      window.location.href = "tel:+919422765001";
+      window.location.href = "tel:+919890041283";
     },
     style: {
       cursor: "pointer",
@@ -3509,6 +3516,35 @@ function SpacerMap() {
   }, STATUS_CFG[statuses[hovPlot.id]].label)), infoPanel && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
+      inset: 0,
+      zIndex: 14
+    },
+    "data-panel": "true",
+    onTouchStart: function (e) {
+      e.stopPropagation();
+    },
+    onTouchMove: function (e) {
+      e.stopPropagation();
+    },
+    onPointerDown: function (e) {
+      e.stopPropagation();
+    },
+    onWheel: function (e) {
+      e.stopPropagation();
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      background: "#00000060"
+    },
+    onClick: function () {
+      setInfoPanel(null);
+      setGalleryIdx(null);
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
@@ -3517,8 +3553,7 @@ function SpacerMap() {
       background: "#000000e5",
       borderRadius: m ? 12 : 16,
       padding: m ? 14 : 20,
-      border: "1px solid #ffffff12",
-      zIndex: 15
+      border: "1px solid #ffffff12"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -3694,7 +3729,7 @@ function SpacerMap() {
       scrollbarWidth: "none",
       msOverflowStyle: "none"
     }
-  }, "SAI NAGAR — Ozar, Nashik\n\nDiscover Sai Nagar — Ozar's Most Credibly Approved Residential Address\n\nNestled in the heart of Ozar (MIG), Nashik's fastest-rising residential corridor, Sai Nagar is a thoughtfully planned residential layout offering 46 NA-approved plots across a sprawling 7,725 sq.m. of prime land at G.No. 88/1, Tal. Niphad. Every plot comes with the assurance of a Tentative Approved Layout Certificate (No. OMC/LT/2026/APL/00058, dated 03 April 2026) — giving you full legal clarity from day one.\n\nDesigned for modern families and forward-thinking investors, Sai Nagar features 9-metre wide internal roads, generous amenity and recreational open space of over 1,545 sq.m., and a thoughtfully structured mix of semi-detached and row-house plots ranging from 640 to 1,770 sq.ft. — making it suitable for every stage of life and budget. The layout is Vastu-compliant, with plots priced from just ₹9 Lakhs onwards.\n\nLocation is where Sai Nagar truly shines. Situated just 3–5 km from the HAL Aircraft Manufacturing Plant and Nashik International Airport, and directly connected to the Mumbai–Agra National Highway (NH3), residents enjoy seamless access to employment, connectivity, and city conveniences — while waking up every morning to open skies and clean air. With the Maharashtra government's ₹640 Crore airport expansion underway and HAL scaling up large-scale defence production, Sai Nagar sits at the epicentre of Nashik's next growth wave.\n\nWhether you are a HAL or IAF employee looking to build your family's permanent home close to work, a Nashik-based investor seeking high-appreciation land, or an NRI wanting a legally sound foothold in your hometown — Sai Nagar offers peace of mind, community, and proven investment value in one address.\n\nPlots available from ₹9 Lakhs. Special pricing for HAL/IAF/MES employees.\n\n📍 G.No. 88/1, Ozar (MIG), Tal. Niphad, Dist. Nashik — 422206\n📋 Tentative Layout Approval: Certificate No. OMC/LT/2026/APL/00058 | Dated: 03 April 2026\n📞 Contact us today to book your site visit")));
+  }, "SAI NAGAR — Ozar, Nashik\n\nDiscover Sai Nagar — Ozar's Most Credibly Approved Residential Address\n\nNestled in the heart of Ozar (MIG), Nashik's fastest-rising residential corridor, Sai Nagar is a thoughtfully planned residential layout offering 46 NA-approved plots across a sprawling 7,725 sq.m. of prime land at G.No. 88/1, Tal. Niphad. Every plot comes with the assurance of a Tentative Approved Layout Certificate (No. OMC/LT/2026/APL/00058, dated 03 April 2026) — giving you full legal clarity from day one.\n\nDesigned for modern families and forward-thinking investors, Sai Nagar features 9-metre wide internal roads, generous amenity and recreational open space of over 1,545 sq.m., and a thoughtfully structured mix of semi-detached and row-house plots ranging from 640 to 1,770 sq.ft. — making it suitable for every stage of life and budget. The layout is Vastu-compliant, with plots priced from just ₹9 Lakhs onwards.\n\nLocation is where Sai Nagar truly shines. Situated just 3–5 km from the HAL Aircraft Manufacturing Plant and Nashik International Airport, and directly connected to the Mumbai–Agra National Highway (NH3), residents enjoy seamless access to employment, connectivity, and city conveniences — while waking up every morning to open skies and clean air. With the Maharashtra government's ₹640 Crore airport expansion underway and HAL scaling up large-scale defence production, Sai Nagar sits at the epicentre of Nashik's next growth wave.\n\nWhether you are a HAL or IAF employee looking to build your family's permanent home close to work, a Nashik-based investor seeking high-appreciation land, or an NRI wanting a legally sound foothold in your hometown — Sai Nagar offers peace of mind, community, and proven investment value in one address.\n\nPlots available from ₹9 Lakhs. Special pricing for HAL/IAF/MES employees.\n\n📍 G.No. 88/1, Ozar (MIG), Tal. Niphad, Dist. Nashik — 422206\n📋 Tentative Layout Approval: Certificate No. OMC/LT/2026/APL/00058 | Dated: 03 April 2026\n📞 Contact us today to book your site visit"))));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(SpacerMap));</script>
 </body></html>
