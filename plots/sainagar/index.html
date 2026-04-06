@@ -3305,51 +3305,28 @@ function SpacerMap() {
       right: m ? 10 : "auto",
       transform: m ? "none" : "translateX(-50%)",
       background: "#000000e5",
-      borderRadius: m ? 10 : 12,
-      padding: m ? "8px 10px" : "10px 16px",
-      paddingRight: m ? 38 : 16,
+      borderRadius: m ? 12 : 12,
+      padding: m ? "10px 14px" : "10px 16px",
       border: "1px solid #ffffff15",
       zIndex: 20,
       display: "flex",
       alignItems: "center",
-      gap: m ? 6 : 14,
+      gap: m ? 8 : 14,
       flexWrap: "nowrap"
     }
   }, /*#__PURE__*/React.createElement("div", {
-    onClick: function () {
-      setSel(null);
-      resetView();
-    },
-    style: {
-      position: "absolute",
-      top: m ? -10 : -10,
-      right: m ? -6 : -10,
-      cursor: "pointer",
-      color: "#ffffff60",
-      fontSize: 13,
-      width: 26,
-      height: 26,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "#000000e0",
-      borderRadius: "50%",
-      border: "1px solid #ffffff20",
-      zIndex: 1
-    }
-  }, "\u2715"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Outfit",
       fontWeight: 700,
-      fontSize: m ? 14 : 20,
+      fontSize: m ? 20 : 20,
       color: "#fff",
-      minWidth: m ? 18 : 28,
+      minWidth: m ? 24 : 28,
       textAlign: "center"
     }
   }, sel), /*#__PURE__*/React.createElement("div", {
     style: {
       width: 1,
-      height: m ? 20 : 32,
+      height: m ? 28 : 32,
       background: "#ffffff15",
       flexShrink: 0
     }
@@ -3359,27 +3336,27 @@ function SpacerMap() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: m ? 11 : 15,
+      fontSize: m ? 15 : 15,
       fontWeight: 700,
       fontFamily: "Outfit",
       whiteSpace: "nowrap"
     }
   }, selPlot.a, " sq yd"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: m ? 8 : 10,
+      fontSize: m ? 11 : 10,
       color: "#ffffff50",
       fontFamily: "Outfit"
     }
   }, selPlot.am, " m\xB2")), /*#__PURE__*/React.createElement("div", {
     style: {
       width: 1,
-      height: m ? 20 : 32,
+      height: m ? 28 : 32,
       background: "#ffffff15",
       flexShrink: 0
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: m ? 9 : 12,
+      fontSize: m ? 13 : 12,
       fontFamily: "Outfit",
       fontWeight: 500,
       color: "#ffffffb0",
@@ -3388,17 +3365,17 @@ function SpacerMap() {
   }, selPlot.tp), /*#__PURE__*/React.createElement("div", {
     style: {
       width: 1,
-      height: m ? 20 : 32,
+      height: m ? 28 : 32,
       background: "#ffffff15",
       flexShrink: 0
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: m ? "2px 6px" : "4px 12px",
+      padding: m ? "3px 8px" : "4px 12px",
       borderRadius: 6,
       background: STATUS_CFG[statuses[sel]] ? STATUS_CFG[statuses[sel]].color + "20" : "#4ade8020",
       color: STATUS_CFG[statuses[sel]] ? STATUS_CFG[statuses[sel]].color : "#4ade80",
-      fontSize: m ? 9 : 12,
+      fontSize: m ? 12 : 12,
       fontWeight: 600,
       fontFamily: "Outfit",
       whiteSpace: "nowrap"
@@ -3406,7 +3383,7 @@ function SpacerMap() {
   }, STATUS_CFG[statuses[sel]] ? STATUS_CFG[statuses[sel]].label : "Available"), /*#__PURE__*/React.createElement("div", {
     style: {
       width: 1,
-      height: m ? 20 : 32,
+      height: m ? 28 : 32,
       background: "#ffffff15",
       flexShrink: 0
     }
@@ -3416,8 +3393,8 @@ function SpacerMap() {
     },
     style: {
       cursor: "pointer",
-      width: m ? 26 : 32,
-      height: m ? 26 : 32,
+      width: m ? 36 : 32,
+      height: m ? 36 : 32,
       borderRadius: 8,
       background: "#4ade8020",
       border: "1px solid #4ade8040",
@@ -3427,15 +3404,27 @@ function SpacerMap() {
       flexShrink: 0
     }
   }, /*#__PURE__*/React.createElement("svg", {
-    width: m ? 11 : 14,
-    height: m ? 11 : 14,
+    width: m ? 16 : 14,
+    height: m ? 16 : 14,
     viewBox: "0 0 24 24",
     fill: "none",
     stroke: "#4ade80",
     strokeWidth: "2"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"
-  })))), selInfraItem && /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
+    onClick: function () {
+      setSel(null);
+      resetView();
+    },
+    style: {
+      cursor: "pointer",
+      color: "#ffffff40",
+      fontSize: m ? 16 : 14,
+      marginLeft: m ? 4 : 2,
+      flexShrink: 0
+    }
+  }, "\u2715")), selInfraItem && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       top: m ? 10 : 16,
