@@ -9,9 +9,12 @@
 <meta name="description" content="Sai Nagar, Ozar(Mig), Nashik - Interactive Layout Viewer" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<style>* { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 html, body, #root { width: 100%; height: 100dvh; height: 100vh; overflow: hidden; }
-@supports (height: 100dvh) { html, body, #root { height: 100dvh; } }</style>
+@supports (height: 100dvh) { html, body, #root { height: 100dvh; } }
+*::-webkit-scrollbar { display: none; }
+</style>
 <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -1664,6 +1667,9 @@ function SpacerMap() {
   var _ip = useState(null),
     infoPanel = _ip[0],
     setInfoPanel = _ip[1];
+  var _gi = useState(null),
+    galleryIdx = _gi[0],
+    setGalleryIdx = _gi[1];
   var _mob = useState(false),
     isMobile = _mob[0],
     setIsMobile = _mob[1];
@@ -1841,7 +1847,8 @@ function SpacerMap() {
     });
     var pw = maxX - minX,
       ph = maxY - minY;
-    var pad = 3.5; // padding multiplier
+    var isInfra = !plot.id;
+    var pad = isInfra ? 2.5 : 3.5; // tighter zoom for infra
     var targetScale = Math.min(cw / (pw * pad), ch / (ph * pad));
     // Clamp so we don't zoom in absurdly on tiny plots
     var maxZoom = Math.min(cw / 50, ch / 90);
@@ -2326,9 +2333,14 @@ function SpacerMap() {
   })), /*#__PURE__*/React.createElement("link", {
     href: "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap",
     rel: "stylesheet"
+  }), /*#__PURE__*/React.createElement("style", {
+    dangerouslySetInnerHTML: {
+      __html: ".hide-scroll::-webkit-scrollbar{display:none} .hide-scroll{-ms-overflow-style:none;scrollbar-width:none}"
+    }
   }), /*#__PURE__*/React.createElement("svg", {
     ref: svgRef,
     style: {
+      pointerEvents: infoPanel ? "none" : "auto",
       position: "absolute",
       left: 0,
       top: 0,
@@ -2438,14 +2450,26 @@ function SpacerMap() {
       y: ly + 4,
       textAnchor: "middle",
       dominantBaseline: "middle",
-      fill: "#1a1a1a",
+      fill: selInfra === i ? "#fff" : "#1a1a1a",
       fontSize: "6.75",
       fontFamily: "Outfit",
       fontWeight: "700",
       style: {
         pointerEvents: "none"
       }
-    }, inf.type));
+    }, inf.type), selInfra === i && inf.a && /*#__PURE__*/React.createElement("text", {
+      x: lx,
+      y: ly + 12,
+      textAnchor: "middle",
+      dominantBaseline: "middle",
+      fill: "#ffffffd0",
+      fontSize: "3.5",
+      fontFamily: "Outfit",
+      fontWeight: "600",
+      style: {
+        pointerEvents: "none"
+      }
+    }, inf.a, " sq yd"));
   })), /*#__PURE__*/React.createElement("g", {
     opacity: sel || selInfra !== null ? 0.25 : 0.6,
     style: {
@@ -3164,6 +3188,7 @@ function SpacerMap() {
   }, /*#__PURE__*/React.createElement("div", {
     style: S.bottomBtn(infoPanel === "gallery"),
     onClick: function () {
+      setGalleryIdx(null);
       setInfoPanel(infoPanel === "gallery" ? null : "gallery");
     }
   }, /*#__PURE__*/React.createElement("svg", {
@@ -3232,7 +3257,7 @@ function SpacerMap() {
   })), "Locate"), /*#__PURE__*/React.createElement("div", {
     style: S.bottomBtn(false),
     onClick: function () {
-      window.location.href = "tel:+919372265001";
+      window.location.href = "tel:+919890041283";
     }
   }, /*#__PURE__*/React.createElement("svg", {
     width: "14",
@@ -3318,7 +3343,7 @@ function SpacerMap() {
     }
   }, STATUS_CFG[statuses[sel]] ? STATUS_CFG[statuses[sel]].label : "Available"), /*#__PURE__*/React.createElement("div", {
     onClick: function () {
-      window.location.href = "tel:+919372265001";
+      window.location.href = "tel:+919890041283";
     },
     style: {
       cursor: "pointer",
@@ -3411,7 +3436,7 @@ function SpacerMap() {
     }
   }, "Available"), /*#__PURE__*/React.createElement("div", {
     onClick: function () {
-      window.location.href = "tel:+919372265001";
+      window.location.href = "tel:+919890041283";
     },
     style: {
       cursor: "pointer",
@@ -3506,7 +3531,7 @@ function SpacerMap() {
     style: {
       fontFamily: "Outfit",
       fontWeight: 600,
-      fontSize: 16,
+      fontSize: 22,
       textTransform: "capitalize"
     }
   }, infoPanel), /*#__PURE__*/React.createElement("div", {
@@ -3518,24 +3543,30 @@ function SpacerMap() {
       color: "#ffffff50",
       fontSize: 14
     }
-  }, "\u2715")), infoPanel === "gallery" && /*#__PURE__*/React.createElement("div", {
+  }, "\u2715")), infoPanel === "gallery" && galleryIdx === null && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr 1fr",
       gap: 8,
-      maxHeight: m ? "45vh" : "50vh",
-      overflowY: "auto"
+      maxHeight: m ? "50vh" : "55vh",
+      overflowY: "auto",
+      scrollbarWidth: "none",
+      msOverflowStyle: "none"
     }
   }, [1, 2, 3, 4, 5, 6].map(function (i) {
     return /*#__PURE__*/React.createElement("div", {
       key: i,
+      onClick: function () {
+        setGalleryIdx(i);
+      },
       style: {
         borderRadius: 10,
         overflow: "hidden",
         aspectRatio: "4/3",
         background: "#ffffff08",
         border: "1px solid #ffffff10",
-        position: "relative"
+        position: "relative",
+        cursor: "pointer"
       }
     }, /*#__PURE__*/React.createElement("img", {
       src: "gallery/" + i + ".jpg",
@@ -3562,7 +3593,95 @@ function SpacerMap() {
         zIndex: -1
       }
     }, "Photo ", i));
-  })), infoPanel === "info" && /*#__PURE__*/React.createElement("div", {
+  })), infoPanel === "gallery" && galleryIdx !== null && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: m ? "45vh" : "50vh"
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: "gallery/" + galleryIdx + ".jpg",
+    alt: "Photo " + galleryIdx,
+    style: {
+      maxWidth: "100%",
+      maxHeight: m ? "50vh" : "55vh",
+      borderRadius: 10,
+      objectFit: "contain",
+      display: "block"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    onClick: function () {
+      setGalleryIdx(galleryIdx <= 1 ? 6 : galleryIdx - 1);
+    },
+    style: {
+      position: "absolute",
+      left: 0,
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      background: "#000000b0",
+      border: "1px solid #ffffff20",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      color: "#fff",
+      fontSize: 18
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "#fff",
+    strokeWidth: "2.5"
+  }, /*#__PURE__*/React.createElement("polyline", {
+    points: "15 18 9 12 15 6"
+  }))), /*#__PURE__*/React.createElement("div", {
+    onClick: function () {
+      setGalleryIdx(galleryIdx >= 6 ? 1 : galleryIdx + 1);
+    },
+    style: {
+      position: "absolute",
+      right: 0,
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 40,
+      height: 40,
+      borderRadius: 10,
+      background: "#000000b0",
+      border: "1px solid #ffffff20",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      color: "#fff",
+      fontSize: 18
+    }
+  }, /*#__PURE__*/React.createElement("svg", {
+    width: "18",
+    height: "18",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "#fff",
+    strokeWidth: "2.5"
+  }, /*#__PURE__*/React.createElement("polyline", {
+    points: "9 18 15 12 9 6"
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      bottom: 8,
+      left: "50%",
+      transform: "translateX(-50%)",
+      fontFamily: "Outfit",
+      fontSize: 12,
+      color: "#ffffff60"
+    }
+  }, galleryIdx, " / 6")), infoPanel === "info" && /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Outfit",
       fontSize: m ? 12 : 13,
@@ -3570,7 +3689,10 @@ function SpacerMap() {
       lineHeight: 1.9,
       maxHeight: m ? "50vh" : "55vh",
       overflowY: "auto",
-      whiteSpace: "pre-wrap"
+      whiteSpace: "pre-wrap",
+      WebkitOverflowScrolling: "touch",
+      scrollbarWidth: "none",
+      msOverflowStyle: "none"
     }
   }, "SAI NAGAR — Ozar, Nashik\n\nDiscover Sai Nagar — Ozar's Most Credibly Approved Residential Address\n\nNestled in the heart of Ozar (MIG), Nashik's fastest-rising residential corridor, Sai Nagar is a thoughtfully planned residential layout offering 46 NA-approved plots across a sprawling 7,725 sq.m. of prime land at G.No. 88/1, Tal. Niphad. Every plot comes with the assurance of a Tentative Approved Layout Certificate (No. OMC/LT/2026/APL/00058, dated 03 April 2026) — giving you full legal clarity from day one.\n\nDesigned for modern families and forward-thinking investors, Sai Nagar features 9-metre wide internal roads, generous amenity and recreational open space of over 1,545 sq.m., and a thoughtfully structured mix of semi-detached and row-house plots ranging from 640 to 1,770 sq.ft. — making it suitable for every stage of life and budget. The layout is Vastu-compliant, with plots priced from just ₹9 Lakhs onwards.\n\nLocation is where Sai Nagar truly shines. Situated just 3–5 km from the HAL Aircraft Manufacturing Plant and Nashik International Airport, and directly connected to the Mumbai–Agra National Highway (NH3), residents enjoy seamless access to employment, connectivity, and city conveniences — while waking up every morning to open skies and clean air. With the Maharashtra government's ₹640 Crore airport expansion underway and HAL scaling up large-scale defence production, Sai Nagar sits at the epicentre of Nashik's next growth wave.\n\nWhether you are a HAL or IAF employee looking to build your family's permanent home close to work, a Nashik-based investor seeking high-appreciation land, or an NRI wanting a legally sound foothold in your hometown — Sai Nagar offers peace of mind, community, and proven investment value in one address.\n\nPlots available from ₹9 Lakhs. Special pricing for HAL/IAF/MES employees.\n\n📍 G.No. 88/1, Ozar (MIG), Tal. Niphad, Dist. Nashik — 422206\n📋 Tentative Layout Approval: Certificate No. OMC/LT/2026/APL/00058 | Dated: 03 April 2026\n📞 Contact us today to book your site visit")));
 }
