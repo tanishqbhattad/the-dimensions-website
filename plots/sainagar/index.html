@@ -3307,6 +3307,7 @@ function SpacerMap() {
       background: "#000000e5",
       borderRadius: m ? 10 : 12,
       padding: m ? "8px 10px" : "10px 16px",
+      paddingRight: m ? 38 : 16,
       border: "1px solid #ffffff15",
       zIndex: 20,
       display: "flex",
@@ -3315,6 +3316,28 @@ function SpacerMap() {
       flexWrap: "nowrap"
     }
   }, /*#__PURE__*/React.createElement("div", {
+    onClick: function () {
+      setSel(null);
+      resetView();
+    },
+    style: {
+      position: "absolute",
+      top: m ? -10 : -10,
+      right: m ? -6 : -10,
+      cursor: "pointer",
+      color: "#ffffff60",
+      fontSize: 13,
+      width: 26,
+      height: 26,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#000000e0",
+      borderRadius: "50%",
+      border: "1px solid #ffffff20",
+      zIndex: 1
+    }
+  }, "\u2715"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontFamily: "Outfit",
       fontWeight: 700,
@@ -3412,33 +3435,7 @@ function SpacerMap() {
     strokeWidth: "2"
   }, /*#__PURE__*/React.createElement("path", {
     d: "M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 1,
-      height: m ? 20 : 32,
-      background: "#ffffff15",
-      flexShrink: 0
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    onClick: function () {
-      setSel(null);
-      resetView();
-    },
-    style: {
-      cursor: "pointer",
-      color: "#ffffff40",
-      fontSize: m ? 12 : 14,
-      marginLeft: m ? 6 : 2,
-      flexShrink: 0,
-      width: m ? 28 : 24,
-      height: m ? 28 : 24,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "#ffffff10",
-      borderRadius: 6
-    }
-  }, "\u2715")), selInfraItem && /*#__PURE__*/React.createElement("div", {
+  })))), selInfraItem && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       top: m ? 10 : 16,
