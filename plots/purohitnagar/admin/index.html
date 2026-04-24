@@ -71,7 +71,7 @@
 <div class="login-wrap" id="loginScreen">
   <div class="login-box">
     <h1>Purohit Nagar</h1>
-    <p>Admin Panel \u2014 Plot Management</p>
+    <p>Admin Panel — Plot Management</p>
     <input type="password" id="pwdInput" placeholder="Enter admin password" autocomplete="off" />
     <div class="login-err" id="loginErr">Incorrect password. Try again.</div>
     <button onclick="tryLogin()">Sign In</button>
@@ -80,24 +80,24 @@
 
 <div class="dash" id="dashboard">
   <div class="dash-header">
-    <h1>\ud83c\udfe1 Purohit Nagar \u2014 Plot Manager</h1>
+    <h1>🏡 Purohit Nagar — Plot Manager</h1>
     <div class="actions">
-      <button class="btn" onclick="exportJSON()">\u2193 Export JSON</button>
+      <button class="btn" onclick="exportJSON()">↓ Export JSON</button>
       <button class="btn btn-save" id="saveBtn" onclick="saveToFirebase()">Save Changes</button>
     </div>
   </div>
 
   <div id="configBanner" class="config-banner" style="display:none;">
-    \u26a0\ufe0f Firebase not configured. Changes will only persist in this browser session.<br/>
+    ⚠️ Firebase not configured. Changes will only persist in this browser session.<br/>
     To enable cloud sync, add your Firebase config in the <code>&lt;script&gt;</code> section of this file.
-    <a href="https://console.firebase.google.com" target="_blank">Create a Firebase project \u2192</a>
+    <a href="https://console.firebase.google.com" target="_blank">Create a Firebase project →</a>
   </div>
 
   <div class="stats" id="statsBar"></div>
 
   <div class="bulk-bar" style="flex-direction:column;align-items:flex-start;gap:8px;padding-top:8px;">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <span style="font-size:13px;color:#94a3b8;font-weight:500;">\ud83d\udcde Contact Number:</span>
+      <span style="font-size:13px;color:#94a3b8;font-weight:500;">📞 Contact Number:</span>
       <input type="tel" id="phoneInput" value="" style="background:#ffffff08;border:1px solid #ffffff15;border-radius:6px;color:#fff;font-family:'Outfit';font-size:13px;padding:6px 12px;outline:none;width:200px;" placeholder="+91XXXXXXXXXX" />
       <span style="font-size:11px;color:#ffffff30;">Shown on Call button in viewer</span>
     </div>
@@ -106,7 +106,7 @@
   <div style="padding:0 24px 12px;">
     <div style="font-size:12px;color:#ffffff40;margin-bottom:8px;margin-top:4px;">AMENITY SPACE</div>
     <div style="display:flex;align-items:center;gap:12px;background:#1a1a1a;border:1px solid #ffffff10;border-radius:8px;padding:10px 14px;">
-      <span style="font-weight:700;font-size:15px;">\ud83c\udfdb\ufe0f Amenity Space</span>
+      <span style="font-weight:700;font-size:15px;">🏛️ Amenity Space</span>
       <select id="amenityStatus" style="background:#1a1a1a;border:1px solid #ffffff15;border-radius:6px;color:#fff;font-family:'Outfit';font-size:12px;padding:5px 8px;">
         <option value="Available">Available</option>
         <option value="Sold">Sold</option>
@@ -134,7 +134,7 @@
           <th>Status</th>
           <th>Type</th>
           <th>Area (sq yd)</th>
-          <th>Area (m\u00B2)</th>
+          <th>Area (m²)</th>
           <th>Preview</th>
         </tr>
       </thead>
@@ -157,9 +157,10 @@ const FIREBASE_CONFIG = {
 };
 
 const DB_PATH = "purohitnagar";
-const ADMIN_PASSWORD = "purohitnagar2025";
+const ADMIN_PASSWORD = "purohitnagar2026";
 const TOTAL_PLOTS = 177;
 
+const PLOT_DATA = [
   {id:1,a:528.51,am:441.901,tp:"Detached"},
   {id:2,a:515.47,am:430.998,tp:"Detached"},
   {id:3,a:495.25,am:414.092,tp:"Detached"},
@@ -337,6 +338,8 @@ const TOTAL_PLOTS = 177;
   {id:175,a:400.49,am:334.861,tp:"Semi-detached"},
   {id:176,a:390.37,am:326.399,tp:"Semi-detached"},
   {id:177,a:316.94,am:265.002,tp:"Semi-detached"}
+];
+
 
 const STATUSES = ["Available", "Sold", "Hold"];
 const TYPES = ["Detached", "Semi-detached", "Row-House"];
@@ -406,7 +409,7 @@ function saveToFirebase() {
     document.getElementById("saveBtn").disabled = true;
     db.ref(DB_PATH + "/plots").set(saveData)
       .then(function(){ return db.ref(DB_PATH + "/config").set({phone: phone, amenityStatus: amenityStatus}); })
-      .then(function() { showToast("Saved to cloud \u2713"); document.getElementById("saveBtn").disabled = false; updateStats(); })
+      .then(function() { showToast("Saved to cloud ✓"); document.getElementById("saveBtn").disabled = false; updateStats(); })
       .catch(function(e) { showToast("Save failed: " + e.message); document.getElementById("saveBtn").disabled = false; });
   } else {
     localStorage.setItem("pn_plots", JSON.stringify(plotConfig));
