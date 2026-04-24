@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Purohit Nagar Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Outfit', sans-serif; background: #111; color: #e2e8f0; min-height: 100vh; }
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-box { background: #1a1a1a; border: 1px solid #ffffff10; border-radius: 16px; padding: 40px; width: 100%; max-width: 380px; }
+  .login-box h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .login-box p { font-size: 13px; color: #ffffff50; margin-bottom: 28px; }
+  .login-box input { width: 100%; padding: 12px 16px; background: #ffffff08; border: 1px solid #ffffff15; border-radius: 10px; color: #fff; font-family: 'Outfit'; font-size: 14px; outline: none; margin-bottom: 16px; }
+  .login-box input:focus { border-color: #4ade80; }
+  .login-box button { width: 100%; padding: 12px; background: #4ade80; color: #000; font-family: 'Outfit'; font-weight: 600; font-size: 14px; border: none; border-radius: 10px; cursor: pointer; }
+  .login-box button:hover { background: #22c55e; }
+  .login-err { color: #f87171; font-size: 12px; margin-top: -8px; margin-bottom: 12px; display: none; }
+  .dash { display: none; }
+  .dash-header { padding: 20px 24px; border-bottom: 1px solid #ffffff10; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .dash-header h1 { font-size: 20px; font-weight: 700; }
+  .dash-header .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #ffffff15; background: #ffffff08; color: #94a3b8; font-family: 'Outfit'; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .btn:hover { background: #ffffff15; color: #fff; }
+  .btn-save { background: #4ade80; color: #000; border-color: #4ade80; font-weight: 600; }
+  .btn-save:hover { background: #22c55e; }
+  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .stats { display: flex; gap: 12px; padding: 16px 24px; flex-wrap: wrap; }
+  .stat-card { background: #1a1a1a; border: 1px solid #ffffff10; border-radius: 10px; padding: 14px 18px; flex: 1; min-width: 120px; }
+  .stat-card .label { font-size: 11px; color: #ffffff50; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; }
+  .stat-card .dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+  .bulk-bar { padding: 0 24px 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .bulk-bar span { font-size: 12px; color: #ffffff40; margin-right: 4px; }
+  .bulk-btn { padding: 5px 12px; border-radius: 6px; border: 1px solid #ffffff10; background: transparent; color: #94a3b8; font-family: 'Outfit'; font-size: 11px; cursor: pointer; }
+  .bulk-btn:hover { background: #ffffff10; color: #fff; }
+  .table-wrap { padding: 0 24px 24px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 700px; }
+  th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: #ffffff40; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #ffffff10; }
+  td { padding: 8px 12px; border-bottom: 1px solid #ffffff08; font-size: 13px; vertical-align: middle; }
+  tr:hover td { background: #ffffff05; }
+  .plot-id { font-weight: 700; font-size: 15px; min-width: 40px; }
+  td select { background: #1a1a1a; border: 1px solid #ffffff15; border-radius: 6px; color: #fff; font-family: 'Outfit'; font-size: 12px; padding: 5px 8px; outline: none; cursor: pointer; }
+  td select option { background: #1a1a1a; color: #fff; }
+  td select:focus { border-color: #4ade80; }
+  td input[type="number"] { background: #ffffff08; border: 1px solid #ffffff15; border-radius: 6px; color: #fff; font-family: 'Outfit'; font-size: 12px; padding: 5px 8px; width: 90px; outline: none; }
+  td input[type="number"]:focus { border-color: #4ade80; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 5px; font-size: 11px; font-weight: 600; }
+  .badge-avail { background: #4ade8020; color: #4ade80; }
+  .badge-sold { background: #f8717120; color: #f87171; }
+  .badge-hold { background: #fbbf2420; color: #fbbf24; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid #4ade8040; border-radius: 10px; padding: 12px 24px; font-size: 13px; color: #4ade80; display: none; z-index: 100; }
+  .config-banner { background: #fbbf2410; border: 1px solid #fbbf2430; border-radius: 10px; margin: 16px 24px; padding: 14px 18px; font-size: 12px; color: #fbbf24; line-height: 1.6; }
+  .config-banner code { background: #ffffff10; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  .config-banner a { color: #fbbf24; }
+  @media (max-width: 600px) {
+    .dash-header { padding: 16px; }
+    .stats { padding: 12px 16px; }
+    .bulk-bar { padding: 0 16px 8px; }
+    .table-wrap { padding: 0 16px 16px; }
+    .stat-card { min-width: 90px; padding: 10px 12px; }
+    .stat-card .value { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginScreen">
+  <div class="login-box">
+    <h1>Purohit Nagar</h1>
+    <p>Admin Panel \u2014 Plot Management</p>
+    <input type="password" id="pwdInput" placeholder="Enter admin password" autocomplete="off" />
+    <div class="login-err" id="loginErr">Incorrect password. Try again.</div>
+    <button onclick="tryLogin()">Sign In</button>
+  </div>
+</div>
+
+<div class="dash" id="dashboard">
+  <div class="dash-header">
+    <h1>\ud83c\udfe1 Purohit Nagar \u2014 Plot Manager</h1>
+    <div class="actions">
+      <button class="btn" onclick="exportJSON()">\u2193 Export JSON</button>
+      <button class="btn btn-save" id="saveBtn" onclick="saveToFirebase()">Save Changes</button>
+    </div>
+  </div>
+
+  <div id="configBanner" class="config-banner" style="display:none;">
+    \u26a0\ufe0f Firebase not configured. Changes will only persist in this browser session.<br/>
+    To enable cloud sync, add your Firebase config in the <code>&lt;script&gt;</code> section of this file.
+    <a href="https://console.firebase.google.com" target="_blank">Create a Firebase project \u2192</a>
+  </div>
+
+  <div class="stats" id="statsBar"></div>
+
+  <div class="bulk-bar" style="flex-direction:column;align-items:flex-start;gap:8px;padding-top:8px;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:13px;color:#94a3b8;font-weight:500;">\ud83d\udcde Contact Number:</span>
+      <input type="tel" id="phoneInput" value="" style="background:#ffffff08;border:1px solid #ffffff15;border-radius:6px;color:#fff;font-family:'Outfit';font-size:13px;padding:6px 12px;outline:none;width:200px;" placeholder="+91XXXXXXXXXX" />
+      <span style="font-size:11px;color:#ffffff30;">Shown on Call button in viewer</span>
+    </div>
+  </div>
+
+  <div style="padding:0 24px 12px;">
+    <div style="font-size:12px;color:#ffffff40;margin-bottom:8px;margin-top:4px;">AMENITY SPACE</div>
+    <div style="display:flex;align-items:center;gap:12px;background:#1a1a1a;border:1px solid #ffffff10;border-radius:8px;padding:10px 14px;">
+      <span style="font-weight:700;font-size:15px;">\ud83c\udfdb\ufe0f Amenity Space</span>
+      <select id="amenityStatus" style="background:#1a1a1a;border:1px solid #ffffff15;border-radius:6px;color:#fff;font-family:'Outfit';font-size:12px;padding:5px 8px;">
+        <option value="Available">Available</option>
+        <option value="Sold">Sold</option>
+        <option value="Hold">On Hold</option>
+      </select>
+      <span id="amenityBadge" class="badge badge-avail">Available</span>
+    </div>
+  </div>
+
+  <div class="bulk-bar">
+    <span>Bulk:</span>
+    <button class="bulk-btn" onclick="bulkStatus('Available')">All Available</button>
+    <button class="bulk-btn" onclick="bulkStatus('Sold')">All Sold</button>
+    <button class="bulk-btn" onclick="bulkStatus('Hold')">All On Hold</button>
+    <button class="bulk-btn" onclick="bulkType('Detached')">All Detached</button>
+    <button class="bulk-btn" onclick="bulkType('Semi-detached')">All Semi-det.</button>
+    <button class="bulk-btn" onclick="bulkType('Row-House')">All Row House</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Plot</th>
+          <th>Status</th>
+          <th>Type</th>
+          <th>Area (sq yd)</th>
+          <th>Area (m\u00B2)</th>
+          <th>Preview</th>
+        </tr>
+      </thead>
+      <tbody id="plotTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB9QbX0dJiAfEnkLxcBRqxpHzQT85yMwzM",
+  authDomain: "plot-viewer-9e0f4.firebaseapp.com",
+  databaseURL: "https://plot-viewer-9e0f4-default-rtdb.firebaseio.com",
+  projectId: "plot-viewer-9e0f4",
+  storageBucket: "plot-viewer-9e0f4.firebasestorage.app",
+  messagingSenderId: "94796228373",
+  appId: "1:94796228373:web:4bc22228b6340ec928ab1c"
+};
+
+const DB_PATH = "purohitnagar";
+const ADMIN_PASSWORD = "purohitnagar2025";
+const TOTAL_PLOTS = 177;
+
+  {id:1,a:528.51,am:441.901,tp:"Detached"},
+  {id:2,a:515.47,am:430.998,tp:"Detached"},
+  {id:3,a:495.25,am:414.092,tp:"Detached"},
+  {id:4,a:474.97,am:397.135,tp:"Detached"},
+  {id:5,a:454.75,am:380.229,tp:"Detached"},
+  {id:6,a:398.58,am:333.263,tp:"Detached"},
+  {id:7,a:269.19,am:225.077,tp:"Detached"},
+  {id:8,a:269.19,am:225.077,tp:"Detached"},
+  {id:9,a:269.19,am:225.077,tp:"Detached"},
+  {id:10,a:269.19,am:225.077,tp:"Detached"},
+  {id:11,a:301.49,am:252.084,tp:"Detached"},
+  {id:12,a:213.56,am:178.563,tp:"Detached"},
+  {id:13,a:188.43,am:157.551,tp:"Detached"},
+  {id:14,a:118.44,am:99.031,tp:"Row-House"},
+  {id:15,a:75.37,am:63.019,tp:"Row-House"},
+  {id:16,a:75.37,am:63.019,tp:"Row-House"},
+  {id:17,a:75.37,am:63.019,tp:"Row-House"},
+  {id:18,a:75.37,am:63.019,tp:"Row-House"},
+  {id:19,a:75.37,am:63.019,tp:"Row-House"},
+  {id:20,a:75.37,am:63.019,tp:"Row-House"},
+  {id:21,a:75.37,am:63.019,tp:"Row-House"},
+  {id:22,a:75.37,am:63.019,tp:"Row-House"},
+  {id:23,a:118.44,am:99.031,tp:"Row-House"},
+  {id:24,a:111.86,am:93.529,tp:"Row-House"},
+  {id:25,a:71.19,am:59.524,tp:"Row-House"},
+  {id:26,a:71.19,am:59.524,tp:"Row-House"},
+  {id:27,a:71.19,am:59.524,tp:"Row-House"},
+  {id:28,a:71.19,am:59.524,tp:"Row-House"},
+  {id:29,a:71.19,am:59.524,tp:"Row-House"},
+  {id:30,a:71.19,am:59.524,tp:"Row-House"},
+  {id:31,a:71.19,am:59.524,tp:"Row-House"},
+  {id:32,a:71.19,am:59.524,tp:"Row-House"},
+  {id:33,a:111.86,am:93.529,tp:"Row-House"},
+  {id:34,a:177.96,am:148.797,tp:"Detached"},
+  {id:35,a:201.29,am:168.304,tp:"Detached"},
+  {id:36,a:231.8,am:193.814,tp:"Detached"},
+  {id:37,a:208.47,am:174.307,tp:"Detached"},
+  {id:38,a:122.03,am:102.033,tp:"Row-House"},
+  {id:39,a:71.19,am:59.524,tp:"Row-House"},
+  {id:40,a:71.19,am:59.524,tp:"Row-House"},
+  {id:41,a:71.19,am:59.524,tp:"Row-House"},
+  {id:42,a:71.19,am:59.524,tp:"Row-House"},
+  {id:43,a:71.19,am:59.524,tp:"Row-House"},
+  {id:44,a:71.19,am:59.524,tp:"Row-House"},
+  {id:45,a:71.19,am:59.524,tp:"Row-House"},
+  {id:46,a:71.19,am:59.524,tp:"Row-House"},
+  {id:47,a:71.19,am:59.524,tp:"Row-House"},
+  {id:48,a:71.19,am:59.524,tp:"Row-House"},
+  {id:49,a:139.98,am:117.041,tp:"Row-House"},
+  {id:50,a:139.98,am:117.041,tp:"Row-House"},
+  {id:51,a:82.91,am:69.323,tp:"Row-House"},
+  {id:52,a:82.91,am:69.323,tp:"Row-House"},
+  {id:53,a:82.91,am:69.323,tp:"Row-House"},
+  {id:54,a:82.91,am:69.323,tp:"Row-House"},
+  {id:55,a:146.73,am:122.685,tp:"Row-House"},
+  {id:56,a:146.73,am:122.685,tp:"Row-House"},
+  {id:57,a:75.37,am:63.019,tp:"Row-House"},
+  {id:58,a:75.37,am:63.019,tp:"Row-House"},
+  {id:59,a:75.37,am:63.019,tp:"Row-House"},
+  {id:60,a:75.37,am:63.019,tp:"Row-House"},
+  {id:61,a:75.37,am:63.019,tp:"Row-House"},
+  {id:62,a:75.37,am:63.019,tp:"Row-House"},
+  {id:63,a:107.68,am:90.034,tp:"Row-House"},
+  {id:64,a:107.68,am:90.034,tp:"Row-House"},
+  {id:65,a:75.37,am:63.019,tp:"Row-House"},
+  {id:66,a:75.37,am:63.019,tp:"Row-House"},
+  {id:67,a:75.37,am:63.019,tp:"Row-House"},
+  {id:68,a:75.37,am:63.019,tp:"Row-House"},
+  {id:69,a:75.37,am:63.019,tp:"Row-House"},
+  {id:70,a:75.37,am:63.019,tp:"Row-House"},
+  {id:71,a:75.37,am:63.019,tp:"Row-House"},
+  {id:72,a:75.37,am:63.019,tp:"Row-House"},
+  {id:73,a:75.37,am:63.019,tp:"Row-House"},
+  {id:74,a:75.37,am:63.019,tp:"Row-House"},
+  {id:75,a:107.68,am:90.034,tp:"Row-House"},
+  {id:76,a:220.74,am:184.567,tp:"Detached"},
+  {id:77,a:245.86,am:205.57,tp:"Detached"},
+  {id:78,a:320.25,am:267.77,tp:"Detached"},
+  {id:79,a:329.01,am:275.094,tp:"Detached"},
+  {id:80,a:148.71,am:124.34,tp:"Row-House"},
+  {id:81,a:131.6,am:110.034,tp:"Row-House"},
+  {id:82,a:131.6,am:110.034,tp:"Row-House"},
+  {id:83,a:131.6,am:110.034,tp:"Row-House"},
+  {id:84,a:131.6,am:110.034,tp:"Row-House"},
+  {id:85,a:131.6,am:110.034,tp:"Row-House"},
+  {id:86,a:131.6,am:110.034,tp:"Row-House"},
+  {id:87,a:131.6,am:110.034,tp:"Row-House"},
+  {id:88,a:148.71,am:124.34,tp:"Row-House"},
+  {id:89,a:148.71,am:124.34,tp:"Row-House"},
+  {id:90,a:125.02,am:104.533,tp:"Row-House"},
+  {id:91,a:125.02,am:104.533,tp:"Row-House"},
+  {id:92,a:125.02,am:104.533,tp:"Row-House"},
+  {id:93,a:125.02,am:104.533,tp:"Row-House"},
+  {id:94,a:174.38,am:145.804,tp:"Row-House"},
+  {id:95,a:179.22,am:149.851,tp:"Row-House"},
+  {id:96,a:122.39,am:102.334,tp:"Row-House"},
+  {id:97,a:122.39,am:102.334,tp:"Row-House"},
+  {id:98,a:122.39,am:102.334,tp:"Row-House"},
+  {id:99,a:122.39,am:102.334,tp:"Row-House"},
+  {id:100,a:122.39,am:102.334,tp:"Row-House"},
+  {id:101,a:148.71,am:124.34,tp:"Row-House"},
+  {id:102,a:148.71,am:124.34,tp:"Row-House"},
+  {id:103,a:131.6,am:110.034,tp:"Row-House"},
+  {id:104,a:131.6,am:110.034,tp:"Row-House"},
+  {id:105,a:131.6,am:110.034,tp:"Row-House"},
+  {id:106,a:131.6,am:110.034,tp:"Row-House"},
+  {id:107,a:131.6,am:110.034,tp:"Row-House"},
+  {id:108,a:131.6,am:110.034,tp:"Row-House"},
+  {id:109,a:131.6,am:110.034,tp:"Row-House"},
+  {id:110,a:148.71,am:124.34,tp:"Row-House"},
+  {id:111,a:326.38,am:272.895,tp:"Detached"},
+  {id:112,a:319.2,am:266.892,tp:"Detached"},
+  {id:113,a:303.41,am:253.689,tp:"Detached"},
+  {id:114,a:289.53,am:242.084,tp:"Detached"},
+  {id:115,a:148.71,am:124.34,tp:"Row-House"},
+  {id:116,a:131.6,am:110.034,tp:"Row-House"},
+  {id:117,a:131.6,am:110.034,tp:"Row-House"},
+  {id:118,a:131.6,am:110.034,tp:"Row-House"},
+  {id:119,a:131.6,am:110.034,tp:"Row-House"},
+  {id:120,a:131.6,am:110.034,tp:"Row-House"},
+  {id:121,a:131.6,am:110.034,tp:"Row-House"},
+  {id:122,a:131.6,am:110.034,tp:"Row-House"},
+  {id:123,a:148.71,am:124.34,tp:"Row-House"},
+  {id:124,a:148.71,am:124.34,tp:"Row-House"},
+  {id:125,a:125.02,am:104.533,tp:"Row-House"},
+  {id:126,a:125.02,am:104.533,tp:"Row-House"},
+  {id:127,a:125.02,am:104.533,tp:"Row-House"},
+  {id:128,a:125.02,am:104.533,tp:"Row-House"},
+  {id:129,a:125.02,am:104.533,tp:"Row-House"},
+  {id:130,a:125.02,am:104.533,tp:"Row-House"},
+  {id:131,a:228.66,am:191.189,tp:"Row-House"},
+  {id:132,a:513.26,am:429.151,tp:"Detached"},
+  {id:133,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:134,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:135,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:136,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:137,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:138,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:139,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:140,a:452.24,am:378.13,tp:"Semi-detached"},
+  {id:141,a:449.85,am:376.132,tp:"Semi-detached"},
+  {id:142,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:143,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:144,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:145,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:146,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:147,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:148,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:149,a:358.92,am:300.103,tp:"Semi-detached"},
+  {id:150,a:362.51,am:303.104,tp:"Semi-detached"},
+  {id:151,a:1274.23,am:1065.418,tp:"Detached"},
+  {id:152,a:1478.51,am:1236.222,tp:"Detached"},
+  {id:153,a:304.81,am:254.86,tp:"Semi-detached"},
+  {id:154,a:259.68,am:217.125,tp:"Semi-detached"},
+  {id:155,a:259.68,am:217.125,tp:"Semi-detached"},
+  {id:156,a:259.68,am:217.125,tp:"Semi-detached"},
+  {id:157,a:259.68,am:217.125,tp:"Semi-detached"},
+  {id:158,a:259.68,am:217.125,tp:"Semi-detached"},
+  {id:159,a:259.68,am:217.125,tp:"Semi-detached"},
+  {id:160,a:259.68,am:217.125,tp:"Semi-detached"},
+  {id:161,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:162,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:163,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:164,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:165,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:166,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:167,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:168,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:169,a:244.46,am:204.4,tp:"Semi-detached"},
+  {id:170,a:234.85,am:196.364,tp:"Semi-detached"},
+  {id:171,a:334.88,am:280.002,tp:"Semi-detached"},
+  {id:172,a:334.88,am:280.002,tp:"Semi-detached"},
+  {id:173,a:334.88,am:280.002,tp:"Semi-detached"},
+  {id:174,a:334.88,am:280.002,tp:"Semi-detached"},
+  {id:175,a:400.49,am:334.861,tp:"Semi-detached"},
+  {id:176,a:390.37,am:326.399,tp:"Semi-detached"},
+  {id:177,a:316.94,am:265.002,tp:"Semi-detached"}
+
+const STATUSES = ["Available", "Sold", "Hold"];
+const TYPES = ["Detached", "Semi-detached", "Row-House"];
+
+let plotConfig = {};
+let db = null;
+let firebaseReady = false;
+
+function initDefaults() {
+  PLOT_DATA.forEach(function(p) {
+    plotConfig[p.id] = { status: "Available", type: p.tp, area: p.a, areaM: p.am };
+  });
+}
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG.apiKey) { document.getElementById("configBanner").style.display = "block"; return; }
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    firebaseReady = true;
+    loadFromFirebase();
+  } catch(e) {
+    console.error("Firebase init failed:", e);
+    document.getElementById("configBanner").style.display = "block";
+  }
+}
+
+function loadFromFirebase() {
+  if (!db) return;
+  db.ref(DB_PATH + "/plots").once("value").then(function(snap) {
+    var data = snap.val();
+    if (data) {
+      Object.keys(data).forEach(function(id) {
+        if (plotConfig[id]) {
+          if (typeof data[id] === "string") {
+            plotConfig[id].status = data[id];
+          } else {
+            Object.assign(plotConfig[id], data[id]);
+          }
+        }
+      });
+    }
+    renderTable(); updateStats();
+    db.ref(DB_PATH + "/config").once("value").then(function(csnap) {
+      var cfg = csnap.val();
+      if (cfg) {
+        if (cfg.phone) document.getElementById("phoneInput").value = cfg.phone;
+        if (cfg.amenityStatus) {
+          document.getElementById("amenityStatus").value = cfg.amenityStatus;
+          var badge = document.getElementById("amenityBadge");
+          badge.className = "badge " + (cfg.amenityStatus === "Available" ? "badge-avail" : cfg.amenityStatus === "Sold" ? "badge-sold" : "badge-hold");
+          badge.textContent = cfg.amenityStatus === "Hold" ? "On Hold" : cfg.amenityStatus;
+        }
+      }
+    });
+    showToast("Loaded from cloud");
+  }).catch(function(e) { console.error("Firebase load error:", e); showToast("Failed to load cloud data"); });
+}
+
+function saveToFirebase() {
+  readTableIntoConfig();
+  var phone = document.getElementById("phoneInput").value;
+  var amenityStatus = document.getElementById("amenityStatus").value;
+  if (firebaseReady && db) {
+    var saveData = {};
+    Object.keys(plotConfig).forEach(function(id) { saveData[id] = plotConfig[id]; });
+    document.getElementById("saveBtn").disabled = true;
+    db.ref(DB_PATH + "/plots").set(saveData)
+      .then(function(){ return db.ref(DB_PATH + "/config").set({phone: phone, amenityStatus: amenityStatus}); })
+      .then(function() { showToast("Saved to cloud \u2713"); document.getElementById("saveBtn").disabled = false; updateStats(); })
+      .catch(function(e) { showToast("Save failed: " + e.message); document.getElementById("saveBtn").disabled = false; });
+  } else {
+    localStorage.setItem("pn_plots", JSON.stringify(plotConfig));
+    localStorage.setItem("pn_config", JSON.stringify({phone: phone, amenityStatus: amenityStatus}));
+    showToast("Saved locally (Firebase not configured)");
+    updateStats();
+  }
+}
+
+function tryLogin() {
+  var pwd = document.getElementById("pwdInput").value;
+  if (pwd === ADMIN_PASSWORD) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    sessionStorage.setItem("pn_auth", "1");
+    initDefaults();
+    var local = localStorage.getItem("pn_plots");
+    if (local) { try { var p = JSON.parse(local); Object.keys(p).forEach(function(id) { if (plotConfig[id]) Object.assign(plotConfig[id], p[id]); }); } catch(e) {} }
+    var localCfg = localStorage.getItem("pn_config");
+    if (localCfg) { try { var cfg = JSON.parse(localCfg); if (cfg.phone) document.getElementById("phoneInput").value = cfg.phone; if (cfg.amenityStatus) { document.getElementById("amenityStatus").value = cfg.amenityStatus; var badge = document.getElementById("amenityBadge"); badge.className = "badge " + (cfg.amenityStatus === "Available" ? "badge-avail" : cfg.amenityStatus === "Sold" ? "badge-sold" : "badge-hold"); badge.textContent = cfg.amenityStatus === "Hold" ? "On Hold" : cfg.amenityStatus; } } catch(e) {} }
+    renderTable(); updateStats(); initFirebase();
+  } else {
+    document.getElementById("loginErr").style.display = "block";
+    document.getElementById("pwdInput").value = "";
+    document.getElementById("pwdInput").focus();
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  if (sessionStorage.getItem("pn_auth") === "1") {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    initDefaults();
+    var local = localStorage.getItem("pn_plots");
+    if (local) { try { var p = JSON.parse(local); Object.keys(p).forEach(function(id) { if (plotConfig[id]) Object.assign(plotConfig[id], p[id]); }); } catch(e) {} }
+    renderTable(); updateStats(); initFirebase();
+  }
+  document.getElementById("pwdInput").addEventListener("keydown", function(e) { if (e.key === "Enter") tryLogin(); });
+});
+
+function renderTable() {
+  var tbody = document.getElementById("plotTable");
+  tbody.innerHTML = "";
+  PLOT_DATA.forEach(function(p) {
+    var c = plotConfig[p.id];
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td class="plot-id">' + p.id + '</td>' +
+      '<td><select data-id="' + p.id + '" data-field="status">' +
+        STATUSES.map(function(s) { return '<option value="' + s + '"' + (c.status === s ? ' selected' : '') + '>' + (s === "Hold" ? "On Hold" : s) + '</option>'; }).join('') +
+      '</select></td>' +
+      '<td><select data-id="' + p.id + '" data-field="type">' +
+        TYPES.map(function(t) { return '<option value="' + t + '"' + (c.type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') +
+      '</select></td>' +
+      '<td><input type="number" data-id="' + p.id + '" data-field="area" value="' + c.area + '" step="0.01" /></td>' +
+      '<td><input type="number" data-id="' + p.id + '" data-field="areaM" value="' + c.areaM + '" step="0.001" /></td>' +
+      '<td><span class="badge ' + (c.status === 'Available' ? 'badge-avail' : c.status === 'Sold' ? 'badge-sold' : 'badge-hold') + '">' + (c.status === 'Hold' ? 'On Hold' : c.status) + '</span></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function readTableIntoConfig() {
+  document.querySelectorAll("select[data-id], input[data-id]").forEach(function(el) {
+    var id = el.getAttribute("data-id");
+    var field = el.getAttribute("data-field");
+    if (field === "area" || field === "areaM") { plotConfig[id][field] = parseFloat(el.value) || 0; }
+    else { plotConfig[id][field] = el.value; }
+  });
+}
+
+function updateStats() {
+  readTableIntoConfig();
+  var counts = { Available: 0, Sold: 0, Hold: 0 };
+  Object.values(plotConfig).forEach(function(c) { counts[c.status] = (counts[c.status] || 0) + 1; });
+  var bar = document.getElementById("statsBar");
+  bar.innerHTML =
+    '<div class="stat-card"><div class="label">Total Plots</div><div class="value">' + TOTAL_PLOTS + '</div></div>' +
+    '<div class="stat-card"><div class="label"><span class="dot" style="background:#4ade80"></span>Available</div><div class="value">' + (counts.Available || 0) + '</div></div>' +
+    '<div class="stat-card"><div class="label"><span class="dot" style="background:#f87171"></span>Sold</div><div class="value">' + (counts.Sold || 0) + '</div></div>' +
+    '<div class="stat-card"><div class="label"><span class="dot" style="background:#fbbf24"></span>On Hold</div><div class="value">' + (counts.Hold || 0) + '</div></div>';
+}
+
+function bulkStatus(s) { document.querySelectorAll('select[data-field="status"]').forEach(function(el) { el.value = s; }); updateStats(); renderBadges(); }
+function bulkType(t) { document.querySelectorAll('select[data-field="type"]').forEach(function(el) { el.value = t; }); }
+function renderBadges() {
+  document.querySelectorAll("select[data-field='status']").forEach(function(el) {
+    var badge = el.closest("tr").querySelector(".badge"); var v = el.value;
+    badge.className = "badge " + (v === "Available" ? "badge-avail" : v === "Sold" ? "badge-sold" : "badge-hold");
+    badge.textContent = v === "Hold" ? "On Hold" : v;
+  });
+}
+
+document.getElementById("amenityStatus").addEventListener("change", function() {
+  var v = this.value; var badge = document.getElementById("amenityBadge");
+  badge.className = "badge " + (v === "Available" ? "badge-avail" : v === "Sold" ? "badge-sold" : "badge-hold");
+  badge.textContent = v === "Hold" ? "On Hold" : v;
+});
+
+document.addEventListener("change", function(e) {
+  if (e.target.matches('select[data-field="status"]')) {
+    var badge = e.target.closest("tr").querySelector(".badge"); var v = e.target.value;
+    badge.className = "badge " + (v === "Available" ? "badge-avail" : v === "Sold" ? "badge-sold" : "badge-hold");
+    badge.textContent = v === "Hold" ? "On Hold" : v; updateStats();
+  }
+});
+
+function exportJSON() {
+  readTableIntoConfig();
+  var phone = document.getElementById("phoneInput").value;
+  var amenityStatus = document.getElementById("amenityStatus").value;
+  var blob = new Blob([JSON.stringify({ config: { phone: phone, amenityStatus: amenityStatus }, plots: plotConfig }, null, 2)], { type: "application/json" });
+  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "purohitnagar-plots.json"; a.click();
+  showToast("JSON exported");
+}
+
+function showToast(msg) { var t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block"; setTimeout(function() { t.style.display = "none"; }, 2500); }
+</script>
+</body>
+</html>
