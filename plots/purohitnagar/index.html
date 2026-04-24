@@ -41,7 +41,7 @@ function loadCloudConfig(onDone) {
 if (!FIREBASE_CONFIG.apiKey) { if (onDone) onDone(null); return; }
 try {
 if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-firebase.database().ref("sainagar/plots").once("value").then(function (snap) {
+firebase.database().ref("purohitnagar/plots").once("value").then(function (snap) {
 __cloudData = snap.val(); if (onDone) onDone(__cloudData);
 }).catch(function () { if (onDone) onDone(null); });
 } catch (e) { if (onDone) onDone(null); }
@@ -136,7 +136,7 @@ setStatuses(ns); setPlotTypes(nt);
 });
 if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey) {
 try {
-firebase.database().ref("sainagar/config").once("value").then(function (snap) {
+firebase.database().ref("purohitnagar/config").once("value").then(function (snap) {
 var cfg = snap.val();
 if (cfg) {
 if (cfg.phone) setPhone(cfg.phone);
@@ -165,21 +165,52 @@ var MAP_ROT = 0;
 function svgToLatLng(x, y) {
 return { lat: MAP_LAT_A * x + MAP_LAT_B * y + MAP_LAT_C, lng: MAP_LNG_A * x + MAP_LNG_B * y + MAP_LNG_C };
 }
-function syncMap() {
-if (!gmapRef.current || !matRef.current || !containerRef.current) return;
-var m = matRef.current;
-var cw = containerRef.current.clientWidth, ch = containerRef.current.clientHeight;
-var det = m[0] * m[3] - m[1] * m[2];
-if (Math.abs(det) < 1e-10) return;
-var cx = (m[3] * (cw / 2 - m[4]) - m[2] * (ch / 2 - m[5])) / det;
-var cy = (m[0] * (ch / 2 - m[5]) - m[1] * (cw / 2 - m[4])) / det;
-var center = svgToLatLng(cx, cy);
-var s = Math.sqrt(m[0] * m[0] + m[1] * m[1]);
-var z = Math.log2(156543.03392 * Math.cos(center.lat * Math.PI / 180) * s / MAP_MPS);
-z = Math.max(14, Math.min(22, z));
-var map = gmapRef.current;
-map.setCenter(center);
-map.setZoom(z);
+function latLngToSvg(lat, lng) {
+var dlat = lat - MAP_LAT_C, dlng = lng - MAP_LNG_C;
+var det = MAP_LAT_A * MAP_LNG_B - MAP_LAT_B * MAP_LNG_A;
+return { x: (MAP_LNG_B * dlat - MAP_LAT_B * dlng) / det, y: (MAP_LAT_A * dlng - MAP_LNG_A * dlat) / det };
+}
+function pointInPoly(px, py, pts) {
+var inside = false;
+for (var i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+var xi = pts[i][0], yi = pts[i][1], xj = pts[j][0], yj = pts[j][1];
+if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
+}
+return inside;
+}
+var savedMatRef = useRef(null);
+function syncSvgFromMap() {
+var map = gmapRef.current, svg = svgRef.current, g = gRef.current;
+if (!map || !svg || !g) return;
+var proj = map.getProjection();
+if (!proj) return;
+var cw = svg.clientWidth, ch = svg.clientHeight;
+var bs = Math.min(cw / SVG_W, ch / SVG_H);
+var ox = (cw - SVG_W * bs) / 2;
+var oy = (ch - SVG_H * bs) / 2;
+var zoom = map.getZoom();
+var sc = Math.pow(2, zoom);
+var wc = proj.fromLatLngToPoint(map.getCenter());
+function s2px(sx, sy) {
+var geo = svgToLatLng(sx, sy);
+var wp = proj.fromLatLngToPoint(new google.maps.LatLng(geo.lat, geo.lng));
+return { x: (wp.x - wc.x) * sc + cw / 2, y: (wp.y - wc.y) * sc + ch / 2 };
+}
+var p0 = s2px(0, 0), p1 = s2px(100, 0), p2 = s2px(0, 100);
+var t0x = (p0.x - ox) / bs, t0y = (p0.y - oy) / bs;
+var a = ((p1.x - ox) / bs - t0x) / 100, b = ((p1.y - oy) / bs - t0y) / 100;
+var c = ((p2.x - ox) / bs - t0x) / 100, d = ((p2.y - oy) / bs - t0y) / 100;
+var mat = [a, b, c, d, t0x, t0y];
+matRef.current = mat;
+g.setAttribute("transform", "matrix(" + mat.join(",") + ")");
+if (compassRef.current) {
+var angle = Math.atan2(mat[1], mat[0]) * 180 / Math.PI;
+compassRef.current.style.transform = "rotate(" + -angle + "deg)";
+}
+if (infraLabelsRef.current && baseScaleRef.current) {
+var z2 = mScale(mat) / baseScaleRef.current;
+infraLabelsRef.current.setAttribute("visibility", z2 >= 0.9 ? "visible" : "hidden");
+}
 }
 function loadGoogleMaps(cb) {
 if (window.google && window.google.maps) { cb(); return; }
@@ -196,18 +227,41 @@ if (!gmapDivRef.current) return;
 var center = svgToLatLng(195.28, 183.58);
 gmapRef.current = new google.maps.Map(gmapDivRef.current, {
 center: center, zoom: 18, mapTypeId: "satellite",
-disableDefaultUI: true, gestureHandling: "none",
-tilt: 0, rotateControl: false,
-styles: [{ featureType: "all", elementType: "labels", stylers: [{ visibility: "off" }] }]
+disableDefaultUI: true, gestureHandling: "greedy",
+tilt: 0, rotateControl: false
 });
-syncMap();
+var map = gmapRef.current;
+map.addListener("bounds_changed", function() { if (mapMode) syncSvgFromMap(); });
+map.addListener("click", function(e) {
+if (!mapMode) return;
+var sv = latLngToSvg(e.latLng.lat(), e.latLng.lng());
+for (var i = 0; i < PLOTS.length; i++) {
+if (pointInPoly(sv.x, sv.y, PLOTS[i].pts)) {
+setSel(PLOTS[i].id); setSelInfra(null); setInfoPanel(null);
+var pc = svgToLatLng(PLOTS[i].c[0], PLOTS[i].c[1]);
+map.panTo(new google.maps.LatLng(pc.lat, pc.lng));
+return;
+}
+}
+setSel(null); setSelInfra(null);
+});
+setTimeout(syncSvgFromMap, 100);
 }
 function toggleMapView() {
 if (!mapMode) {
-if (gmapRef.current) { setMapMode(true); setTimeout(syncMap, 50); }
-else loadGoogleMaps(function() { setMapMode(true); setTimeout(function() { initMap(); syncMap(); }, 200); });
+savedMatRef.current = matRef.current ? matRef.current.slice() : null;
+if (gmapRef.current) {
+setMapMode(true);
+setTimeout(syncSvgFromMap, 50);
+} else {
+loadGoogleMaps(function() { setMapMode(true); setTimeout(function() { initMap(); syncSvgFromMap(); }, 200); });
+}
 } else {
 setMapMode(false);
+if (savedMatRef.current) {
+matRef.current = savedMatRef.current;
+flushMatrix();
+}
 }
 }
 
@@ -218,8 +272,12 @@ window.addEventListener("resize", check);
 return function () { window.removeEventListener("resize", check); };
 }, []);
 useEffect(function() {
-if (mapMode && !gmapRef.current && window.google && window.google.maps && gmapDivRef.current) {
+if (mapMode) {
+if (!gmapRef.current && window.google && window.google.maps && gmapDivRef.current) {
 initMap();
+} else if (gmapRef.current) {
+syncSvgFromMap();
+}
 }
 }, [mapMode]);
 var flushMatrix = useCallback(function () {
@@ -230,7 +288,6 @@ if (compassRef.current) {
 var angle = Math.atan2(m[1], m[0]) * 180 / Math.PI;
 compassRef.current.style.transform = "rotate(" + -angle + "deg)";
 }
-syncMap();
 if (infraLabelsRef.current && baseScaleRef.current) {
 var z = mScale(m) / baseScaleRef.current;
 infraLabelsRef.current.setAttribute("visibility", z >= 0.9 ? "visible" : "hidden");
@@ -348,7 +405,7 @@ mom.raf = requestAnimationFrame(tick);
 }
 function inPanel(e) { return e.target && e.target.closest && e.target.closest('[data-panel]'); }
 function onTS(e) {
-if (inPanel(e)) return;
+if (mapMode || inPanel(e)) return;
 cancelMom();
 if (animRef.current) { cancelAnimationFrame(animRef.current); animRef.current = null; }
 prevTouches = Array.from(e.touches).map(function (t) { return { x: t.clientX, y: t.clientY, id: t.identifier }; });
@@ -425,6 +482,7 @@ mom.vx = 0; mom.vy = 0;
 }
 var mouseDown = false, mouseStart = null, mouseMoved = false;
 function onMD(e) {
+if (mapMode) return;
 if (e.target.closest("[data-plot]")) return;
 if (e.button !== 0) return;
 cancelMom();
@@ -446,7 +504,7 @@ if (mouseDown && !mouseMoved) el.dispatchEvent(new Event("map-deselect"));
 mouseDown = false; el.style.cursor = "grab";
 }
 function onWH(e) {
-if (inPanel(e)) return;
+if (mapMode || inPanel(e)) return;
 e.preventDefault();
 cancelMom();
 if (!matRef.current) return;
@@ -551,7 +609,7 @@ display: "flex", alignItems: "center", justifyContent: "center",
 cursor: "pointer", color: "rgba(255,255,255,0.55)", fontSize: m ? 14 : 16 }
 };
 return /*#__PURE__*/React.createElement("div", { ref: containerRef, style: Object.assign({}, S.root, mapMode ? { background: "transparent" } : {}) },
-/*#__PURE__*/React.createElement("div", { ref: gmapDivRef, style: { position: "absolute", inset: 0, zIndex: 0, display: mapMode ? "block" : "none" } }),
+/*#__PURE__*/React.createElement("div", { ref: gmapDivRef, style: { position: "absolute", inset: 0, zIndex: 0, display: mapMode ? "block" : "none", pointerEvents: mapMode ? "auto" : "none" } }),
 loading && /*#__PURE__*/React.createElement("div", {
 style: { position: "absolute", inset: 0, zIndex: 9999 },
 dangerouslySetInnerHTML: { __html: LOADING_HTML }
@@ -596,7 +654,7 @@ __html: ".hide-scroll::-webkit-scrollbar{display:none} .hide-scroll{-ms-overflow
 } }),
 /*#__PURE__*/React.createElement("svg", {
 ref: svgRef,
-style: { pointerEvents: infoPanel ? "none" : "auto", position: "absolute",
+style: { pointerEvents: (mapMode || infoPanel) ? "none" : "auto", position: "absolute",
 left: 0, top: 0, width: "100%", height: "100%", overflow: "visible" }
 },
 /*#__PURE__*/React.createElement("defs", null,
