@@ -246,20 +246,54 @@ function initMap() {
   // The pane moves with the map natively - no lag, no desync.
   function SVGOverlay() {}
   SVGOverlay.prototype = new google.maps.OverlayView();
-  SVGOverlay.prototype.onAdd = function () {
+
+  function attachSvgToPane(self) {
     var svg = svgRef.current;
     if (!svg) return;
-    if (!svgOriginalParentRef.current) {
-      svgOriginalParentRef.current = svg.parentNode;
+    var panes = self.getPanes();
+    if (!panes) return;
+    var pane = panes.overlayMouseTarget;
+    if (svg.parentNode !== pane) {
+      if (!svgOriginalParentRef.current) {
+        svgOriginalParentRef.current = svg.parentNode;
+      }
+      pane.appendChild(svg);
     }
-    // overlayMouseTarget keeps SVG interactive (clicks, hovers)
-    this.getPanes().overlayMouseTarget.appendChild(svg);
+  }
+
+  function styleSvgForPane() {
+    var svg = svgRef.current;
+    if (!svg) return;
+    var mapDiv = gmapDivRef.current;
+    var w = mapDiv ? mapDiv.clientWidth : 800;
+    var h = mapDiv ? mapDiv.clientHeight : 600;
+    // Explicit pixel dimensions - "100%" doesn't work reliably in panes
+    svg.setAttribute("width", String(w));
+    svg.setAttribute("height", String(h));
+    svg.style.position = "absolute";
+    svg.style.left = "0px";
+    svg.style.top = "0px";
+    svg.style.width = w + "px";
+    svg.style.height = h + "px";
+    svg.style.overflow = "visible";
+    svg.style.display = "block";
+    svg.style.pointerEvents = "none";
+  }
+
+  SVGOverlay.prototype.onAdd = function () {
+    attachSvgToPane(this);
+    styleSvgForPane();
   };
+
   SVGOverlay.prototype.draw = function () {
     var proj = this.getProjection();
     if (!proj) return;
     var g = gRef.current;
     if (!g) return;
+
+    // Re-attach SVG to pane in case React moved it back during a re-render
+    attachSvgToPane(this);
+    styleSvgForPane();
 
     // Sample 3 reference points to build affine transform
     // from SVG coords -> overlay pane pixel coords
@@ -285,17 +319,8 @@ function initMap() {
       var z = mScale(matRef.current) / baseScaleRef.current;
       infraLabelsRef.current.setAttribute("visibility", z >= 0.9 ? "visible" : "hidden");
     }
-
-    // Make sure the SVG fills the map div so mouse targets line up
-    var svg = svgRef.current;
-    if (svg) {
-      svg.style.width = "100%";
-      svg.style.height = "100%";
-      svg.style.position = "absolute";
-      svg.style.left = "0";
-      svg.style.top = "0";
-    }
   };
+
   SVGOverlay.prototype.onRemove = function () {
     var svg = svgRef.current;
     if (!svg) return;
@@ -305,6 +330,11 @@ function initMap() {
     svg.style.position = "";
     svg.style.left = "";
     svg.style.top = "";
+    svg.style.overflow = "";
+    svg.style.display = "";
+    svg.style.pointerEvents = "";
+    svg.removeAttribute("width");
+    svg.removeAttribute("height");
     if (svgOriginalParentRef.current) {
       svgOriginalParentRef.current.appendChild(svg);
     }
@@ -313,6 +343,13 @@ function initMap() {
   var overlay = new SVGOverlay();
   overlay.setMap(map);
   gmapOverlayRef.current = overlay;
+
+  // Also redraw on resize so SVG matches new map size
+  google.maps.event.addListener(map, "idle", function () {
+    if (gmapOverlayRef.current && gmapOverlayRef.current.draw) {
+      try { gmapOverlayRef.current.draw(); } catch (e) {}
+    }
+  });
 
   map.addListener("click", function (e) {
     if (!mapMode) return;
@@ -343,8 +380,6 @@ function toggleMapView() {
       });
     }
   } else {
-    // Remove overlay first - this synchronously moves SVG back
-    // to its original parent via onRemove(), BEFORE React re-renders.
     if (gmapOverlayRef.current) {
       gmapOverlayRef.current.setMap(null);
     }
