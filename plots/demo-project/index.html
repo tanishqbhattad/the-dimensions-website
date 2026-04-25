@@ -125,6 +125,7 @@ var gmapDivRef = useRef(null);
 var gmapLoadedRef = useRef(false);
 var gmapOverlayRef = useRef(null);
 var svgOriginalParentRef = useRef(null);
+var svgOriginalNextSiblingRef = useRef(null);
 useEffect(function () {
 loadCloudConfig(function (data) {
 if (!data) return;
@@ -242,21 +243,30 @@ function initMap() {
   });
   var map = gmapRef.current;
 
-  // OverlayView embeds the SVG INTO the map's overlay pane.
-  // The pane moves with the map natively - no lag, no desync.
   function SVGOverlay() {}
   SVGOverlay.prototype = new google.maps.OverlayView();
+
+  // Snapshot where the SVG lives in the React tree so we can put it back later
+  function rememberSvgHome() {
+    var svg = svgRef.current;
+    if (!svg) return;
+    if (!svgOriginalParentRef.current) {
+      svgOriginalParentRef.current = svg.parentNode;
+      svgOriginalNextSiblingRef.current = svg.nextSibling;
+    }
+  }
 
   function attachSvgToPane(self) {
     var svg = svgRef.current;
     if (!svg) return;
     var panes = self.getPanes();
     if (!panes) return;
-    var pane = panes.overlayMouseTarget;
+    // overlayLayer: this is where polygons/polylines live. It receives the
+    // same CSS transforms as the map tiles during zoom animations, so our
+    // SVG content stays perfectly synced with the map.
+    var pane = panes.overlayLayer;
     if (svg.parentNode !== pane) {
-      if (!svgOriginalParentRef.current) {
-        svgOriginalParentRef.current = svg.parentNode;
-      }
+      rememberSvgHome();
       pane.appendChild(svg);
     }
   }
@@ -267,20 +277,17 @@ function initMap() {
     var mapDiv = gmapDivRef.current;
     var w = mapDiv ? mapDiv.clientWidth : 800;
     var h = mapDiv ? mapDiv.clientHeight : 600;
-    // Explicit pixel dimensions - "100%" doesn't work reliably in panes
     svg.setAttribute("width", String(w));
     svg.setAttribute("height", String(h));
-    svg.style.position = "absolute";
-    svg.style.left = "0px";
-    svg.style.top = "0px";
-    svg.style.width = w + "px";
-    svg.style.height = h + "px";
-    svg.style.overflow = "visible";
-    svg.style.display = "block";
-    svg.style.pointerEvents = "none";
+    // cssText overwrites everything in one go - prevents accumulating
+    // stale styles across re-renders
+    svg.style.cssText =
+      "position:absolute;left:0;top:0;width:" + w + "px;height:" + h + "px;" +
+      "overflow:visible;display:block;pointer-events:none;";
   }
 
   SVGOverlay.prototype.onAdd = function () {
+    rememberSvgHome();
     attachSvgToPane(this);
     styleSvgForPane();
   };
@@ -291,12 +298,11 @@ function initMap() {
     var g = gRef.current;
     if (!g) return;
 
-    // Re-attach SVG to pane in case React moved it back during a re-render
+    // Re-attach in case React moved the SVG back during a render
     attachSvgToPane(this);
     styleSvgForPane();
 
-    // Sample 3 reference points to build affine transform
-    // from SVG coords -> overlay pane pixel coords
+    // Build affine transform: SVG coords -> overlayLayer pixel coords
     var ll0 = svgToLatLng(0, 0);
     var ll1 = svgToLatLng(100, 0);
     var ll2 = svgToLatLng(0, 100);
@@ -324,32 +330,32 @@ function initMap() {
   SVGOverlay.prototype.onRemove = function () {
     var svg = svgRef.current;
     if (!svg) return;
-    // Reset SVG positioning back to its container layout
-    svg.style.width = "";
-    svg.style.height = "";
-    svg.style.position = "";
-    svg.style.left = "";
-    svg.style.top = "";
-    svg.style.overflow = "";
-    svg.style.display = "";
-    svg.style.pointerEvents = "";
+
+    // Move SVG back to its original spot in the React tree
+    if (svgOriginalParentRef.current) {
+      if (svgOriginalNextSiblingRef.current &&
+          svgOriginalNextSiblingRef.current.parentNode === svgOriginalParentRef.current) {
+        svgOriginalParentRef.current.insertBefore(svg, svgOriginalNextSiblingRef.current);
+      } else {
+        svgOriginalParentRef.current.appendChild(svg);
+      }
+    }
+
+    // Clear width/height attributes I set
     svg.removeAttribute("width");
     svg.removeAttribute("height");
-    if (svgOriginalParentRef.current) {
-      svgOriginalParentRef.current.appendChild(svg);
-    }
+
+    // Force-reset styles to what React expects in normal mode.
+    // Using cssText wipes all inline styles in one shot, then we set the
+    // exact set of properties React's JSX would set when mapMode=false.
+    svg.style.cssText =
+      "pointer-events:auto;position:absolute;left:0;top:0;" +
+      "width:100%;height:100%;overflow:visible;";
   };
 
   var overlay = new SVGOverlay();
   overlay.setMap(map);
   gmapOverlayRef.current = overlay;
-
-  // Also redraw on resize so SVG matches new map size
-  google.maps.event.addListener(map, "idle", function () {
-    if (gmapOverlayRef.current && gmapOverlayRef.current.draw) {
-      try { gmapOverlayRef.current.draw(); } catch (e) {}
-    }
-  });
 
   map.addListener("click", function (e) {
     if (!mapMode) return;
@@ -384,10 +390,19 @@ function toggleMapView() {
       gmapOverlayRef.current.setMap(null);
     }
     setMapMode(false);
-    if (savedMatRef.current) {
-      matRef.current = savedMatRef.current;
+    // After React rerenders for mapMode=false, restore the layout matrix
+    // and ensure SVG sizing is correct in normal mode
+    setTimeout(function () {
+      var el = containerRef.current;
+      if (!el || !matRef.current) return;
+      if (savedMatRef.current) {
+        matRef.current = savedMatRef.current;
+      } else {
+        matRef.current = computeInitMatrix(el.clientWidth, el.clientHeight);
+        baseScaleRef.current = mScale(matRef.current);
+      }
       flushMatrix();
-    }
+    }, 50);
   }
 }
 
