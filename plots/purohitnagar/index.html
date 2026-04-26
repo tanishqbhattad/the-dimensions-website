@@ -1277,10 +1277,10 @@ opacity: 0.92
 /*#__PURE__*/React.createElement("div", {
 style: { position: "absolute", left: m ? 10 : 16,
 bottom: m ? "calc(120px + env(safe-area-inset-bottom, 0px))" : 140,
-zIndex: 10, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0, position: "relative" }
+zIndex: 10, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 0, minWidth: "120px" }
 },
 statusFilter && /*#__PURE__*/React.createElement("div", {
-style: { position: "absolute", left: "calc(100% + 8px)", top: 0, background: "rgba(14,12,9,0.94)", borderRadius: 12,
+style: { position: "absolute", left: "calc(100% + 8px)", bottom: 0, top: "auto", background: "rgba(14,12,9,0.94)", borderRadius: 12,
 padding: 10, border: "1px solid #ffffff10",
 display: "flex", flexDirection: "column", gap: 5 }
 },
@@ -1298,7 +1298,7 @@ opacity: on ? 1 : .35, transition: "opacity .2s" }
 })
 ),
 typesFilter && /*#__PURE__*/React.createElement("div", {
-style: { position: "absolute", left: "calc(100% + 8px)", top: -48, background: "rgba(14,12,9,0.94)", borderRadius: 12,
+style: { position: "absolute", left: "calc(100% + 8px)", bottom: 0, top: "auto", background: "rgba(14,12,9,0.94)", borderRadius: 12,
 padding: 10, border: "1px solid #ffffff10",
 display: "flex", flexDirection: "column", gap: 5 }
 },
