@@ -126,6 +126,7 @@ var gmapLoadedRef = useRef(false);
 var gmapOverlayRef = useRef(null);
 var svgOriginalParentRef = useRef(null);
 var svgOriginalNextSiblingRef = useRef(null);
+var rafLoopRef = useRef(null);
 useEffect(function () {
 loadCloudConfig(function (data) {
 if (!data) return;
@@ -229,7 +230,7 @@ function initMap() {
   if (!gmapDivRef.current) return;
   var center = svgToLatLng(195.28, 183.58);
   gmapRef.current = new google.maps.Map(gmapDivRef.current, {
-    center: center, zoom: 18, mapTypeId: "hybrid",
+    center: center, zoom: 17, mapTypeId: "hybrid",
     disableDefaultUI: true, gestureHandling: "greedy",
     tilt: 0, rotateControl: false, heading: 0,
     mapTypeControl: true,
@@ -242,11 +243,13 @@ function initMap() {
     zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM }
   });
   var map = gmapRef.current;
+  // Save defaults so home button (or any reset) can return to them
+  map.__initialCenter = center;
+  map.__initialZoom = 17;
 
   function SVGOverlay() {}
   SVGOverlay.prototype = new google.maps.OverlayView();
 
-  // Snapshot where the SVG lives in the React tree so we can put it back later
   function rememberSvgHome() {
     var svg = svgRef.current;
     if (!svg) return;
@@ -261,9 +264,6 @@ function initMap() {
     if (!svg) return;
     var panes = self.getPanes();
     if (!panes) return;
-    // overlayLayer: this is where polygons/polylines live. It receives the
-    // same CSS transforms as the map tiles during zoom animations, so our
-    // SVG content stays perfectly synced with the map.
     var pane = panes.overlayLayer;
     if (svg.parentNode !== pane) {
       rememberSvgHome();
@@ -279,30 +279,17 @@ function initMap() {
     var h = mapDiv ? mapDiv.clientHeight : 600;
     svg.setAttribute("width", String(w));
     svg.setAttribute("height", String(h));
-    // cssText overwrites everything in one go - prevents accumulating
-    // stale styles across re-renders
     svg.style.cssText =
       "position:absolute;left:0;top:0;width:" + w + "px;height:" + h + "px;" +
       "overflow:visible;display:block;pointer-events:none;";
   }
 
-  SVGOverlay.prototype.onAdd = function () {
-    rememberSvgHome();
-    attachSvgToPane(this);
-    styleSvgForPane();
-  };
-
-  SVGOverlay.prototype.draw = function () {
-    var proj = this.getProjection();
+  function redrawSvg(self) {
+    var proj = self.getProjection();
     if (!proj) return;
     var g = gRef.current;
     if (!g) return;
 
-    // Re-attach in case React moved the SVG back during a render
-    attachSvgToPane(this);
-    styleSvgForPane();
-
-    // Build affine transform: SVG coords -> overlayLayer pixel coords
     var ll0 = svgToLatLng(0, 0);
     var ll1 = svgToLatLng(100, 0);
     var ll2 = svgToLatLng(0, 100);
@@ -325,13 +312,48 @@ function initMap() {
       var z = mScale(matRef.current) / baseScaleRef.current;
       infraLabelsRef.current.setAttribute("visibility", z >= 0.9 ? "visible" : "hidden");
     }
+  }
+
+  function startRafLoop(self) {
+    function tick() {
+      if (!gmapOverlayRef.current || gmapOverlayRef.current !== self) {
+        rafLoopRef.current = null;
+        return;
+      }
+      attachSvgToPane(self);
+      redrawSvg(self);
+      rafLoopRef.current = requestAnimationFrame(tick);
+    }
+    if (rafLoopRef.current) cancelAnimationFrame(rafLoopRef.current);
+    rafLoopRef.current = requestAnimationFrame(tick);
+  }
+
+  function stopRafLoop() {
+    if (rafLoopRef.current) {
+      cancelAnimationFrame(rafLoopRef.current);
+      rafLoopRef.current = null;
+    }
+  }
+
+  SVGOverlay.prototype.onAdd = function () {
+    rememberSvgHome();
+    attachSvgToPane(this);
+    styleSvgForPane();
+    startRafLoop(this);
+  };
+
+  SVGOverlay.prototype.draw = function () {
+    if (!this.getProjection()) return;
+    attachSvgToPane(this);
+    styleSvgForPane();
+    redrawSvg(this);
   };
 
   SVGOverlay.prototype.onRemove = function () {
+    stopRafLoop();
     var svg = svgRef.current;
     if (!svg) return;
 
-    // Move SVG back to its original spot in the React tree
     if (svgOriginalParentRef.current) {
       if (svgOriginalNextSiblingRef.current &&
           svgOriginalNextSiblingRef.current.parentNode === svgOriginalParentRef.current) {
@@ -341,13 +363,8 @@ function initMap() {
       }
     }
 
-    // Clear width/height attributes I set
     svg.removeAttribute("width");
     svg.removeAttribute("height");
-
-    // Force-reset styles to what React expects in normal mode.
-    // Using cssText wipes all inline styles in one shot, then we set the
-    // exact set of properties React's JSX would set when mapMode=false.
     svg.style.cssText =
       "pointer-events:auto;position:absolute;left:0;top:0;" +
       "width:100%;height:100%;overflow:visible;";
@@ -376,6 +393,10 @@ function toggleMapView() {
     savedMatRef.current = matRef.current ? matRef.current.slice() : null;
     if (gmapRef.current) {
       setMapMode(true);
+      // Always reset to initial center & zoom when entering map view
+      var m = gmapRef.current;
+      if (m.__initialCenter) m.setCenter(m.__initialCenter);
+      if (m.__initialZoom) m.setZoom(m.__initialZoom);
       if (gmapOverlayRef.current && !gmapOverlayRef.current.getMap()) {
         gmapOverlayRef.current.setMap(gmapRef.current);
       }
@@ -390,11 +411,9 @@ function toggleMapView() {
       gmapOverlayRef.current.setMap(null);
     }
     setMapMode(false);
-    // After React rerenders for mapMode=false, restore the layout matrix
-    // and ensure SVG sizing is correct in normal mode
     setTimeout(function () {
       var el = containerRef.current;
-      if (!el || !matRef.current) return;
+      if (!el) return;
       if (savedMatRef.current) {
         matRef.current = savedMatRef.current;
       } else {
@@ -1255,7 +1274,15 @@ else prompt("Copy this link:", window.location.href);
 ),
 /*#__PURE__*/React.createElement("div", {
 style: Object.assign({}, S.iconBtn, { background: sel ? "#4ade8020" : "rgba(14,12,9,0.72)", borderColor: sel ? "#4ade8040" : "rgba(255,243,220,0.09)" }),
-title: "Reset View", onClick: resetView
+title: "Reset View", onClick: function () {
+  if (mapMode) {
+    // Exit map view and reset to the default SVG home view
+    toggleMapView();
+    setTimeout(function () { resetView(); }, 100);
+  } else {
+    resetView();
+  }
+}
 },
 /*#__PURE__*/React.createElement("svg", { width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2" },
 /*#__PURE__*/React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" }),
