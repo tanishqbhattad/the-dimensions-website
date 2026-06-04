@@ -1,39 +1,93 @@
 {
   "company": {
     "tagline": "Crafting Timeless Spaces",
-    "about": "The Dimensions is a leading architectural and interior design firm based in Nashik, with over 25 years of expertise in creating spaces that blend functionality, aesthetics, and sustainability. From visionary concepts to inspiring built environments — we turn ideas into reality.",
-    "philosophy": "We believe that great architecture is not about imposing form, but about discovering the natural harmony between space, light, material, and the lives that unfold within. Every project is an opportunity to create something that endures — not just structurally, but emotionally.",
+    "about": "The Dimensions is a Nashik-based architecture and interior design studio shaping residential, commercial, and development projects with clarity, warmth, and long-term craft. From early concept to built detail, the studio turns ambitious spatial ideas into places that feel considered, useful, and memorable.",
+    "philosophy": "Great architecture should feel inevitable: light arriving at the right time, materials aging with grace, and every plan quietly serving the lives inside it.",
     "philosophyAuthor": "Principal Architect, The Dimensions",
-    "phone": "+91 253 258 1707",
-    "email": "info@thedimensions.co",
-    "address": "Aditya Towers, 1, near Gurukripa Buildcon, Canada Corner, Nashik, Maharashtra 422002",
-    "whatsapp": "912532581707",
-    "years": 25,
-    "projects": 100,
-    "cities": 10,
-    "clients": 100,
-    "hours": "Monday — Saturday: 10:00 AM — 7:00 PM"
+    "phone": "+91 253 258 1707, +91 9890041283",
+    "email": "projects@thedimensions.co",
+    "address": "Aditya Towers, 1, near Gurukripa Building, Canada Corner, Nashik, Maharashtra 422005",
+    "whatsapp": "919890041283",
+    "years": 30,
+    "projects": 125,
+    "cities": 12,
+    "clients": 150,
+    "hours": "Monday - Saturday: 10:00 AM - 7:00 PM"
   },
   "projects": [
     {
-      "id": 1,
-      "title": "Project One",
+      "id": 6,
+      "slug": "brickline-residences",
+      "title": "Brickline Residences",
       "category": "Residential",
-      "location": "Nashik",
-      "year": "2023",
-      "description": "A luxury residential project.",
-      "imageUrl": "",
-      "featured": true
+      "location": "Govind Nagar, Nashik",
+      "year": "2023-2025",
+      "client": "Shreya Developers",
+      "architects": "The Dimensions",
+      "builtUpArea": "Approx. 45,000 sq. ft.",
+      "typicalFloorPlate": "Approx. 5,750 sq. ft.",
+      "programme": "Ground-floor commercial + seven residential floors",
+      "concept": "A contemporary mixed-use building where an active commercial base supports a warm, brick-clad residential volume shaped by balconies, greenery, and a strong urban corner identity.",
+      "description": "Brickline Residences is a mixed-use development in Govind Nagar, Nashik, designed by The Dimensions for Shreya Developers. The project combines ground-floor commercial shops with seven levels of residential apartments above, creating an active urban frontage while maintaining a refined residential identity. Spread across approximately 45,000 sq. ft., the building is shaped by warm brick, crisp white framing, recessed windows, glass balconies, and integrated greenery.",
+      "longDescription": "Located in the residential suburb of Govind Nagar, Nashik, Brickline Residences brings together everyday urban convenience and refined residential living. Commercial shops activate the front edge of the ground floor, while seven residential levels above are planned around efficient floor plates, balconies, natural light, ventilation, and planted edges. The architectural language balances exposed brick surfaces with clean white framing elements, giving the building a strong corner presence while keeping the expression contemporary and restrained.",
+      "imageUrl": "images/projects/brickline-residences/cover.webp",
+      "altText": "Brickline Residences residential and commercial building in Govind Nagar Nashik by The Dimensions",
+      "galleryImages": [
+        "images/projects/brickline-residences/cover.webp",
+        "images/projects/brickline-residences/gallery-01.webp",
+        "images/projects/brickline-residences/gallery-02.webp",
+        "images/projects/brickline-residences/gallery-03.webp",
+        "images/projects/brickline-residences/gallery-04.webp",
+        "images/projects/brickline-residences/gallery-05.webp",
+        "images/projects/brickline-residences/gallery-06.webp",
+        "images/projects/brickline-residences/gallery-07.webp",
+        "images/projects/brickline-residences/gallery-08.webp",
+        "images/projects/brickline-residences/gallery-09.webp",
+        "images/projects/brickline-residences/gallery-10.webp",
+        "images/projects/brickline-residences/gallery-11.webp"
+      ],
+      "featured": true,
+      "tileImage": "images/projects/brickline-residences/gallery-01.webp"
     },
     {
       "id": 2,
-      "title": "Project Two",
+      "title": "The Civic Edge",
       "category": "Commercial",
       "location": "Pune",
-      "year": "2022",
-      "description": "A modern commercial space.",
-      "imageUrl": "",
+      "year": "2024",
+      "description": "A commercial workspace with clean structural expression, layered circulation, and a strong street-facing identity.",
+      "imageUrl": "images/project2.jpg",
       "featured": true
+    },
+    {
+      "id": 3,
+      "title": "Shadow Line Residence",
+      "category": "Residential",
+      "location": "Nashik",
+      "year": "2024",
+      "description": "A warm, material-rich residence where deep openings, filtered light, and measured proportions create a composed living experience.",
+      "imageUrl": "images/project3.jpg",
+      "featured": true
+    },
+    {
+      "id": 4,
+      "title": "Studio Atrium",
+      "category": "Commercial",
+      "location": "Mumbai",
+      "year": "2023",
+      "description": "An interior-led project built around hospitality, tactility, and a memorable atrium sequence.",
+      "imageUrl": "images/project4.jpg",
+      "featured": true
+    },
+    {
+      "id": 5,
+      "title": "Industrial Court",
+      "category": "Planning",
+      "location": "Aurangabad",
+      "year": "2023",
+      "description": "A compact planning study focused on service efficiency, daylight, circulation, and a disciplined architectural presence.",
+      "imageUrl": "images/project5.jpg",
+      "featured": false
     }
   ],
   "team": [
@@ -42,60 +96,76 @@
       "name": "Sachin Bhattad",
       "role": "Principal Architect & Founder",
       "imageUrl": "",
-      "bio": ""
+      "bio": "Leads concept, planning, and design direction across architecture and interiors."
     },
     {
       "id": 2,
       "name": "Nayana Bhattad",
       "role": "Principal Architect",
-      "bio": "",
+      "bio": "Guides design detailing, client coordination, and studio delivery.",
       "imageUrl": ""
     },
     {
       "id": 3,
       "name": "Hemant Patel",
       "role": "Interior Design Head",
-      "bio": "",
+      "bio": "Leads interior concepts, material palettes, and execution detailing.",
       "imageUrl": ""
     },
     {
       "id": 4,
       "name": "Kishor Khandelwal",
       "role": "Legal Head",
-      "bio": "",
+      "bio": "Supports approvals, documentation, and project compliance.",
       "imageUrl": ""
     },
     {
       "id": 5,
       "name": "Vaishnavi Chumble",
       "role": "Junior Designer",
-      "bio": "",
+      "bio": "Supports design development, drawings, and visual studies.",
       "imageUrl": ""
     },
     {
       "id": 6,
       "name": "Pratik Aute",
       "role": "Junior Engineer",
-      "bio": "",
+      "bio": "Supports site coordination, technical review, and project execution.",
       "imageUrl": ""
     }
   ],
   "testimonials": [
     {
-      "id": 1,
-      "quote": "The Dimensions transformed our vision into a home that truly reflects who we are. Their attention to detail is unmatched.",
-      "name": "Rajesh & Priya Kulkarni",
-      "project": "Villa Serenity, Nashik"
+      "id": 2,
+      "quote": "They understood both the business need and the emotional impact of the space. The final design gives our office a sharp identity without losing warmth.",
+      "name": "Amit Deshmukh",
+      "project": "The Civic Edge, Pune"
     }
   ],
   "press": [
+    {
+      "id": 3,
+      "source": "Project Feature",
+      "title": "Brickline Residences: A Warm Urban Response in Govind Nagar",
+      "date": "May 2026",
+      "url": "press/brickline-residences/",
+      "imageUrl": "images/projects/brickline-residences/cover.webp"
+    },
     {
       "id": 1,
       "source": "Architecture Digest India",
       "title": "The Dimensions: Redefining Nashik's Architectural Identity",
       "date": "January 2024",
       "url": "",
-      "imageUrl": ""
+      "imageUrl": "images/project3.jpg"
+    },
+    {
+      "id": 2,
+      "source": "Studio Notes",
+      "title": "How Regional Practices Are Designing More Human Workplaces",
+      "date": "August 2025",
+      "url": "",
+      "imageUrl": "images/project4.jpg"
     }
   ]
 }
