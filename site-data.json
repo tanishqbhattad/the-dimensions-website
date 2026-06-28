@@ -50,6 +50,34 @@
       "tileImage": "images/projects/brickline-residences/gallery-01.webp"
     },
     {
+      "id": 7,
+      "slug": "poddar-international-school",
+      "title": "Poddar International School",
+      "category": "Institutional",
+      "location": "Near Ozar, Nashik",
+      "year": "2024",
+      "client": "Poddar International School",
+      "architects": "The Dimensions",
+      "builtUpArea": "Approx. 35,000 sq. ft.",
+      "configuration": "Ground + 3 Floors (G+3)",
+      "programme": "Classrooms, staff and administrative spaces, terraces, and shared learning areas across four levels",
+      "concept": "A highway-fronting primary school where deep brick jaali screens filter light and heat across a stacked, terrace-broken classroom section, announced by a shaded entrance portico and a planted approach.",
+      "description": "Poddar International School is a primary school near Ozar on the Mumbai-Agra Highway, designed as a 35,000 sq. ft. G+3 educational building. The project organizes classrooms, administrative areas, shared learning spaces, and terraces across four levels, with deep terracotta brick jaali screens giving the school a strong identity while filtering heat and light for the classrooms within.",
+      "longDescription": "Sited along the Mumbai-Agra Highway near Ozar, Poddar International School occupies a prominent edge condition: a building that must register at highway scale while still functioning as an intimate, daily environment for young children. The facade is composed of full-height terracotta brick jaali screens set against a restrained white plastered base. These screens filter direct sun, soften classroom light, support natural ventilation, and give the institution a legible architectural rhythm. Open-air stairs, landings, and intermediate terraces break down the verticality of the G+3 section, while the entrance portico creates a shaded threshold for assembly, pickup, and drop-off. Dense planting and informal seating soften the transition from highway edge to learning environment.",
+      "imageUrl": "images/projects/poddar-international-school/cover.webp",
+      "altText": "Poddar International School primary school near Ozar Nashik by The Dimensions",
+      "galleryImages": [
+        "images/projects/poddar-international-school/cover.webp",
+        "images/projects/poddar-international-school/gallery-01.webp",
+        "images/projects/poddar-international-school/gallery-02.webp",
+        "images/projects/poddar-international-school/gallery-03.webp",
+        "images/projects/poddar-international-school/gallery-04.webp",
+        "images/projects/poddar-international-school/gallery-05.webp"
+      ],
+      "featured": true,
+      "tileImage": "images/projects/poddar-international-school/gallery-01.webp"
+    },
+    {
       "id": 2,
       "title": "The Civic Edge",
       "category": "Commercial",
