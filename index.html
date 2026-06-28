@@ -916,6 +916,15 @@
       line-height: 1.9; color: rgba(255,255,255,0.6); margin-bottom: 48px;
       max-width: 700px;
     }
+    .project-modal-actions { display: none; gap: 12px; flex-wrap: wrap; margin: 24px 0 34px; }
+    .project-modal-actions.open { display: flex; }
+    .project-modal-action {
+      font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600;
+      letter-spacing: 2.5px; text-transform: uppercase; text-decoration: none;
+      color: #FFFFFF; background: #9A8777; border: 1px solid #9A8777;
+      padding: 14px 24px; transition: all 0.3s ease;
+    }
+    .project-modal-action:hover { background: #FFFFFF; border-color: #FFFFFF; color: #1A1A1A; }
     .project-modal-details {
       display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
       border-top: 1px solid rgba(255,255,255,0.1); padding-top: 32px; margin-bottom: 48px;
@@ -1195,6 +1204,9 @@
     <div class="project-modal-cat" id="modal-cat"></div>
     <h2 class="project-modal-title" id="modal-title"></h2>
     <div class="project-modal-location" id="modal-location"></div>
+    <div class="project-modal-actions" id="modal-actions">
+      <a class="project-modal-action" id="modal-plot-viewer" href="#" target="_blank" rel="noopener">Plot Web Viewer</a>
+    </div>
     <p class="project-modal-desc" id="modal-desc"></p>
     <div class="project-modal-details">
       <div>
@@ -2161,6 +2173,37 @@ let _sd = {
       "tileImage": "images/projects/poddar-international-school/gallery-01.webp"
     },
     {
+      "id": 8,
+      "slug": "purohit-nagar",
+      "title": "Purohit Nagar",
+      "category": "Planning",
+      "location": "Trimbakeshwar, Nashik",
+      "year": "2024",
+      "client": "Purohit Nagar",
+      "architects": "The Dimensions",
+      "typology": "Residential Layout - Plotted Development (NA Plots)",
+      "totalPlots": "177",
+      "plotTypologies": "Detached, Semi-Detached, Row-House",
+      "plotSizeRange": "Approx. 71 sq. m. - 1,236 sq. m.",
+      "programme": "Residential plotted layout with internal roads, open spaces, landscape zones, and plotted ownership formats",
+      "concept": "A graded plotted layout in Trimbakeshwar offering row-house, semi-detached, and detached NA plots within a single masterplanned community, positioned at the intersection of pilgrimage-town growth and long-term land value.",
+      "description": "Purohit Nagar is a 177-plot residential layout masterplan in Trimbakeshwar, Nashik, offering NA plots across row-house, semi-detached, and detached typologies. The layout balances density and openness, clustering compact plots along walkable streets while reserving larger detached plots for more independent holdings.",
+      "longDescription": "Located in Trimbakeshwar, one of Nashik's most significant pilgrimage towns and the site of the upcoming Kumbh Mela, Purohit Nagar is a plotted residential layout designed to offer a range of ownership formats within a single masterplanned community. The layout accommodates 177 NA plots across three typologies: compact row-house plots, mid-sized semi-detached plots, and larger standalone detached plots. Its planning strategy creates a deliberate gradation of plot sizes and built forms, with efficient walkable streets, clear internal road hierarchy, open spaces, landscape buffers, and flexible plot formats suited to both residential buyers and long-term land investment.",
+      "imageUrl": "images/projects/purohit-nagar/cover.webp",
+      "altText": "Purohit Nagar plotted residential layout masterplan in Trimbakeshwar Nashik by The Dimensions",
+      "galleryImages": [
+        "images/projects/purohit-nagar/cover.webp",
+        "images/projects/purohit-nagar/gallery-01.webp",
+        "images/projects/purohit-nagar/gallery-02.webp",
+        "images/projects/purohit-nagar/gallery-03.webp",
+        "images/projects/purohit-nagar/gallery-04.webp",
+        "images/projects/purohit-nagar/gallery-05.webp"
+      ],
+      "plotViewerUrl": "https://www.thedimensions.co/plots/purohitnagar/",
+      "featured": true,
+      "tileImage": "images/projects/purohit-nagar/cover.webp"
+    },
+    {
       "id": 2,
       "title": "The Civic Edge",
       "category": "Commercial",
@@ -2314,6 +2357,7 @@ function populateFromSiteData() {
     typicalFloorPlate: p.typicalFloorPlate || '',
     programme: p.programme || '',
     concept: p.concept || '',
+    plotViewerUrl: p.plotViewerUrl || '',
     altText: p.altText || p.title || '',
     galleryImages: p.galleryImages || [],
     featured: !!p.featured,
@@ -2644,6 +2688,15 @@ function openProjectModal(project) {
   document.getElementById('modal-cat').textContent = project.category;
   document.getElementById('modal-title').textContent = project.title;
   document.getElementById('modal-location').textContent = project.location + ', Maharashtra';
+  const modalActions = document.getElementById('modal-actions');
+  const plotViewer = document.getElementById('modal-plot-viewer');
+  if (project.plotViewerUrl) {
+    plotViewer.href = project.plotViewerUrl;
+    modalActions.classList.add('open');
+  } else {
+    plotViewer.removeAttribute('href');
+    modalActions.classList.remove('open');
+  }
   document.getElementById('modal-detail-cat').textContent = project.category;
   document.getElementById('modal-detail-loc').textContent = project.location + ', Maharashtra';
   document.getElementById('modal-detail-year').textContent = project.year;
