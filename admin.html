@@ -536,7 +536,7 @@ function openProjectModal(id) {
     </div>
     <div class="form-group"><label class="form-label">Location</label><input class="form-input" id="m-proj-loc" value="${esc(p?.location||'')}" placeholder="e.g. Nashik" /></div>
     <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="m-proj-desc">${esc(p?.description||'')}</textarea></div>
-    <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" id="m-proj-img" value="${esc(p?.imageUrl||'')}" placeholder="https://i.ibb.co/..." oninput="previewImg(this,'m-proj-preview')" /><div class="form-hint">Upload to imgbb.com and paste the direct link</div>${p?.imageUrl?`<img class="img-preview" id="m-proj-preview" src="${esc(p.imageUrl)}"/>`:`<img class="img-preview" id="m-proj-preview" style="display:none"/>`}</div>
+    <div class="form-group"><label class="form-label">Image URL</label><input class="form-input" id="m-proj-img" value="${esc(p?.imageUrl||'')}" placeholder="https://i.ibb.co/..." oninput="previewImg(this,'m-proj-preview')" /><div class="form-hint">Upload to imgbb.com and paste the direct link</div>${p?.imageUrl?`<img class="img-preview" id="m-proj-preview" src="${esc(p.imageUrl)}" alt="${esc(p.title || 'Project preview image')}"/>`:`<img class="img-preview" id="m-proj-preview" alt="Project preview image" style="display:none"/>`}</div>
     <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="m-proj-featured" ${p?.featured?'checked':''}/><span class="form-label" style="margin:0">Featured on Homepage</span></label></div>
   `, () => {
     const data = {
@@ -567,7 +567,7 @@ function renderTeam() {
   const grid = document.getElementById('team-grid');
   grid.innerHTML = siteData.team.map(t => `
     <div class="card">
-      ${t.imageUrl ? `<img class="card-img" src="${esc(t.imageUrl)}" style="aspect-ratio:3/4" />` : `<div class="card-img" style="aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:12px">No photo</div>`}
+      ${t.imageUrl ? `<img class="card-img" src="${esc(t.imageUrl)}" alt="${esc(t.name)}" style="aspect-ratio:3/4" />` : `<div class="card-img" style="aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.15);font-size:12px">No photo</div>`}
       <div class="card-title">${esc(t.name)}</div>
       <div class="card-meta">${esc(t.role)}</div>
       <div class="card-actions">
@@ -584,7 +584,7 @@ function openTeamModal(id) {
     <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="m-team-name" value="${esc(t?.name||'')}" /></div>
     <div class="form-group"><label class="form-label">Role / Title</label><input class="form-input" id="m-team-role" value="${esc(t?.role||'')}" placeholder="e.g. Senior Architect" /></div>
     <div class="form-group"><label class="form-label">Bio (optional)</label><textarea class="form-textarea" id="m-team-bio">${esc(t?.bio||'')}</textarea></div>
-    <div class="form-group"><label class="form-label">Photo URL</label><input class="form-input" id="m-team-img" value="${esc(t?.imageUrl||'')}" oninput="previewImg(this,'m-team-preview')" />${t?.imageUrl?`<img class="img-preview" id="m-team-preview" src="${esc(t.imageUrl)}"/>`:`<img class="img-preview" id="m-team-preview" style="display:none"/>`}</div>
+    <div class="form-group"><label class="form-label">Photo URL</label><input class="form-input" id="m-team-img" value="${esc(t?.imageUrl||'')}" oninput="previewImg(this,'m-team-preview')" />${t?.imageUrl?`<img class="img-preview" id="m-team-preview" src="${esc(t.imageUrl)}" alt="${esc(t.name || 'Team member preview image')}"/>`:`<img class="img-preview" id="m-team-preview" alt="Team member preview image" style="display:none"/>`}</div>
   `, () => {
     const data = { id: t ? t.id : nextId(siteData.team), name: document.getElementById('m-team-name').value, role: document.getElementById('m-team-role').value, bio: document.getElementById('m-team-bio').value, imageUrl: document.getElementById('m-team-img').value };
     if (t) Object.assign(t, data); else siteData.team.push(data);
@@ -659,7 +659,7 @@ function openPressModal(id) {
     <div class="form-group"><label class="form-label">Article Title</label><input class="form-input" id="m-press-title" value="${esc(p?.title||'')}" /></div>
     <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="m-press-date" value="${esc(p?.date||'')}" placeholder="e.g. January 2024" /></div>
     <div class="form-group"><label class="form-label">Article URL (optional)</label><input class="form-input" id="m-press-url" value="${esc(p?.url||'')}" /></div>
-    <div class="form-group"><label class="form-label">Cover Image URL (optional)</label><input class="form-input" id="m-press-img" value="${esc(p?.imageUrl||'')}" oninput="previewImg(this,'m-press-preview')" />${p?.imageUrl?`<img class="img-preview" id="m-press-preview" src="${esc(p.imageUrl)}"/>`:`<img class="img-preview" id="m-press-preview" style="display:none"/>`}</div>
+    <div class="form-group"><label class="form-label">Cover Image URL (optional)</label><input class="form-input" id="m-press-img" value="${esc(p?.imageUrl||'')}" oninput="previewImg(this,'m-press-preview')" />${p?.imageUrl?`<img class="img-preview" id="m-press-preview" src="${esc(p.imageUrl)}" alt="${esc(p.title || 'Press cover preview image')}"/>`:`<img class="img-preview" id="m-press-preview" alt="Press cover preview image" style="display:none"/>`}</div>
   `, () => {
     const data = { id: p ? p.id : nextId(siteData.press), source: document.getElementById('m-press-source').value, title: document.getElementById('m-press-title').value, date: document.getElementById('m-press-date').value, url: document.getElementById('m-press-url').value, imageUrl: document.getElementById('m-press-img').value };
     if (p) Object.assign(p, data); else siteData.press.push(data);

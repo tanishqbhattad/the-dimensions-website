@@ -1,72 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://thedimensions.co/</loc>
+    <loc>https://www.thedimensions.co/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/architect-in-nashik/</loc>
+    <loc>https://www.thedimensions.co/architect-in-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/architects-in-nashik/</loc>
+    <loc>https://www.thedimensions.co/architects-in-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.98</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/planner-in-nashik/</loc>
+    <loc>https://www.thedimensions.co/planner-in-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/building-permissions-in-nashik/</loc>
+    <loc>https://www.thedimensions.co/residential-architects-in-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/bpms-approvals-nashik/</loc>
+    <loc>https://www.thedimensions.co/commercial-architects-in-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/sachinbhattad/</loc>
+    <loc>https://www.thedimensions.co/school-architects-in-nashik/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.86</priority>
+  </url>
+  <url>
+    <loc>https://www.thedimensions.co/building-permissions-in-nashik/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.thedimensions.co/building-approval-architects-in-nashik/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.thedimensions.co/bpms-approvals-nashik/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.thedimensions.co/sachinbhattad/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/blog/</loc>
+    <loc>https://www.thedimensions.co/blog/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/press/brickline-residences/</loc>
+    <loc>https://www.thedimensions.co/press/brickline-residences/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.82</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/blog/why-choose-the-dimensions/</loc>
+    <loc>https://www.thedimensions.co/blog/why-choose-the-dimensions/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.82</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/blog/how-to-choose-architect-in-nashik/</loc>
+    <loc>https://www.thedimensions.co/blog/how-to-choose-architect-in-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.82</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/blog/bungalow-planning-mistakes-nashik/</loc>
+    <loc>https://www.thedimensions.co/blog/bungalow-planning-mistakes-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.78</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/blog/fsi-tdr-planning-nashik/</loc>
+    <loc>https://www.thedimensions.co/blog/fsi-tdr-planning-nashik/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.78</priority>
   </url>
   <url>
-    <loc>https://thedimensions.co/blog/architecture-vs-interior-design/</loc>
+    <loc>https://www.thedimensions.co/blog/architecture-vs-interior-design/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.76</priority>
   </url>
