@@ -265,7 +265,7 @@
     .nav.scrolled .nav-link.active::after { background: #9A8777; }
 
     /* ─── Hero ─── */
-    .hero { position: relative; width: 100%; height: 100vh; overflow: hidden; background: #1A1A1A; }
+    .hero { position: relative; width: 100%; height: 100vh; height: 100svh; overflow: hidden; background: #1A1A1A; }
     .hero-slide {
       position: absolute; inset: 0; opacity: 0;
       transition: opacity 1.2s cubic-bezier(0.45, 0, 0.15, 1);
@@ -299,10 +299,10 @@
     }
     .hero-dots { position: absolute; bottom: 50px; left: 60px; z-index: 10; display: flex; gap: 12px; align-items: center; }
     .hero-dot {
-      height: 3px; border: none; cursor: pointer; border-radius: 2px;
-      transition: all 0.5s ease; background: rgba(255,255,255,0.4); width: 12px;
+      height: 24px; border: none; cursor: pointer; border-radius: 2px;
+      transition: all 0.5s ease; width: 16px; background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4)) center/100% 3px no-repeat;
     }
-    .hero-dot.active { background: #9A8777; width: 40px; }
+    .hero-dot.active { background: linear-gradient(#9A8777, #9A8777) center/100% 3px no-repeat; width: 40px; }
     .hero-counter {
       font-family: 'Montserrat', sans-serif; font-size: 11px;
       color: rgba(255,255,255,0.5); margin-left: 12px; letter-spacing: 1px;
@@ -813,7 +813,7 @@
     .contact-form { display: flex; flex-direction: column; gap: 20px; }
     .contact-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .contact-input, .contact-textarea {
-      font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 300;
+      font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 300;
       padding: 14px 0; border: none; border-bottom: 1px solid #E8E4E0;
       background: transparent; color: #1A1A1A; outline: none;
       transition: border-color 0.3s;
@@ -947,7 +947,7 @@
     .mobile-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .mobile-overlay .nav-link {
-      font-size: 14px; letter-spacing: 3px; padding: 8px 0;
+      font-size: 16px; letter-spacing: 3px; padding: 14px 0; min-height: 44px;
       color: #1A1A1A; opacity: 1;
     }
     .mobile-overlay .nav-link.active { color: #9A8777; }
@@ -1172,7 +1172,16 @@
     }
 
     @media (max-width: 480px) {
-      .hero { height: 80vh; }
+      .hero { height: 92svh; }
+      .section { padding: 48px 18px; }
+      .section-intro { padding: 64px 18px; }
+      .hero-content { left: 20px; right: 20px; bottom: 92px; }
+      .hero-dots { left: 20px; }
+      .nav-inner { padding: 0 16px; }
+      .stats-grid { gap: 20px; }
+      .intro-text { font-size: 14px; }
+      .ai-chat-trigger { bottom: 16px; right: 16px; width: 48px; height: 48px; }
+      .footer-social { flex-wrap: wrap; }
       .hero-title { font-size: 28px; }
       .hero-type { font-size: 10px; }
       .intro-title { font-size: 28px; }
@@ -1199,7 +1208,7 @@
       opacity: 0; animation: srFade 0.8s ease 0.15s forwards;
     }
     .sr-logo {
-      display: block; height: clamp(30px, 7vw, 52px); width: auto; margin: 26px auto 0;
+      display: block; height: clamp(48px, 13vw, 76px); width: auto; max-width: 86vw; margin: 26px auto 0;
       opacity: 0; transform: translateY(14px);
       animation: srRise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
     }
@@ -1207,17 +1216,12 @@
       width: 0; height: 1px; background: #C9BBA8; margin: 30px auto 0;
       animation: srRule 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.85s forwards;
     }
-    .sr-tag {
-      font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 400;
-      font-style: italic; color: #6B6258; margin-top: 22px;
-      opacity: 0; animation: srFade 0.9s ease 1.15s forwards;
-    }
     @keyframes srFade { to { opacity: 1; } }
     @keyframes srRise { to { opacity: 1; transform: translateY(0); } }
     @keyframes srRule { to { width: min(200px, 52vw); } }
     @media (prefers-reduced-motion: reduce) {
       .site-reveal { display: none; }
-      .sr-est, .sr-logo, .sr-tag { animation: none; opacity: 1; transform: none; }
+      .sr-est, .sr-logo { animation: none; opacity: 1; transform: none; }
     }
   </style>
 </head>
@@ -1228,7 +1232,6 @@
     <div class="sr-est">Est. 1996 &mdash; Nashik</div>
     <img class="sr-logo" src="images/logo.svg" alt="" />
     <div class="sr-rule"></div>
-    <div class="sr-tag">Architecture &middot; Interiors &middot; Planning</div>
   </div>
 </div>
 
@@ -1268,7 +1271,7 @@
 <div class="project-modal" id="project-modal">
   <button class="project-modal-close" onclick="closeProjectModal()">✕</button>
   <div class="project-modal-inner">
-    <img class="project-modal-hero" id="modal-hero-img" src="" alt="The Dimensions project image" />
+    <img class="project-modal-hero" id="modal-hero-img" src="" alt="The Dimensions project image"  loading="lazy" decoding="async" />
     <div class="project-modal-cat" id="modal-cat"></div>
     <div class="project-modal-title" id="modal-title"></div>
     <div class="project-modal-location" id="modal-location"></div>
@@ -1298,7 +1301,7 @@
 <!-- Fullscreen Image Lightbox -->
 <div class="image-lightbox" id="image-lightbox" onclick="closeImageLightbox()">
   <button class="image-lightbox-close" type="button" onclick="closeImageLightbox()">×</button>
-  <img id="image-lightbox-img" src="" alt="The Dimensions project gallery image" onclick="event.stopPropagation()" />
+  <img id="image-lightbox-img" src="" alt="The Dimensions project gallery image" onclick="event.stopPropagation()"  loading="lazy" decoding="async" />
 </div>
 
 <!-- HOME PAGE -->
@@ -1561,7 +1564,7 @@
   <!-- Story Section -->
   <section class="section" style="background:#FFFFFF">
     <div class="about-story animate-on-scroll">
-      <img class="about-story-img" src="images/project4.jpg" alt="The Dimensions Office" />
+      <img class="about-story-img" src="images/project4.jpg" alt="The Dimensions Office"  loading="lazy" decoding="async" />
       <div class="about-story-text">
         <span class="section-subtitle" style="display:block;margin-bottom:12px;text-align:left">Who We Are</span>
         <h3>A Legacy of Design Excellence</h3>
@@ -1707,12 +1710,12 @@
             <li>Sustainable & Green Building Design</li>
           </ul>
         </div>
-        <img class="service-detail-img" src="images/project1.jpg" alt="Architecture" />
+        <img class="service-detail-img" src="images/project1.jpg" alt="Architecture"  loading="lazy" decoding="async" />
       </div>
 
       <!-- Interior Design -->
       <div class="service-detail-block reverse animate-on-scroll">
-        <img class="service-detail-img" src="images/services/interior-design-banner.webp" alt="Elegant luxury interior design living room by The Dimensions" />
+        <img class="service-detail-img" src="images/services/interior-design-banner.webp" alt="Elegant luxury interior design living room by The Dimensions"  loading="lazy" decoding="async" />
         <div>
           <div class="service-detail-num">02</div>
           <div class="service-detail-title">Interior Design</div>
@@ -1752,7 +1755,7 @@
             <li>Landscape Planning & Design</li>
           </ul>
         </div>
-        <img class="service-detail-img" src="images/projects/purohit-nagar/gallery-01.webp" alt="Purohit Nagar layout masterplan planning project by The Dimensions" />
+        <img class="service-detail-img" src="images/projects/purohit-nagar/gallery-01.webp" alt="Purohit Nagar layout masterplan planning project by The Dimensions"  loading="lazy" decoding="async" />
       </div>
     </div>
   </section>
@@ -2544,7 +2547,7 @@ function renderTeamGrid() {
     return `
     <div class="team-card animate-on-scroll${isSachin ? ' profile-link' : ''}" style="transition-delay:${i*0.15}s" ${isSachin ? 'role="button" tabindex="0" aria-label="View Sachin Bhattad profile"' : ''}>
       <div class="team-photo" style="${t.imageUrl ? 'overflow:hidden' : 'background:linear-gradient(135deg,#E8E4E0,#D4CFC9)'}">
-        ${t.imageUrl ? `<img src="${sT(t.imageUrl)}" alt="${sT(t.name)}" style="width:100%;height:100%;object-fit:cover"/>` : ''}
+        ${t.imageUrl ? `<img src="${sT(t.imageUrl)}" alt="${sT(t.name)}" style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" />` : ''}
       </div>
       <div class="team-name">${sT(t.name)}</div>
       <div class="team-role">${sT(t.role)}</div>
@@ -2573,7 +2576,7 @@ function renderPressGrid() {
     <div class="press-card animate-on-scroll" style="transition-delay:${i*0.12}s${p.url ? ';cursor:pointer' : ''}"
       ${p.url ? `data-url="${sT(p.url)}" role="link" tabindex="0"` : ''}>
       <div class="press-card-img" style="${p.imageUrl ? 'overflow:hidden;padding:0' : 'background:linear-gradient(135deg,#E8E4E0,#D4CFC9)'}">
-        ${p.imageUrl ? `<img src="${sT(p.imageUrl)}" alt="${sT(p.title)}" style="width:100%;height:100%;object-fit:cover"/>` : ''}
+        ${p.imageUrl ? `<img src="${sT(p.imageUrl)}" alt="${sT(p.title)}" style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" />` : ''}
       </div>
       <div class="press-card-body">
         <div class="press-card-source">${sT(p.source)}</div>
