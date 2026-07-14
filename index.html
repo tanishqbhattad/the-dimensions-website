@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Top Architects in Nashik | The Dimensions</title>
   <meta name="description" content="The Dimensions is a Nashik architecture firm led by Sachin Bhattad with 30+ years in residential, commercial, interiors, planning and building approvals." />
-  <meta name="keywords" content="top architects in Nashik, top architect Nashik, best architecture firms Nashik, best architects in Nashik, architects in Nashik, architect in Nashik, architecture Nashik, top 10 architects in Nashik, architects in Maharashtra, planner in Nashik, interior designer Nashik, residential architect Nashik, commercial architect Nashik, fastest building permissions in Nashik, fastest building approvals in Nashik, BPMS approvals Nashik, layout approvals Nashik, layout planning and design, plot feasibility Nashik, land feasibility Nashik, project feasibility Nashik, licensing architect Nashik, Sachin Bhattad architect" />
   <link rel="canonical" href="https://www.thedimensions.co/" />
   <meta property="og:title" content="Top Architects in Nashik | The Dimensions" />
   <meta property="og:description" content="Architecture, interior design, planning, BPMS approvals, and building permissions in Nashik by The Dimensions, led by Sachin Bhattad." />
@@ -88,14 +87,9 @@
     },
     "areaServed": ["Nashik", "Pune", "Mumbai", "Maharashtra", "India"],
     "sameAs": [
-      "https://maps.app.goo.gl/dsmJPx8KJoD8canu8",
-      "https://www.thedimensions.co/sachinbhattad/",
-      "https://www.thedimensions.co/architects-in-nashik/",
-      "https://www.thedimensions.co/architect-in-nashik/",
-      "https://www.thedimensions.co/planner-in-nashik/",
-      "https://www.thedimensions.co/building-permissions-in-nashik/",
-      "https://www.thedimensions.co/bpms-approvals-nashik/"
-    ],
+    "https://maps.app.goo.gl/dsmJPx8KJoD8canu8",
+    "https://www.instagram.com/dimensions.nsk/"
+  ],
     "knowsAbout": ["Architect in Nashik", "Architects in Maharashtra", "Interior Design", "Urban Planning", "Residential Architecture", "Commercial Architecture", "Planner in Nashik", "Fastest Building Permissions in Nashik", "Fastest Building Approvals in Nashik", "BPMS Approvals", "Layout Approvals", "Layout Planning and Design", "Plot Feasibility", "Land Feasibility", "Project Feasibility", "Licensing Architects"],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
@@ -248,8 +242,9 @@
     }
     .nav-inner { width: 100%; max-width: none; margin: 0; padding: 0 18px; display: flex; justify-content: space-between; align-items: center; }
     .nav-logo { cursor: pointer; }
-    .nav-logo img { height: 49px; transition: all 0.4s ease; }
-    .nav.scrolled .nav-logo img { height: 42px; }
+    .nav-logo img { height: 44px; max-width: min(62vw, 300px); width: auto; object-fit: contain; transition: all 0.4s ease; }
+    .nav.scrolled .nav-logo img { height: 38px; }
+    @media (max-width: 640px) { .nav-logo img { height: 32px; } .nav.scrolled .nav-logo img { height: 30px; } }
     .nav-links { display: flex; gap: 36px; align-items: center; }
     .nav-link {
       font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
@@ -1187,58 +1182,53 @@
       .service-detail-title { font-size: 28px; }
       .service-detail-num { font-size: 48px; }
     }
-    /* Opening Reveal */
+    /* ─── Opening Reveal: "The Threshold" ─── */
     .site-reveal {
-      position: fixed; inset: 0; z-index: 20000; background: #0A0A0A;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; transition: opacity 0.55s ease, visibility 0.55s ease;
+      position: fixed; inset: 0; z-index: 20000; background: #F4F1EB;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
     }
-    .site-reveal.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .site-reveal::before {
-      content: ''; position: absolute; inset: 0; opacity: 0.08;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.25) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.25) 1px, transparent 1px);
-      background-size: 54px 54px;
-      animation: revealGrid 1.5s ease forwards;
+    .site-reveal.is-hidden {
+      transform: translateY(-100%);
+      transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
     }
-    .site-reveal::after {
-      content: ''; position: absolute; width: min(72vw, 680px); height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(196,169,125,0.95), transparent);
-      transform: scaleX(0); animation: revealLine 1.15s ease 0.18s forwards;
-    }
-    .site-reveal-mark {
-      position: relative; z-index: 1; text-align: center;
-      animation: revealMark 1.2s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
-    }
-    .site-reveal-mark img { height: 58px; margin-bottom: 22px; }
-    .site-reveal-text {
+    .site-reveal.is-gone { display: none; }
+    .sr-inner { text-align: center; padding: 0 24px; }
+    .sr-est {
       font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 4px; color: rgba(255,255,255,0.58); text-transform: uppercase;
+      letter-spacing: 5px; color: #9A8777; text-transform: uppercase;
+      opacity: 0; animation: srFade 0.8s ease 0.15s forwards;
     }
-    @keyframes revealGrid {
-      from { transform: scale(1.06); opacity: 0; }
-      35% { opacity: 0.08; }
-      to { transform: scale(1); opacity: 0.035; }
+    .sr-logo {
+      display: block; height: clamp(30px, 7vw, 52px); width: auto; margin: 26px auto 0;
+      opacity: 0; transform: translateY(14px);
+      animation: srRise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
     }
-    @keyframes revealLine {
-      from { transform: scaleX(0); opacity: 0; }
-      45% { opacity: 1; }
-      to { transform: scaleX(1); opacity: 0.18; }
+    .sr-rule {
+      width: 0; height: 1px; background: #C9BBA8; margin: 30px auto 0;
+      animation: srRule 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.85s forwards;
     }
-    @keyframes revealMark {
-      from { opacity: 0; transform: translateY(18px); filter: blur(8px); }
-      70% { opacity: 1; filter: blur(0); }
-      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    .sr-tag {
+      font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 400;
+      font-style: italic; color: #6B6258; margin-top: 22px;
+      opacity: 0; animation: srFade 0.9s ease 1.15s forwards;
+    }
+    @keyframes srFade { to { opacity: 1; } }
+    @keyframes srRise { to { opacity: 1; transform: translateY(0); } }
+    @keyframes srRule { to { width: min(200px, 52vw); } }
+    @media (prefers-reduced-motion: reduce) {
+      .site-reveal { display: none; }
+      .sr-est, .sr-logo, .sr-tag { animation: none; opacity: 1; transform: none; }
     }
   </style>
 </head>
 <body>
 
 <div class="site-reveal" id="site-reveal" aria-hidden="true">
-  <div class="site-reveal-mark">
-    <img src="images/logo-white.svg" alt="The Dimensions architecture firm logo" />
-    <div class="site-reveal-text">Architecture & Interior Design</div>
+  <div class="sr-inner">
+    <div class="sr-est">Est. 1996 &mdash; Nashik</div>
+    <img class="sr-logo" src="images/logo.svg" alt="" />
+    <div class="sr-rule"></div>
+    <div class="sr-tag">Architecture &middot; Interiors &middot; Planning</div>
   </div>
 </div>
 
@@ -1340,7 +1330,7 @@
 
     <div class="hero-content" id="hero-content">
       <div class="hero-type" id="hero-type">Residential</div>
-      <h1 class="hero-seo-title">Top Architects in Nashik</h1>
+      <h1 class="hero-seo-title">Architects &amp; Interior Designers in Nashik</h1>
       <div class="hero-title" id="hero-title">Brickline Residences</div>
       <p class="hero-location" id="hero-location">Govind Nagar, Nashik</p>
     </div>
@@ -1380,19 +1370,19 @@
     <div class="stats-grid-bg"></div>
     <div class="stats-grid">
       <div class="animate-on-scroll" style="text-align:center">
-        <div class="stat-number" data-target="30" data-suffix="+">0+</div>
+        <div class="stat-number" data-target="30" data-suffix="+">30+</div>
         <div class="stat-label">Years of Excellence</div>
       </div>
       <div class="animate-on-scroll" style="text-align:center">
-        <div class="stat-number" data-target="100" data-suffix="+">0+</div>
+        <div class="stat-number" data-target="100" data-suffix="+">100+</div>
         <div class="stat-label">Projects Delivered</div>
       </div>
       <div class="animate-on-scroll" style="text-align:center">
-        <div class="stat-number" data-target="10" data-suffix="">0</div>
+        <div class="stat-number" data-target="10" data-suffix="">10</div>
         <div class="stat-label">Cities Across India</div>
       </div>
       <div class="animate-on-scroll" style="text-align:center">
-        <div class="stat-number" data-target="100" data-suffix="+">0+</div>
+        <div class="stat-number" data-target="100" data-suffix="+">100+</div>
         <div class="stat-label">Happy Clients</div>
       </div>
     </div>
@@ -2133,6 +2123,11 @@
       <div>
         <img class="footer-logo" src="images/logo-white.svg" alt="The Dimensions" />
         <p class="footer-desc">Where visionary design meets practical execution. Crafting timeless spaces since 1996.</p>
+        <div class="footer-social" style="margin-top:18px; display:flex; gap:16px;">
+          <a href="https://www.instagram.com/dimensions.nsk/" target="_blank" rel="noopener" aria-label="The Dimensions on Instagram" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">Instagram</a>
+          <a href="https://maps.app.goo.gl/dsmJPx8KJoD8canu8" target="_blank" rel="noopener" aria-label="The Dimensions on Google Maps" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">Google Maps</a>
+          <a href="https://wa.me/919890041283" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">WhatsApp</a>
+        </div>
       </div>
       <div>
         <h4 class="footer-heading">Navigate</h4>
@@ -2886,8 +2881,13 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('DOMContentLoaded', async () => {
   const reveal = document.getElementById('site-reveal');
   if (reveal) {
-    setTimeout(() => reveal.classList.add('is-hidden'), 1500);
-    setTimeout(() => reveal.remove(), 2100);
+    if (sessionStorage.getItem('td_seen') === '1') {
+      reveal.remove();
+    } else {
+      sessionStorage.setItem('td_seen', '1');
+      setTimeout(() => reveal.classList.add('is-hidden'), 2050);
+      setTimeout(() => reveal.remove(), 3000);
+    }
   }
 
   await fetchSiteData();
