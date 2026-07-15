@@ -1,8 +1,52 @@
+# The Dimensions — www.thedimensions.co
+# Search engines and AI assistants are welcome to crawl this site.
+
 User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /plots/*/admin/
 
-# Google, Bing, ChatGPT/OpenAI, Claude/Anthropic, Perplexity, and other AI/search crawlers are allowed.
+# AI / LLM crawlers — explicitly allowed
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+# Machine-readable firm summary for AI assistants:
+# https://www.thedimensions.co/llms.txt
 
 Sitemap: https://www.thedimensions.co/sitemap.xml
