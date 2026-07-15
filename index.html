@@ -17,8 +17,9 @@
   <meta name="twitter:title" content="Top Architects in Nashik | The Dimensions" />
   <meta name="twitter:description" content="Architecture, interior design, planning, BPMS approvals, and building permissions in Nashik by The Dimensions." />
   <meta name="twitter:image" content="https://www.thedimensions.co/images/profile-black-logo.jpg" />
-  <link rel="icon" type="image/jpeg" sizes="512x512" href="images/profile-black-logo.jpg" />
-  <link rel="apple-touch-icon" href="images/profile-black-logo.jpg" />
+  <link rel="icon" type="image/png" sizes="48x48" href="images/favicon-48.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="images/favicon-512.png" />
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- SEO: Structured Data for Principal Architect -->
@@ -88,7 +89,9 @@
     "areaServed": ["Nashik", "Pune", "Mumbai", "Maharashtra", "India"],
     "sameAs": [
     "https://maps.app.goo.gl/dsmJPx8KJoD8canu8",
-    "https://www.instagram.com/dimensions.nsk/"
+    "https://share.google/2ZVOYcTwaPMTTW2B9",
+    "https://www.instagram.com/thedimensions.nsk/",
+    "https://www.linkedin.com/company/the-dimensions/"
   ],
     "knowsAbout": ["Architect in Nashik", "Architects in Maharashtra", "Interior Design", "Urban Planning", "Residential Architecture", "Commercial Architecture", "Planner in Nashik", "Fastest Building Permissions in Nashik", "Fastest Building Approvals in Nashik", "BPMS Approvals", "Layout Approvals", "Layout Planning and Design", "Plot Feasibility", "Land Feasibility", "Project Feasibility", "Licensing Architects"],
     "hasOfferCatalog": {
@@ -242,11 +245,12 @@
     }
     .nav-inner { width: 100%; max-width: none; margin: 0; padding: 0 18px; display: flex; justify-content: space-between; align-items: center; }
     .nav-logo { cursor: pointer; }
-    .nav-logo img { height: 44px; max-width: min(62vw, 300px); width: auto; object-fit: contain; transition: all 0.4s ease; }
-    .nav.scrolled .nav-logo img { height: 38px; }
-    @media (max-width: 640px) { .nav-logo img { height: 32px; } .nav.scrolled .nav-logo img { height: 30px; } }
+    .nav-logo { display: flex; align-items: center; }
+    .nav-logo img { height: 26px; max-width: min(64vw, 260px); width: auto; object-fit: contain; transition: all 0.4s ease; display: block; }
+    .nav.scrolled .nav-logo img { height: 22px; }
+    @media (max-width: 640px) { .nav-inner { padding: 0 16px; min-height: 60px; } .nav-logo img { height: 19px; } .nav.scrolled .nav-logo img { height: 18px; } .hamburger { display: flex; flex-direction: column; justify-content: center; } }
     .nav-links { display: flex; gap: 36px; align-items: center; }
-    .nav-link {
+    .nav-link { text-decoration: none; display: inline-block;
       font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
       letter-spacing: 2.5px; text-transform: uppercase; cursor: pointer;
       transition: color 0.3s; position: relative; padding-bottom: 4px; border: none; background: none;
@@ -257,15 +261,15 @@
     .nav-link.disabled { opacity: 0.5; cursor: default; }
 
     /* Nav transparent state */
-    .nav:not(.scrolled) .nav-link { color: rgba(255,255,255,0.7); }
+    .nav:not(.scrolled) .nav-link { text-decoration: none; display: inline-block; color: rgba(255,255,255,0.7); }
     .nav:not(.scrolled) .nav-link.active { color: #FFFFFF; }
     .nav:not(.scrolled) .nav-link.active::after { background: #FFFFFF; }
-    .nav.scrolled .nav-link { color: rgba(26,26,26,0.74); }
+    .nav.scrolled .nav-link { text-decoration: none; display: inline-block; color: rgba(26,26,26,0.74); }
     .nav.scrolled .nav-link.active { color: #9A8777; }
     .nav.scrolled .nav-link.active::after { background: #9A8777; }
 
     /* ─── Hero ─── */
-    .hero { position: relative; width: 100%; height: 100vh; height: 100svh; overflow: hidden; background: #1A1A1A; }
+    .hero { position: relative; width: 100%; height: 100vh; height: 100dvh; min-height: 100svh; overflow: hidden; background: #1A1A1A; }
     .hero-slide {
       position: absolute; inset: 0; opacity: 0;
       transition: opacity 1.2s cubic-bezier(0.45, 0, 0.15, 1);
@@ -281,9 +285,8 @@
     }
     .hero-content { position: absolute; bottom: 120px; left: 60px; z-index: 10; }
     .hero-seo-title {
-      font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600;
-      letter-spacing: 4px; color: #C4A97D; text-transform: uppercase;
-      margin-bottom: 12px;
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
     }
     .hero-type {
       font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 500;
@@ -880,7 +883,7 @@
       transition: transform 0.3s, box-shadow 0.3s;
     }
     .ai-chat-trigger:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(154,135,119,0.5); }
-    .ai-chat-panel {
+    .ai-chat-panel { overflow: hidden;
       position: fixed; bottom: 96px; right: 28px; z-index: 9000;
       width: 380px; max-height: 520px; background: #111;
       border: 1px solid rgba(154,135,119,0.2); border-radius: 16px;
@@ -927,7 +930,7 @@
     @keyframes aiPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
     
     @media (max-width: 768px) {
-      .ai-chat-panel { width: calc(100vw - 32px); right: 16px; bottom: 88px; max-height: 70vh; }
+      .ai-chat-panel { overflow: hidden; width: calc(100vw - 32px); right: 16px; bottom: 88px; max-height: 70vh; }
       .ai-chat-trigger { bottom: 20px; right: 20px; width: 50px; height: 50px; }
     }
 
@@ -946,7 +949,7 @@
     }
     .mobile-overlay.open { display: flex; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .mobile-overlay .nav-link {
+    .mobile-overlay .nav-link { text-decoration: none; display: inline-block;
       font-size: 16px; letter-spacing: 3px; padding: 14px 0; min-height: 44px;
       color: #1A1A1A; opacity: 1;
     }
@@ -1172,7 +1175,6 @@
     }
 
     @media (max-width: 480px) {
-      .hero { height: 92svh; }
       .section { padding: 48px 18px; }
       .section-intro { padding: 64px 18px; }
       .hero-content { left: 20px; right: 20px; bottom: 92px; }
@@ -1224,6 +1226,18 @@
       .sr-est, .sr-logo { animation: none; opacity: 1; transform: none; }
     }
   </style>
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [
+      {"@type": "SiteNavigationElement", "position": 1, "name": "Projects", "url": "https://www.thedimensions.co/#projects"},
+      {"@type": "SiteNavigationElement", "position": 2, "name": "About Us", "url": "https://www.thedimensions.co/#about"},
+      {"@type": "SiteNavigationElement", "position": 3, "name": "Services", "url": "https://www.thedimensions.co/#services"},
+      {"@type": "SiteNavigationElement", "position": 4, "name": "Contact", "url": "https://www.thedimensions.co/#contact"}
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -1239,15 +1253,15 @@
 <nav class="nav" id="navbar">
   <div class="nav-inner">
     <div class="nav-logo" onclick="navigateTo('home')">
-      <img id="nav-logo-img" src="images/logo-white.svg" alt="The Dimensions" />
+      <img id="nav-logo-img" src="images/logo-mark-white.svg" alt="The Dimensions" />
     </div>
     <div class="nav-links">
-      <button class="nav-link active" data-page="home" onclick="navigateTo('home')">Home</button>
-      <button class="nav-link" data-page="projects" onclick="navigateTo('projects')">Projects</button>
-      <button class="nav-link" data-page="about" onclick="navigateTo('about')">About Us</button>
-      <button class="nav-link" data-page="services" onclick="navigateTo('services')">Services</button>
-      <button class="nav-link" data-page="press" onclick="navigateTo('press')">Press</button>
-      <button class="nav-link" data-page="contact" onclick="navigateTo('contact')">Contact</button>
+      <a class="nav-link active" data-page="home" href="#home">Home</a>
+      <a class="nav-link" data-page="projects" href="#projects">Projects</a>
+      <a class="nav-link" data-page="about" href="#about">About Us</a>
+      <a class="nav-link" data-page="services" href="#services">Services</a>
+      <a class="nav-link" data-page="press" href="#press">Press</a>
+      <a class="nav-link" data-page="contact" href="#contact">Contact</a>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()">
       <span id="ham1" style="background:#FFFFFF"></span>
@@ -1259,12 +1273,12 @@
 
 <!-- Mobile Menu Overlay -->
 <div class="mobile-overlay" id="mobile-overlay">
-  <button class="nav-link" data-page="home" onclick="navigateTo('home');toggleMenu()">Home</button>
-  <button class="nav-link" data-page="projects" onclick="navigateTo('projects');toggleMenu()">Projects</button>
-  <button class="nav-link" data-page="about" onclick="navigateTo('about');toggleMenu()">About Us</button>
-  <button class="nav-link" data-page="services" onclick="navigateTo('services');toggleMenu()">Services</button>
-  <button class="nav-link" data-page="press" onclick="navigateTo('press');toggleMenu()">Press</button>
-  <button class="nav-link" data-page="contact" onclick="navigateTo('contact');toggleMenu()">Contact</button>
+  <a class="nav-link" data-page="home" href="#home" onclick="toggleMenu()">Home</a>
+  <a class="nav-link" data-page="projects" href="#projects" onclick="toggleMenu()">Projects</a>
+  <a class="nav-link" data-page="about" href="#about" onclick="toggleMenu()">About Us</a>
+  <a class="nav-link" data-page="services" href="#services" onclick="toggleMenu()">Services</a>
+  <a class="nav-link" data-page="press" href="#press" onclick="toggleMenu()">Press</a>
+  <a class="nav-link" data-page="contact" href="#contact" onclick="toggleMenu()">Contact</a>
 </div>
 
 <!-- Project Detail Modal -->
@@ -2127,8 +2141,10 @@
         <img class="footer-logo" src="images/logo-white.svg" alt="The Dimensions" />
         <p class="footer-desc">Where visionary design meets practical execution. Crafting timeless spaces since 1996.</p>
         <div class="footer-social" style="margin-top:18px; display:flex; gap:16px;">
-          <a href="https://www.instagram.com/dimensions.nsk/" target="_blank" rel="noopener" aria-label="The Dimensions on Instagram" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">Instagram</a>
+          <a href="https://www.instagram.com/thedimensions.nsk/" target="_blank" rel="noopener" aria-label="The Dimensions on Instagram" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">Instagram</a>
           <a href="https://maps.app.goo.gl/dsmJPx8KJoD8canu8" target="_blank" rel="noopener" aria-label="The Dimensions on Google Maps" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">Google Maps</a>
+          <a href="https://www.linkedin.com/company/the-dimensions/" target="_blank" rel="noopener" aria-label="The Dimensions on LinkedIn" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">LinkedIn</a>
+          <a href="https://share.google/2ZVOYcTwaPMTTW2B9" target="_blank" rel="noopener" aria-label="The Dimensions on Google" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">Reviews</a>
           <a href="https://wa.me/919890041283" target="_blank" rel="noopener" aria-label="Chat on WhatsApp" style="color:#9A8777; font-family:'Montserrat',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">WhatsApp</a>
         </div>
       </div>
@@ -2176,8 +2192,8 @@
 </footer>
 
 <script>
-const LOGO_WHITE = 'images/logo-white.svg';
-const LOGO_DARK = 'images/logo.svg';
+const LOGO_WHITE = 'images/logo-mark-white.svg';
+const LOGO_DARK = 'images/logo-mark.svg';
 
 // ─── Site Data (fetched from site-data.json, published via admin panel) ───────
 let _sd = {
@@ -2924,7 +2940,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 <div class="td-cursor-dot" id="cursor-dot"></div>
 <div class="td-cursor-ring" id="cursor-ring"></div>
 
-<!-- AI Design Consultant Chat -->
+<!-- Contact Popup -->
 <button class="ai-chat-trigger" id="ai-chat-trigger" onclick="toggleAIChat()">
   <svg id="ai-chat-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
     <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
@@ -2936,27 +2952,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   <div class="ai-chat-header">
     <div class="ai-chat-avatar">TD</div>
     <div style="flex:1">
-      <div style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:500;color:#fff;letter-spacing:1px">AI Design Consultant</div>
-      <div style="font-family:'Montserrat',sans-serif;font-size:10px;color:#9A8777;letter-spacing:1px;display:flex;align-items:center;gap:4px">
-        <span style="width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block"></span>
-        Online — Powered by AI
-      </div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:500;color:#fff;letter-spacing:1px">The Dimensions</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:10px;color:#9A8777;letter-spacing:1px">Mon&ndash;Sat, 10 AM &ndash; 7 PM</div>
     </div>
+  </div>
+  <div style="padding:22px 20px; display:flex; flex-direction:column; gap:12px; background:#141414;">
     <a href="https://wa.me/919890041283?text=Hello%2C%20I%27m%20interested%20in%20your%20architecture%20services." target="_blank" rel="noopener"
-       style="width:36px;height:36px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;transition:transform 0.3s;text-decoration:none"
-       onmouseenter="this.style.transform='scale(1.15)'" onmouseleave="this.style.transform='scale(1)'"
-       title="Chat on WhatsApp instead">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+       style="display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;background:#25D366;color:#fff;text-decoration:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;border-radius:4px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFFFFF"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp Us
     </a>
-  </div>
-  <div class="ai-chat-messages" id="ai-chat-messages">
-    <div class="ai-msg assistant">Hello! I'm The Dimensions AI Design Consultant. Tell me about your dream project — what kind of space are you envisioning? I can help with initial ideas, style recommendations, and connect you with our team.<br><br>💬 Prefer WhatsApp? Tap the green icon above to chat with us directly.</div>
-  </div>
-  <div class="ai-chat-input-row">
-    <input class="ai-chat-input" id="ai-chat-input" placeholder="Describe your dream space..." onkeydown="if(event.key==='Enter')sendAIChat()" />
-    <button class="ai-chat-send" onclick="sendAIChat()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-    </button>
+    <a href="tel:+919890041283"
+       style="display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;background:transparent;border:1px solid rgba(255,255,255,0.35);color:#fff;text-decoration:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;border-radius:4px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      Call +91 98900 41283
+    </a>
   </div>
 </div>
 
@@ -3025,7 +3035,7 @@ function initTiltCards() {
 }
 setTimeout(initTiltCards, 500);
 
-// ─── AI Design Consultant ────────────────────────────────────────────────────
+// ─── Contact Popup ───────────────────────────────────────────────────────────
 let aiChatOpen = false;
 const aiChatHistory = [];
 
@@ -3035,7 +3045,7 @@ function toggleAIChat() {
   const icon = document.getElementById('ai-chat-icon');
   const trigger = document.getElementById('ai-chat-trigger');
   if (aiChatOpen) {
-    panel.style.display = 'flex';
+    panel.style.display = 'block';
     trigger.style.transform = 'rotate(45deg)';
     icon.innerHTML = '<path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="1.5" fill="none"/>';
   } else {
@@ -3043,35 +3053,8 @@ function toggleAIChat() {
     trigger.style.transform = '';
     icon.innerHTML = '<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" fill="none" stroke="white" stroke-width="1.5"/><circle cx="8" cy="10" r="0.5" fill="white"/><circle cx="12" cy="10" r="0.5" fill="white"/><circle cx="16" cy="10" r="0.5" fill="white"/>';
   }
-  initCursorHovers();
 }
 
-function sendAIChat() {
-  const input = document.getElementById('ai-chat-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-
-  const messagesEl = document.getElementById('ai-chat-messages');
-  messagesEl.innerHTML += `<div class="ai-msg user">${escapeHtml(msg)}</div>`;
-
-  // Show typing indicator briefly
-  const typingId = 'typing-' + Date.now();
-  messagesEl.innerHTML += `<div class="ai-msg assistant" id="${typingId}" style="display:flex;gap:4px;padding:16px 20px">
-    <span style="width:6px;height:6px;border-radius:50%;background:#9A8777;animation:aiPulse 1.2s ease infinite 0s"></span>
-    <span style="width:6px;height:6px;border-radius:50%;background:#9A8777;animation:aiPulse 1.2s ease infinite 0.2s"></span>
-    <span style="width:6px;height:6px;border-radius:50%;background:#9A8777;animation:aiPulse 1.2s ease infinite 0.4s"></span>
-  </div>`;
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-
-  setTimeout(() => {
-    const el = document.getElementById(typingId);
-    if (el) el.remove();
-    const reply = "Thank you for reaching out! Our team would love to discuss your vision in detail. Please contact us directly at <strong style='color:#C4A97D'>+91 253 258 1707</strong> or <strong style='color:#C4A97D'>+91 9890041283</strong>, email <strong style='color:#C4A97D'>projects@thedimensions.co</strong>, or use the WhatsApp button above for a quick chat. We look forward to hearing from you!";
-    messagesEl.innerHTML += `<div class="ai-msg assistant">${reply}</div>`;
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }, 1200);
-}
 
 function escapeHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
