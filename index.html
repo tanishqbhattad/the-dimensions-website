@@ -671,6 +671,9 @@
       content: 'View Profile'; display: block; margin-top: 8px;
       font-size: 9px; letter-spacing: 2px; color: #999;
     }
+    .team-photo, .profile-hero-photo {
+      -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none;
+    }
     .team-photo {
       width: 100%; aspect-ratio: 3/4; object-fit: cover; margin-bottom: 20px;
       background: #E8E4E0; filter: grayscale(20%);
@@ -1976,12 +1979,9 @@
   <!-- Profile Hero -->
   <div class="profile-hero">
     <div class="profile-hero-grid">
-      <div class="profile-hero-photo">
-        <!-- Replace with actual photo -->
-        <div style="width:100%;height:100%;background:linear-gradient(135deg,#2a2520,#1a1714);display:flex;align-items:center;justify-content:center">
-          <span style="font-family:'Cormorant Garamond',serif;font-size:120px;font-weight:300;color:rgba(154,135,119,0.1)">SB</span>
-        </div>
-      </div>
+      <div class="profile-hero-photo" role="img" aria-label="Sachin Bhattad, Principal Architect"
+           style="background-image:url('images/team/sachin-bhattad.webp');background-size:cover;background-position:center top;"
+           oncontextmenu="return false"></div>
       <div class="profile-hero-info">
         <div class="profile-breadcrumb">
           <a href="#" onclick="navigateTo('home');return false">Home</a> &nbsp;/&nbsp;
@@ -2393,7 +2393,7 @@ let _sd = {
       "id": 1,
       "name": "Sachin Bhattad",
       "role": "Principal Architect & Founder",
-      "imageUrl": "",
+      "imageUrl": "images/team/sachin-bhattad.webp",
       "bio": "Leads concept, planning, and design direction across architecture and interiors."
     },
     {
@@ -2569,9 +2569,7 @@ function renderTeamGrid() {
     const isSachin = (t.name || '').toLowerCase().includes('sachin bhattad');
     return `
     <div class="team-card animate-on-scroll${isSachin ? ' profile-link' : ''}" style="transition-delay:${i*0.15}s" ${isSachin ? 'role="button" tabindex="0" aria-label="View Sachin Bhattad profile"' : ''}>
-      <div class="team-photo" style="${t.imageUrl ? 'overflow:hidden' : 'background:linear-gradient(135deg,#E8E4E0,#D4CFC9)'}">
-        ${t.imageUrl ? `<img src="${sT(t.imageUrl)}" alt="${sT(t.name)}" style="width:100%;height:100%;object-fit:cover" loading="lazy" decoding="async" />` : ''}
-      </div>
+      <div class="team-photo" role="img" aria-label="${sT(t.name)}" oncontextmenu="return false" style="${t.imageUrl ? `background-image:url('${sT(t.imageUrl)}');background-size:cover;background-position:center top;` : 'background:linear-gradient(135deg,#E8E4E0,#D4CFC9)'}"></div>
       <div class="team-name">${sT(t.name)}</div>
       <div class="team-role">${sT(t.role)}</div>
     </div>`;
